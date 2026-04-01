@@ -45,7 +45,7 @@ $(function(){
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
 
-    <div class="modal-body" style="padding: 20px 24px;">
+    <div class="modal-body" style="padding: 20px 24px; overflow-y: auto; max-height: 65vh;">
         <h4 class="fw-bold text-dark mb-3 mt-2">${vo.title}</h4>
         
         <div class="text-secondary mb-3 d-flex align-items-center" style="font-size: 0.9rem;">
@@ -56,9 +56,8 @@ $(function(){
         
         <hr class="text-muted opacity-25 mb-4">
 
-        <div class="content-area text-dark" style="white-space: pre-wrap; line-height: 1.7; font-size: 1rem;">
-${vo.content}
-        </div>
+        <div class="content-area text-dark" style="white-space: pre-wrap; line-height: 1.7;
+        		 font-size: 1rem;">${vo.content}</div>
 
         <c:if test="${!empty vo.fileName}">
             <div class="text-center mt-4 mb-2">
@@ -67,9 +66,10 @@ ${vo.content}
         </c:if>
         
         <div class="text-end mt-4">
-            <%-- 관리자 권한 체크 조건문이 있다면 여기에 감싸주세요 --%>
-            <a href="updateForm.do?no=${vo.no}&page=${param.page}&perPageNum=${param.perPageNum}&key=${param.key}" class="btn btn-sm btn-outline-secondary">수정</a>
-            <a href="#" id="deleteBtnModal" data-no="${vo.no}" class="btn btn-sm btn-outline-danger">삭제</a>
+            <c:if test="${!empty login && login.gradeNo == 9}">
+	            <a href="updateForm.do?no=${vo.no}&page=${param.page}&perPageNum=${param.perPageNum}&key=${param.key}" class="btn btn-sm btn-outline-secondary">수정</a>
+	            <a href="#" id="deleteBtnModal" data-no="${vo.no}" class="btn btn-sm btn-outline-danger">삭제</a>
+            </c:if>
         </div>
     </div>
 

@@ -55,16 +55,12 @@
   
 <!-- 동작을 시키는 j5 : 위치와 상관없이 코딩할 수 있다. -->
 <script type="text/javascript">
-// jQuery :: 아래 HTML 로딩이 끝나면 실행해줘 - $() 사이에 실행할 function을 넘긴다. body가 다 로딩이 되면 function이 실행됨
 $(function(){
-	//alert("jQuery 영역이 실행됐다~~");  // 자바 스크립트의 팝업 열기
 	// 카드 클릭 시 모달 띄우기
 	$(".dataRow").click(function(){
 		let no = $(this).data("no");
 		
-		// 기존 페이지 이동 방식 대신 AJAX Load 방식 사용
 		// view.do를 호출하되, 결과 HTML 중 id가 'modalInner'인 부분만 잘라서 가져옵니다.
-		// (SiteMesh 등 데코레이터가 적용되어 쓸데없는 헤더/푸터가 딸려오는 것을 방지)
 		let url = "view.do?no=" + no + "&inc=1&page=${pageObject.page}&perPageNum=${pageObject.perPageNum}&key=${pageObject.key} #modalInner";
 		
 		// 모달 바디 영역에 데이터를 로드한 후 모달 창을 엽니다.
@@ -72,24 +68,21 @@ $(function(){
 			$("#noticeModal").modal("show");
 		});
 	});
-	}).mouseover(function(){
-		$(this).addClass("table-success");
-	}).mouseout(function(){
-		$(this).removeClass("table-success");
-	});
+
 	// 카테고리 버튼 클릭
     $("#key button").click(function(e){
         e.preventDefault();  // 폼 기본 제출 방지
         let key = $(this).val();  // 버튼의 value 값 수집
         location = "list.do?key=" + key + "&perPageNum=${pageObject.perPageNum}";
     });
+
  	// 현재 key와 버튼 value가 같으면 활성화
     $("#key button").each(function(){
         if($(this).val() == "${pageObject.key}"){
             $(this).removeClass("btn-outline-success").addClass("btn-success");
         }
     });
-})
+});
 </script>
 </head>
 <body>
@@ -134,9 +127,9 @@ $(function(){
   <div>
   	<pageNav:pageNav listURI="list.do" pageObject="${pageObject}"/>
   </div>
-  <%-- <c:if test="${!empty login && login.gradeNo == 9}"> --%>
+  <c:if test="${!empty login && login.gradeNo == 9}">
 	<a href="writeForm.do?perPageNum=${pageObject.perPageNum}" class="btn btn-primary">공지 등록</a>
-  <%-- </c:if> --%>
+  </c:if>
 
 <%-- JSP의 주석 : 표현식으로 가져온 데이터 출력 --%>
 <%--= list --%>
