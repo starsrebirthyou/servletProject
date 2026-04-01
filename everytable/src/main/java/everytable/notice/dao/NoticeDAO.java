@@ -26,16 +26,16 @@ public class NoticeDAO extends DAO {
 		// 3. 실행할 쿼리 작성
 		// 3-1. 원본 데이터 정렬해서 가져오기
 		String sql = "select n.no, n.title, to_char(n.write_date, 'yyyy-mm-dd') write_date, n.cate_no,"
-				+ " to_char(n.update_date, 'yyyy-mm-dd') update_date, c.cate_name "
-				+ " from notice n, notice_cate c where (n.cate_no = c.cate_no) ";
+		        + " to_char(n.update_date, 'yyyy-mm-dd') update_date, c.cate_name, n.hit "
+		        + " from notice n, notice_cate c where (n.cate_no = c.cate_no) ";
 		// 검색 처리를 한다. -> getTotalRow()의 검색처리와 같다. -> 반복된다. 메서드를 만든다.
 		sql += category(pageObejct);
 		sql += " order by n.no desc";
 		// 3-2. 순서 번호를 붙인다.
-		sql = "select rownum rnum, no, title, write_date, update_date, cate_no, cate_name "
+		sql = "select rownum rnum, no, title, write_date, update_date, cate_no, cate_name, hit "
 			+ " from(" + sql + ")";
 		// 3-3. page에 맞는 데이터만 가져온다.
-		sql = "select rnum, no, title, write_date, update_date, cate_no, cate_name "
+		sql = "select rnum, no, title, write_date, update_date, cate_no, cate_name, hit "
 			+ " from(" + sql + ") where rnum between ? and ? ";
 		
 		// 4. 준비된 실행 객체
@@ -59,6 +59,7 @@ public class NoticeDAO extends DAO {
 				vo.setUpdateDate(rs.getString("update_date"));
 				vo.setCateNo(rs.getLong("cate_no"));
 				vo.setCateName(rs.getString("cate_name"));
+				vo.setHit(rs.getLong("hit"));
 				// list에 담는다
 				list.add(vo);
 			}  // while문 끝
@@ -135,8 +136,9 @@ public class NoticeDAO extends DAO {
 		// 1. 2. DB 연결
 		con = DB.getConnection();
 		// 3. sql 작성
-		String sql = "select no, title, content, image, write_date, update_date, n.cate_no, c.cate_name "
-				+ " from notice n, notice_cate c where no = ? and n.cate_no = c.cate_no";
+		String sql = "select no, title, content, image, write_date, update_date, "
+				+ " n.cate_no, c.cate_name, n.hit "
+		        + " from notice n, notice_cate c where no = ? and n.cate_no = c.cate_no";
 		// 4. 실행 객체 & 데이터 세팅
 		pstmt = con.prepareStatement(sql);
 		pstmt.setLong(1, no);
@@ -153,12 +155,27 @@ public class NoticeDAO extends DAO {
 			vo.setCateName(rs.getString("cate_name"));
 			vo.setWriteDate(rs.getString("write_date"));
 			vo.setUpdateDate(rs.getString("update_date"));
+			vo.setHit(rs.getLong("hit"));
 		}  // if 끝
 		// 7. 닫기
 		DB.close(con, pstmt, rs);
 		
 		return vo;
 	}
+	
+	
+	// 2-1. 조회수 증가
+	public Integer increase(Long no) throws Exception {
+	    Integer result = 0;
+	    con = DB.getConnection();
+	    String sql = "UPDATE notice SET hit = hit + 1 WHERE no = ?";
+	    pstmt = con.prepareStatement(sql);
+	    pstmt.setLong(1, no);
+	    result = pstmt.executeUpdate();
+	    DB.close(con, pstmt);
+	    return result;
+	}
+	
 	
 	// 3. 공지 등록 처리
 	public Integer write(NoticeVO vo) throws Exception {

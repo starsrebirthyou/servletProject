@@ -14,6 +14,7 @@
 <script type="text/javascript">
 // jQuery :: 아래 HTML 로딩이 끝나면 실행해줘 - $() 사이에 실행할 function을 넘긴다. body가 다 로딩이 되면 function이 실행됨
 $(function(){
+	
 	$("#deleteBtn").click(function(){
 		if (confirm("삭제하면 복구할 수 없습니다. 삭제하시겠습니까?")) {
 			location="delete.do?no=${param.no}&page=${param.page}&perPageNum=${param.perPageNum}";
@@ -67,6 +68,10 @@ $(function(){
 					<td>${vo.updateDate}</td>
 				</tr>
 			</c:if>
+			<tr>
+			    <th>조회수</th>
+			    <td>${vo.hit}</td>
+			</tr>
 		</tbody>
 	</table>
 	<%-- <c:if test="${!empty login && login.gradeNo == 9}"> --%>

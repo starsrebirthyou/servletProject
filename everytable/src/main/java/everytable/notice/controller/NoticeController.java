@@ -67,6 +67,12 @@ public class NoticeController implements Controller {
 				// 데이터 수집 - 번호
 				no = Long.parseLong(request.getParameter("no"));
 				
+				// 조회수 증가 처리
+				String inc = request.getParameter("inc");
+			    if (inc != null && inc.equals("1")) {
+			        Execute.execute(Init.getService("/notice/increaseHit.do"), no);
+			    }
+				
 				// DB 데이터 가져오기. request에 저장
 				request.setAttribute("vo", Execute.execute(Init.getService(uri), no));
 				
