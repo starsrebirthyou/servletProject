@@ -65,12 +65,10 @@
         </table>
         
         <div class="mt-3">
-            <%-- 목록으로 돌아갈 때 원래 보던 페이지 정보를 파라미터로 넘깁니다 --%>
             <a href="list.do?page=${pageObject.page}&perPageNum=${pageObject.perPageNum}&key=${pageObject.key}&word=${pageObject.word}" 
                class="btn btn-warning">리스트</a>
           	
             <a href="updateForm.do?no=${vo.order_id}" class="btn btn-primary">수정</a> 
-            <%-- 결제는 함부로 수정/삭제하면 안 되니까 버튼은 일단 목록 버튼 위주로! --%>
             <button type="button" class="btn btn-danger" onclick="alert('결제 취소는 관리자에게 문의하세요.')">결제 취소 요청</button>
         
         

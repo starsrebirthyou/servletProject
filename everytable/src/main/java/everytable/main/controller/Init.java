@@ -23,6 +23,7 @@ import everytable.notice.service.NoticeViewService;
 import everytable.notice.service.NoticeWriteService;
 import everytable.payment.controller.PaymentController;
 import everytable.payment.dao.PaymentDAO;
+import everytable.payment.service.PaymentCancelService;
 import everytable.payment.service.PaymentListService;
 import everytable.payment.service.PaymentUpdateService;
 import everytable.payment.service.PaymentViewService;
@@ -158,6 +159,7 @@ public class Init extends HttpServlet {
 		serviceMap.put("/payment/view.do", new PaymentViewService());
 		serviceMap.put("/payment/write.do", new PaymentWriteService());
 		serviceMap.put("/payment/update.do", new PaymentUpdateService());
+		serviceMap.put("/payment/cancel.do", new PaymentCancelService());
 		// DAO
 		daoMap.put("paymentDAO", new PaymentDAO());
 		// service에 dao 조립
@@ -165,6 +167,7 @@ public class Init extends HttpServlet {
 		serviceMap.get("/payment/view.do").setDAO(daoMap.get("paymentDAO"));
 		serviceMap.get("/payment/write.do").setDAO(daoMap.get("paymentDAO"));
 		serviceMap.get("/payment/update.do").setDAO(daoMap.get("paymentDAO"));
+		serviceMap.get("/payment/cancel.do").setDAO(daoMap.get("paymentDAO"));
 		
 		
 		// *** 통계(Stats) 생성/저장/조립 추가

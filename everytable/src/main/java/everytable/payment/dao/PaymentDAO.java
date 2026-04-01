@@ -142,6 +142,18 @@ public class PaymentDAO extends DAO {
         DB.close(con, pstmt);
         return result;
     }
+    public int cancel(Long no) throws Exception {
+    	int result=0;
+    	con= DB.getConnection();
+		String sql = "update payment set status = 'CANCEL', update_date = sysdate "
+	               + " where order_id = ? ";
+		pstmt = con.prepareStatement(sql);
+		pstmt.setLong(1, no);
+		result=pstmt.executeUpdate();
+		DB.close(con, pstmt);
+		
+		return result;
+    }
     
 	public Integer update(PaymentVO vo) throws Exception {
 		Integer result = 0;
