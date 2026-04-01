@@ -4,7 +4,7 @@ import everytable.main.dao.DAO;
 import everytable.main.service.Service;
 import everytable.notice.dao.NoticeDAO;
 
-public class NoticeHitService implements Service {
+public class NoticeIncreaseHitService implements Service {
 	
 	private NoticeDAO dao = null;
 

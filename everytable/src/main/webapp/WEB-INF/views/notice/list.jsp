@@ -58,21 +58,20 @@
 // jQuery :: 아래 HTML 로딩이 끝나면 실행해줘 - $() 사이에 실행할 function을 넘긴다. body가 다 로딩이 되면 function이 실행됨
 $(function(){
 	//alert("jQuery 영역이 실행됐다~~");  // 자바 스크립트의 팝업 열기
-	$(".dataRow").click(function(){  // jQuery입니다. 클래스가 dataRow인 것을 찾아서 클릭을 하면 전달된 함수를 실행한다.
-		//alert("데이터 클릭 - 글 보기 이동 준비 중...");
-		// 글 번호 수집
-		// text() - 글자만 가져온다. html() -  tag도 가져온다. :: jQuery
-		// js의 변수는 타입이 없다. - 변수 = 10 - 선언 없이 바로 사용 가능. var로 변수 선언. - let으로 변수 선언. - 지역변수 구분 확인
-		// 글 번호가 눈으로 보이는 경우 태그에 no 클래스 속성 지정해서 찾는다.
-		// let no = $(this).find(".no").text();  // js = jQuery
-		// 글 번호가 눈으로 안 보이는 경우 태그 안에 data-항목이름="값" 형식으로 숨겨 놓는다.
-		let no = $(this).data("no");  // js = jQuery
-		// alert("클릭한 글 번호 : " + no);  // js
-		// 페이지 이동 시키기 - 브라우저 객체 중 location 객체가 있다. 보여지는 페이지들의 정보를 가지고 있는 객체
-		// location 객체 - BOM 객체 중 하나
-		// location.href = "view.jsp?no=" + no;  // location = "url" == location.href = "url"
-		// location = "url" : 자동으로 location.href에 들어간다
-		location = "view.do?no=" + no + "&${pageObject.pageQuery}&period=${pageObject.period}";
+	// 카드 클릭 시 모달 띄우기
+	$(".dataRow").click(function(){
+		let no = $(this).data("no");
+		
+		// 기존 페이지 이동 방식 대신 AJAX Load 방식 사용
+		// view.do를 호출하되, 결과 HTML 중 id가 'modalInner'인 부분만 잘라서 가져옵니다.
+		// (SiteMesh 등 데코레이터가 적용되어 쓸데없는 헤더/푸터가 딸려오는 것을 방지)
+		let url = "view.do?no=" + no + "&inc=1&page=${pageObject.page}&perPageNum=${pageObject.perPageNum}&key=${pageObject.key} #modalInner";
+		
+		// 모달 바디 영역에 데이터를 로드한 후 모달 창을 엽니다.
+		$("#noticeModalBody").load(url, function() {
+			$("#noticeModal").modal("show");
+		});
+	});
 	}).mouseover(function(){
 		$(this).addClass("table-success");
 	}).mouseout(function(){
@@ -120,7 +119,7 @@ $(function(){
 	                        </span>
 	                    </div>
 	                    
-	                    <h5 class="card-title fw-bold text-dark mb-3">[${vo.cateName}] ${vo.title}</h5>
+	                    <h5 class="card-title fw-bold text-dark mb-3">${vo.title}</h5>
 	                    
 	                    <div class="text-secondary d-flex align-items-center" style="font-size: 0.85rem;">
 	                        <span class="me-3"><i class="fa fa-calendar"></i> ${vo.writeDate}</span>
@@ -141,5 +140,11 @@ $(function(){
 
 <%-- JSP의 주석 : 표현식으로 가져온 데이터 출력 --%>
 <%--= list --%>
+	<div class="modal fade" id="noticeModal" tabindex="-1" aria-hidden="true">
+	    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+	        <div class="modal-content" id="noticeModalBody" style="border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+	            </div>
+	    </div>
+	</div>
 </body>
 </html>

@@ -62,20 +62,24 @@ public class Init extends HttpServlet {
 		// ==============================================
 		// 1. 공지사항 (Notice)
 		// ==============================================
+		// -- Controller 저장
 		controllerMap.put("/notice", new NoticeController());
-		daoMap.put("noticeDAO", new NoticeDAO());
-		
+		// -- Service 저장
 		serviceMap.put("/notice/list.do", new NoticeListService());
 		serviceMap.put("/notice/write.do", new NoticeWriteService());
 		serviceMap.put("/notice/view.do", new NoticeViewService());
 		serviceMap.put("/notice/update.do", new NoticeUpdateService());
 		serviceMap.put("/notice/delete.do", new NoticeDeleteService());
-		
+		serviceMap.put("/notice/increaseHit.do", new NoticeIncreaseHitService());
+		// -- DAO 저장
+		daoMap.put("noticeDAO", new NoticeDAO());
+		// -- service에 dao 조립
 		serviceMap.get("/notice/list.do").setDAO(daoMap.get("noticeDAO"));
 		serviceMap.get("/notice/write.do").setDAO(daoMap.get("noticeDAO"));
 		serviceMap.get("/notice/view.do").setDAO(daoMap.get("noticeDAO"));
 		serviceMap.get("/notice/update.do").setDAO(daoMap.get("noticeDAO"));
 		serviceMap.get("/notice/delete.do").setDAO(daoMap.get("noticeDAO"));
+		serviceMap.get("/notice/increaseHit.do").setDAO(daoMap.get("noticeDAO"));
 		
 		// ==============================================
 		// 2. 회원관리 (Member)
