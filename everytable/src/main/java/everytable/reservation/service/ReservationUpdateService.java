@@ -5,7 +5,7 @@ import everytable.main.service.Service;
 import everytable.reservation.dao.ReservationDAO;
 import everytable.reservation.vo.ReservationVO;
 
-public class ReservationUpdateWervice implements Service{
+public class ReservationUpdateService implements Service{
 	
 private ReservationDAO dao = null;
 	

@@ -12,8 +12,16 @@
             <p class="text-muted">${vo.address}</p>
             <h5 class="text-warning">★ ${vo.avg_rating} <span class="text-muted">(${vo.review_count} 리뷰)</span></h5>
         </div>
-        <div class="col-auto">
-            <button class="btn btn-outline-dark">${vo.tel}</button>
+        
+        <div class="col-auto text-center">
+            <div class="d-grid gap-2">
+                <button class="btn btn-outline-dark">${vo.tel}</button>
+                
+                <a href="#review-section" class="btn text-white" 
+                   style="background-color: #f08080; border-radius: 10px; padding: 10px 20px; text-decoration: none;">
+                    <i class="fa-regular fa-pen-to-square"></i> 리뷰 보러가기
+                </a>
+            </div>
         </div>
     </div>
 

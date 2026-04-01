@@ -93,36 +93,32 @@
   //   - 모달 내 로그인 폼을 서버에 Ajax로 전송
   //   - 성공: redirectUrl 로 이동 / 실패: 모달 내 오류 메시지 표시
   // ---------------------------------------------------------------
-	function modalLogin() {
-	    const id  = $('#modalId').val().trim();
-	    const pw  = $('#modalPw').val();
-	    const redirectUrl = $('#modalRedirectUrl').val();
-	
-	    if (!id || !pw) {
-	        showModalMsg('아이디와 비밀번호를 입력해 주세요.');
-	        return;
-	    }
-	
-	    $.ajax({
-	        url: 'loginAjax.do',   // ← Ajax 전용 URI
-	        method: 'POST',
-	        data: { id: id, pw: pw },
-	        dataType: 'json',       // ← 응답을 JSON으로 파싱
-	        success: function(data) {
-	            if (data.result === 'ok') {
-	                // JS가 직접 페이지 이동
-	                location.href = (redirectUrl && redirectUrl !== '')
-	                                  ? redirectUrl
-	                                  : '/main/main.do';
-	            } else {
-	                showModalMsg(data.msg);
-	            }
-	        },
-	        error: function() {
-	            showModalMsg('서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
-	        }
-	    });
-	}
+  function modalLogin() {
+    const id  = document.getElementById('modalId').value.trim();
+    const pw  = document.getElementById('modalPw').value;
+    const redirectUrl = document.getElementById('modalRedirectUrl').value;
+
+    if (!id || !pw) {
+      showModalMsg('아이디와 비밀번호를 입력해 주세요.');
+      return;
+    }
+
+    $.ajax({
+      url: '${pageContext.request.contextPath}/member/login.do',
+      method: 'POST',
+      data: { id: id, pw: pw, redirectUrl: redirectUrl },
+      success: function(response) {
+        // login.do 가 redirect 를 반환하면 실제 응답 URL 로 이동
+        // 서버에서 redirect 처리를 하므로 responseURL 확인
+        const finalUrl = response.responseURL || (redirectUrl || '${pageContext.request.contextPath}/main/main.do');
+        location.href = (redirectUrl && redirectUrl.trim() !== '')
+                          ? redirectUrl
+                          : '${pageContext.request.contextPath}/main/main.do';
+      },
+      error: function() {
+        showModalMsg('아이디 또는 비밀번호가 일치하지 않거나 이용이 제한된 계정입니다.');
+      }
+    });
   }
 
   function showModalMsg(msg) {
