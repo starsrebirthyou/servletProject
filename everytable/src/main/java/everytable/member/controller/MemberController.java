@@ -49,7 +49,8 @@ public class MemberController implements Controller {
                 if (redirectUrl != null && !redirectUrl.trim().isEmpty()) {
                     return "redirect:" + redirectUrl;
                 }
-                return "redirect:/main/main.do";
+//                return "redirect:/main/main.do";
+                return "redirect:/notice/list.do";
             }
 
             // --------------------------------------------------------
@@ -58,7 +59,7 @@ public class MemberController implements Controller {
             case "/member/logout.do":
                 session.removeAttribute("login");
                 session.setAttribute("msg", "로그아웃되었습니다.");
-                return "redirect:/main/main.do";
+                return "redirect:/notice/list.do";
 
             // --------------------------------------------------------
             // 회원가입 - 유형 선택 화면 (일반회원 / 매장점주)
@@ -132,29 +133,8 @@ public class MemberController implements Controller {
                 request.setAttribute("redirectUrl", redirectUrl);
                 return "member/loginForm";
             }
+
             
-            case "/member/loginAjax.do": {
-                LoginVO userVO = new LoginVO();
-                userVO.setId(request.getParameter("id"));
-                userVO.setPw(request.getParameter("pw"));
-
-                loginVO = (LoginVO) Execute.execute(Init.getService("/member/login.do"), userVO);
-
-                // redirect 대신 JSON 문자열을 직접 응답으로 씀
-                response.setContentType("application/json; charset=UTF-8");
-                PrintWriter out = response.getWriter();
-
-                if (loginVO == null) {
-                    out.print("{\"result\":\"fail\",\"msg\":\"아이디 또는 비밀번호가 틀렸습니다.\"}");
-                } else {
-                    session.setAttribute("login", loginVO);
-                    Execute.execute(Init.getService("/member/updateLastLogin.do"), loginVO.getId());
-                    out.print("{\"result\":\"ok\",\"name\":\"" + loginVO.getName() + "\"}");
-                }
-                out.flush();
-                return null;  // View로 안 넘기고 직접 응답 끝냄
-            }
-
             // --------------------------------------------------------
             // 아이디 중복 체크 (Ajax)
             // --------------------------------------------------------
