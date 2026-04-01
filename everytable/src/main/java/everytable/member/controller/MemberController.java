@@ -1,5 +1,7 @@
 package everytable.member.controller;
 
+import java.io.PrintWriter;
+
 import everytable.main.controller.Controller;
 import everytable.main.controller.Init;
 import everytable.main.service.Execute;
@@ -47,7 +49,8 @@ public class MemberController implements Controller {
                 if (redirectUrl != null && !redirectUrl.trim().isEmpty()) {
                     return "redirect:" + redirectUrl;
                 }
-                return "redirect:/main/main.do";
+//                return "redirect:/main/main.do";
+                return "redirect:/notice/list.do";
             }
 
             // --------------------------------------------------------
@@ -56,7 +59,7 @@ public class MemberController implements Controller {
             case "/member/logout.do":
                 session.removeAttribute("login");
                 session.setAttribute("msg", "로그아웃되었습니다.");
-                return "redirect:/main/main.do";
+                return "redirect:/notice/list.do";
 
             // --------------------------------------------------------
             // 회원가입 - 유형 선택 화면 (일반회원 / 매장점주)
@@ -131,6 +134,7 @@ public class MemberController implements Controller {
                 return "member/loginForm";
             }
 
+            
             // --------------------------------------------------------
             // 아이디 중복 체크 (Ajax)
             // --------------------------------------------------------

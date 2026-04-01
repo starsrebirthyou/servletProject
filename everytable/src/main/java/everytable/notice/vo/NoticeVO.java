@@ -10,6 +10,7 @@ public class NoticeVO {
 	private String updateDate;  // 공지 수정일
 	private long cateNo;  // 공지 유형 번호
 	private String cateName;  // 공지 유형 이름
+	private long hit;		// 조회수
 	
 	public long getNo() {
 		return no;
@@ -59,12 +60,18 @@ public class NoticeVO {
 	public void setCateName(String cateName) {
 		this.cateName = cateName;
 	}
+	public long getHit() {
+		return hit;
+	}
+	public void setHit(long hit) {
+		this.hit = hit;
+	}
 	
 	@Override
 	public String toString() {
 		return "NoticeVO [no=" + no + ", title=" + title + ", content=" + content + ", fileName=" + fileName
 				+ ", writeDate=" + writeDate + ", updateDate=" + updateDate + ", cateNo=" + cateNo + ", cateName="
-				+ cateName + "]";
+				+ cateName + ", hit=" + hit + "]";
 	}
 	
 }
