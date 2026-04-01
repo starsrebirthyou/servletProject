@@ -68,7 +68,7 @@ $(function(){
         <div class="text-end mt-4">
             <c:if test="${!empty login && login.gradeNo == 9}">
 	            <a href="updateForm.do?no=${vo.no}&page=${param.page}&perPageNum=${param.perPageNum}&key=${param.key}" class="btn btn-sm btn-outline-secondary">수정</a>
-	            <a href="#" id="deleteBtnModal" data-no="${vo.no}" class="btn btn-sm btn-outline-danger">삭제</a>
+	            <a href="delete.do?no=${vo.no}&page=${param.page}&perPageNum=${param.perPageNum}" class="btn btn-sm btn-outline-danger" onclick="return confirm('삭제하면 복구할 수 없습니다. 삭제하시겠습니까?');">삭제</a>
             </c:if>
         </div>
     </div>
@@ -79,17 +79,6 @@ $(function(){
         </button>
     </div>
 
-    <script type="text/javascript">
-        $(function(){
-            // 모달 안의 삭제 버튼 동작
-            $("#deleteBtnModal").click(function(e){
-                e.preventDefault();
-                if (confirm("삭제하면 복구할 수 없습니다. 삭제하시겠습니까?")) {
-                    location = "delete.do?no=" + $(this).data("no") + "&page=${param.page}&perPageNum=${param.perPageNum}";
-                }
-            });
-        });
-    </script>
 </div>
 </body>
 </html>
