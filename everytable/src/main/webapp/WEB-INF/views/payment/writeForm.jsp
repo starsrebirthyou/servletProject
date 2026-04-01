@@ -10,8 +10,8 @@
 <body>
 <div class="container mt-5">
     <form action="write.do" method="post">
-    <input type="hidden" name="order_id" value="${param.perPageNum }">
-	<input type="hidden" name="user_id" value="admin">
+    <input type="hidden" name="order_id" value="1">
+    <input type="hidden" name="user_id" value="admin">
 	<input type="hidden" name="amount" value="300000">
 
         <div class="card shadow-sm mx-auto" style="max-width: 500px;">

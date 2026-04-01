@@ -42,6 +42,12 @@ public class PaymentController implements Controller {
 			case "/payment/write.do":
 				System.out.println("write.do - 결제 등록 처리");
 				vo = new PaymentVO();
+				String orderIdStr = request.getParameter("order_id");
+			    String amountStr = request.getParameter("amount");
+				if (orderIdStr == null || orderIdStr.trim().isEmpty() || 
+				     amountStr == null || amountStr.trim().isEmpty()) {
+				     throw new Exception("주문 번호 또는 금액이 입력되지 않았습니다.");
+				 }
 				vo.setOrder_id(Long.parseLong(request.getParameter("order_id")));
 				vo.setAmount(Long.parseLong(request.getParameter("amount")));
 				vo.setMethod(request.getParameter("method"));
