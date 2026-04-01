@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decorators>
+    <excludes>
+        <pattern>/member/checkId*</pattern>
+        <pattern>/error.jsp</pattern>
+        <pattern>/fund-list.json*</pattern>
+    </excludes>
+    <decorator name="default" webapp="default" page="/WEB-INF/views/decorators/default_decorator.jsp">
+        <pattern>/*</pattern>
+    </decorator>
+</decorators>

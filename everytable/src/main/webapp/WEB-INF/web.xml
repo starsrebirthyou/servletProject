@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" id="WebApp_ID" version="4.0">
+  <!-- 프로젝트 이름 -->
+  <display-name>everytable</display-name>
+  <welcome-file-list> 
+    <!-- 홈페이지 들어가면 서버이름이나 도메인을 사용하면 자동으로 요청되는 URI -->
+    <welcome-file>main.do</welcome-file>
+  </welcome-file-list>
+  
+  <!-- servlet 객체 등록 : DispatchServlet -->
+  <servlet>
+  	<servlet-name>dispatchServlet</servlet-name>
+  	<servlet-class>everytable.main.controller.DispatcherServlet</servlet-class>
+    	<!-- 서버가 실행될때 한번 불러라. init() 호출되서 실행된다. -->
+  	<load-on-startup>1</load-on-startup>
+  	
+  	<!-- 파일 업로드 설정 -->
+  	<multipart-config>
+  		<!-- 업로드 임시 저장 경로 : 폴더가 반드시 존재하고 있어야 한다. 본인 컴에 맞게 수정
+  		 	 업로드 파일이 작으면 메인메모리 사용, 크면 임시 파일로 저장해서 사용한다. -->
+  		<location>D:/FullStack/upload/temp</location>
+  		<!-- 최대 파일 크기(10MB-10*1024*1024) -->
+  		<max-file-size>10485760</max-file-size>
+  		<!--  최대 요청 크기 (100MB) -->
+  		<max-request-size>104857600</max-request-size>
+  		<!-- 파일이 메모리에 저장되는 임계값(1MB)-> 커지면 임시 파일로 저장 -->
+  		<file-size-threshold>1048576</file-size-threshold>
+  	</multipart-config>
+  	
+  </servlet>
+  
+  <!-- servlet에 URI를 매핑시틴다. -->
+  <servlet-mapping>
+  	<servlet-name>dispatchServlet</servlet-name>
+  	<!-- 1. 확장자 기준, 2. 위치 기반 : 혼합할 수 없다.
+  		<url-pattern> : 여러개를 지정할 수 있다.
+  	 -->
+  	<url-pattern>*.do</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+  	<description>서버 시작 시 DB 불러주기, 객체 생성 / 저장 / 조립</description>
+  	<servlet-name>init</servlet-name>
+  	<servlet-class>everytable.main.controller.Init</servlet-class>
+  	<!-- 서버가 실행될때 한번 불러라. init() 호출되서 실행된다. -->
+  	<load-on-startup>2</load-on-startup>
+  </servlet>
+
+	<!-- 권한 처리를 위한 필터 -->
+ 	  <filter>
+	    <filter-name>authority</filter-name>
+	    <filter-class>everytable.util.filter.AuthorityFilter</filter-class>
+	  </filter>
+	
+	  <filter-mapping>
+	    <filter-name>authority</filter-name>
+	    <url-pattern>*.do</url-pattern>
+	  </filter-mapping> 	
+	
+	<!-- 전체 레이아웃을 잡아주는 sitemesh filter -->
+	  <filter>
+	    <filter-name>sitemesh</filter-name>
+	    <filter-class>com.opensymphony.sitemesh.webapp.SiteMeshFilter</filter-class>
+	  </filter>
+	
+	  <filter-mapping>
+	    <filter-name>sitemesh</filter-name>
+	    <url-pattern>*.do</url-pattern>
+	  </filter-mapping>
+	  
+	  <!-- 오류에 대한 설정 -->
+	  <error-page>
+	  	<error-code>404</error-code>
+	  	<location >/WEB-INF/views/error/noJsp.jsp</location>
+	  </error-page> 
+</web-app>
