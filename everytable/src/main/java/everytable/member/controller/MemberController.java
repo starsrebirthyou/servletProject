@@ -1,5 +1,7 @@
 package everytable.member.controller;
 
+import java.io.PrintWriter;
+
 import everytable.main.controller.Controller;
 import everytable.main.controller.Init;
 import everytable.main.service.Execute;
@@ -129,6 +131,28 @@ public class MemberController implements Controller {
                 // 비로그인: 로그인 폼으로 이동하면서 redirectUrl 전달
                 request.setAttribute("redirectUrl", redirectUrl);
                 return "member/loginForm";
+            }
+            
+            case "/member/loginAjax.do": {
+                LoginVO userVO = new LoginVO();
+                userVO.setId(request.getParameter("id"));
+                userVO.setPw(request.getParameter("pw"));
+
+                loginVO = (LoginVO) Execute.execute(Init.getService("/member/login.do"), userVO);
+
+                // redirect 대신 JSON 문자열을 직접 응답으로 씀
+                response.setContentType("application/json; charset=UTF-8");
+                PrintWriter out = response.getWriter();
+
+                if (loginVO == null) {
+                    out.print("{\"result\":\"fail\",\"msg\":\"아이디 또는 비밀번호가 틀렸습니다.\"}");
+                } else {
+                    session.setAttribute("login", loginVO);
+                    Execute.execute(Init.getService("/member/updateLastLogin.do"), loginVO.getId());
+                    out.print("{\"result\":\"ok\",\"name\":\"" + loginVO.getName() + "\"}");
+                }
+                out.flush();
+                return null;  // View로 안 넘기고 직접 응답 끝냄
             }
 
             // --------------------------------------------------------

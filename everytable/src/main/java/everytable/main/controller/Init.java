@@ -112,22 +112,22 @@ public class Init extends HttpServlet {
 		
 		
 		// *** 회원관리 생성/저장/조립
-		// -- Controller 저장
+		// 1. Controller 저장
 		controllerMap.put("/member", new MemberController());
-		// -- Service 저장 - uri로 저장
+		// 2. Service 저장 - uri를 키값으로 저장
 		serviceMap.put("/member/login.do", new LoginService());
-		// -- 최근 접속일 변경 - URI 없음. 내부 URI - /member/changeCon.do
+		// 최근 접속일 변경 (Controller 내부에서 강제 호출하는 URI)
 		serviceMap.put("/member/updateLastLogin.do", new MemberUpdateLastLoginService());
 		serviceMap.put("/member/write.do", new MemberWriteService());
 		serviceMap.put("/member/list.do", new MemberListService());
 		serviceMap.put("/member/changeStatus.do", new MemberChangeStatusService());
 		serviceMap.put("/member/changeGrade.do", new MemberChangeGradeService());
 		serviceMap.put("/member/checkId.do", new MemberCheckIdService());
-		// -- DAO 저장 - 변수 이름
+		// 3. DAO 저장
 		daoMap.put("memberDAO", new MemberDAO());
-		// 조립 service에 dao 넣기 - service를 가져온다. setter를 이용해서 가져온 dao를 넣는다.
+		// 4. 조립 (Service에 DAO 주입)
 		serviceMap.get("/member/login.do").setDAO(daoMap.get("memberDAO"));
-		serviceMap.get("/member/updateLastLogi.do").setDAO(daoMap.get("memberDAO"));
+		serviceMap.get("/member/updateLastLogin.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/write.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/list.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/changeStatus.do").setDAO(daoMap.get("memberDAO"));
