@@ -106,12 +106,12 @@ $(function(){
     <div class="d-flex p-1">
       <div class="form-check m-3">
         <label class="form-check-label" for="gender1">
-          <input type="radio" class="form-check-input" id="gender1" name="gender" value="남자" checked>남자
+          <input type="radio" class="form-check-input" id="gender1" name="gender" value="여자" checked>여자
         </label>
       </div>
       <div class="form-check m-3">
         <label class="form-check-label" for="gender2">
-          <input type="radio" class="form-check-input" id="gender2" name="gender" value="여자">여자
+          <input type="radio" class="form-check-input" id="gender2" name="gender" value="남자">남자
         </label>
       </div>
     </div>

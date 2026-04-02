@@ -1,7 +1,5 @@
 package everytable.member.controller;
 
-import java.io.PrintWriter;
-
 import everytable.main.controller.Controller;
 import everytable.main.controller.Init;
 import everytable.main.service.Execute;
@@ -93,16 +91,20 @@ public class MemberController implements Controller {
                 vo.setTel(request.getParameter("tel"));
                 vo.setEmail(request.getParameter("email"));
 
-                // 폼의 hidden input "gradeNo" 값으로 일반(1) / 점주(2) 구분
-                // 폼에서 반드시 <input type="hidden" name="gradeNo" value="1"> 또는 value="2" 포함
                 int gradeNo = 1;
-                String gradeNoParam = request.getParameter("gradeNo");
-                if ("2".equals(gradeNoParam)) gradeNo = 2;
+                if ("2".equals(request.getParameter("gradeNo"))) gradeNo = 2;
                 vo.setGradeNo(gradeNo);
+
+                // 매장점주이면 매장 정보도 담기
+                if (gradeNo == 2) {
+                    vo.setStoreName(request.getParameter("storeName"));
+                    vo.setStoreCate(request.getParameter("storeCate"));
+                    vo.setStoreAddr(request.getParameter("storeAddr"));
+                }
 
                 Execute.execute(Init.getService(uri), vo);
 
-                // 가입 완료 후 자동 로그인
+                // 자동 로그인
                 loginVO = new LoginVO();
                 loginVO.setId(vo.getId());
                 loginVO.setName(vo.getName());
@@ -112,7 +114,7 @@ public class MemberController implements Controller {
                 Execute.execute(Init.getService("/member/updateLastLogin.do"), loginVO.getId());
 
                 session.setAttribute("msg", "회원가입을 축하드립니다. 자동 로그인 되었습니다.");
-                return "redirect:/main/main.do";
+                return "redirect:/notice/list.do";
             }
 
             // --------------------------------------------------------
