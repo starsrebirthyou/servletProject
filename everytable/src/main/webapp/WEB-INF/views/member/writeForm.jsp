@@ -71,6 +71,45 @@ $(function(){
                .text(msg);
   }
   
+//연락처 중복 체크
+  $("#tel").blur(function(){
+      telCheck = false;
+      let tel = $(this).val();
+      
+      // 정규식 등 기본 길이/형식 체크 (예시)
+      if(tel.length >= 10){
+          $.ajax({
+              url: "checkTel.do?tel=" + tel,
+              success: function(result){
+                  if(result.trim()){ // 결과가 있으면 중복
+                      alert("이미 가입된 연락처입니다.");
+                  } else {
+                      telCheck = true; // 중복 아님
+                  }
+              }
+          });
+      }
+  });
+
+  // 이메일 중복 체크
+  $("#email").blur(function(){
+      emailCheck = false;
+      let email = $(this).val();
+      
+      if(email.length > 5 && email.includes("@")){
+          $.ajax({
+              url: "checkEmail.do?email=" + email,
+              success: function(result){
+                  if(result.trim()){
+                      alert("이미 가입된 계정(이메일)입니다. 아이디/비밀번호 찾기를 이용해주세요.");
+                  } else {
+                      emailCheck = true;
+                  }
+              }
+          });
+      }
+  });
+  
 });
 </script>
 </head>
