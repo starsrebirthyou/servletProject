@@ -20,7 +20,7 @@ public class ReservationController implements Controller {
 			HttpSession session = request.getSession();
 			LoginVO loginVO = (LoginVO) session.getAttribute("login");
 
-			// [공통] 로그인이 안 되어 있으면 로그인 폼으로 이동
+			// [공통] 로그인이 안 되어 있으면 로그인 폼으로 이동 (등록 처리는 허용할 수도 있으나 리스트 등은 차단)
 			if (loginVO == null && !uri.equals("/reservation/write.do")) {
 				session.setAttribute("msg", "로그인이 필요한 서비스입니다.");
 				return "redirect:/member/loginForm.do";
@@ -28,6 +28,7 @@ public class ReservationController implements Controller {
 
 			ReservationVO vo;
 			Long no;
+			String jsp = null; // 리턴할 jsp 경로 변수
 
 			switch (uri) {
 			// 1. 예약/주문 리스트 (일반사용자 vs 매장관리자 분기)
@@ -36,28 +37,31 @@ public class ReservationController implements Controller {
 				
 				if (loginVO.getGradeNo() == 2) { 
 					// --- [매장 관리자] ---
-					// accepter에 storeId를 담아서 관리자 전용 서비스 호출
-					pageObject.setAccepter(String.valueOf(loginVO.getId()));
+					// ★ 중요: 관리자는 본인 ID가 아니라 본인 매장 번호(StoreId)로 조회해야 함
+					pageObject.setAccepter(String.valueOf(loginVO.getStoreId()));
 					request.setAttribute("list", Execute.execute(Init.getService("/reservation/adminList.do"), pageObject));
 					request.setAttribute("pageObject", pageObject);
-					return "reservation/adminList"; // 관리자 전용 JSP
+					jsp = "reservation/adminList"; 
 				} else {
 					// --- [일반 사용자] ---
 					pageObject.setAccepter(loginVO.getId());
 					request.setAttribute("list", Execute.execute(Init.getService(uri), pageObject));
 					request.setAttribute("pageObject", pageObject);
-					return "reservation/list"; // 일반 사용자 JSP
+					jsp = "reservation/list"; 
 				}
+				break;
 
 			// 2. 예약 상세 보기
 			case "/reservation/view.do":
 				no = Long.parseLong(request.getParameter("no"));
 				request.setAttribute("vo", Execute.execute(Init.getService(uri), no));
-				return "reservation/view";
+				jsp = "reservation/view";
+				break;
 
 			// 3. 예약 등록 (작성 폼)
 			case "/reservation/writeForm.do":
-				return "reservation/writeForm";
+				jsp = "reservation/writeForm";
+				break;
 
 			// 4. 예약 등록 처리
 			case "/reservation/write.do":
@@ -70,10 +74,10 @@ public class ReservationController implements Controller {
 				vo.setUserId(request.getParameter("userId")); 
 				vo.setStoreId(Long.parseLong(request.getParameter("storeId")));
 
-				// 예약 번호를 리턴받아 메뉴 선택으로 넘김
-				Long resNo = (Long) Execute.execute(Init.getService(uri), vo);
+				Long writeResNo = (Long) Execute.execute(Init.getService(uri), vo);
 				session.setAttribute("msg", "예약이 완료되었습니다. 메뉴를 선택해주세요.");
-				return "redirect:/order/writeForm.do?resNo=" + resNo;
+				jsp = "redirect:/order/writeForm.do?resNo=" + writeResNo;
+				break;
 
 			// 5. [관리자 전용] 상태 변경 처리 (승인: 2, 거절: 4)
 			case "/reservation/adminUpdate.do":
@@ -81,19 +85,22 @@ public class ReservationController implements Controller {
 				long status = Long.parseLong(request.getParameter("resStatus"));
 				vo.setResNo(Long.parseLong(request.getParameter("resNo")));
 				vo.setResStatus(status);
-				vo.setCancelReason(request.getParameter("cancelReason")); // 거절 시 사유 포함
+				vo.setCancelReason(request.getParameter("cancelReason"));
 
 				Execute.execute(Init.getService(uri), vo);
 				
-				String msg = (status == 2) ? "예약을 승인하였습니다." : "예약을 거절(취소)하였습니다.";
-				session.setAttribute("msg", msg);
-				return "redirect:adminList.do";
+				String statusMsg = (status == 2) ? "예약을 승인하였습니다." : "예약을 거절(취소)하였습니다.";
+				session.setAttribute("msg", statusMsg);
+				// ★ 수정: adminList.do가 아니라 다시 list.do로 보내야 관리자 리스트가 나옴
+				jsp = "redirect:list.do";
+				break;
 
 			// 6. 예약 수정 폼
 			case "/reservation/updateForm.do":
 				no = Long.parseLong(request.getParameter("no"));
 				request.setAttribute("vo", Execute.execute(Init.getService("/reservation/view.do"), no));
-				return "reservation/updateForm";
+				jsp = "reservation/updateForm";
+				break;
 
 			// 7. 예약 수정 처리
 			case "/reservation/update.do":
@@ -107,24 +114,33 @@ public class ReservationController implements Controller {
 
 				Execute.execute(Init.getService(uri), vo);
 				session.setAttribute("msg", "예약 정보가 수정되었습니다.");
-				return "redirect:view.do?no=" + vo.getResNo();
+				jsp = "redirect:view.do?no=" + vo.getResNo();
+				break;
 
 			// 8. 사용자 예약 취소 (상태 4로 변경)
 			case "/reservation/cancel.do":
 				vo = new ReservationVO();
 				vo.setResNo(Long.parseLong(request.getParameter("resNo")));
 				vo.setCancelReason(request.getParameter("cancelReason"));
-				vo.setResStatus(4L); // 취소/환불 상태
+				vo.setResStatus(4L); 
 
 				Execute.execute(Init.getService(uri), vo);
 				session.setAttribute("msg", "예약 취소가 완료되었습니다.");
-				return "redirect:list.do";
+				jsp = "redirect:list.do";
+				break;
 
+			default:
+				// 정의되지 않은 URI인 경우 404 페이지로 유도하여 NPE 방지
+				jsp = "error/404";
+				break;
 			} // end of switch
+			
+			return jsp; // 최종 결정된 jsp 경로 반환
+
 		} catch (Exception e) {
 			e.printStackTrace();
+			request.setAttribute("e", e);
 			return "error/err_500";
 		}
-		return null;
 	}
 }
