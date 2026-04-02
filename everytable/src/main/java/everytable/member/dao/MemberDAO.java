@@ -112,15 +112,16 @@ public class MemberDAO extends DAO {
     // 아이디 찾기 / 비밀번호 관련
     // ----------------------------------------------------------------
 
-    public String searchId(MemberVO vo) throws Exception {
+    public String searchId(MemberVO vo) throws Exception { // 객체를 받는지 확인!
         String id = null;
         con = DB.getConnection();
-        String sql = "SELECT id FROM member WHERE name = ? AND email = ?";
+        // 쿼리문에 오타가 없는지, 컬럼명이 name, email이 맞는지 확인
+        String sql = "SELECT id FROM member WHERE name = ? AND email = ? AND status = '정상'";
         pstmt = con.prepareStatement(sql);
         pstmt.setString(1, vo.getName());
         pstmt.setString(2, vo.getEmail());
         rs = pstmt.executeQuery();
-        if (rs != null && rs.next()) id = rs.getString("id");
+        if (rs.next()) id = rs.getString("id");
         DB.close(con, pstmt, rs);
         return id;
     }
