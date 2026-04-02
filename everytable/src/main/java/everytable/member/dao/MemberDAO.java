@@ -55,36 +55,21 @@ public class MemberDAO extends DAO {
     public Integer write(MemberVO vo) throws Exception {
         Integer result = 0;
         con = DB.getConnection();
-        String sql;
-        if (vo.getGradeNo() == 2) {
-            sql = "INSERT INTO member(no, id, pw, name, gender, birth, tel, email,"
-                + "  store_name, store_cate, store_addr, grade_no)"
-                + " VALUES(member_seq.nextval, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, vo.getId());
-            pstmt.setString(2, vo.getPw());
-            pstmt.setString(3, vo.getName());
-            pstmt.setString(4, vo.getGender());
-            pstmt.setString(5, vo.getBirth());
-            pstmt.setString(6, vo.getTel());
-            pstmt.setString(7, vo.getEmail());
-            pstmt.setString(8, vo.getStoreName());
-            pstmt.setString(9, vo.getStoreCate());
-            pstmt.setString(10, vo.getStoreAddr());
-            pstmt.setInt(11, vo.getGradeNo());
-        } else {
-            sql = "INSERT INTO member(no, id, pw, name, gender, birth, tel, email, grade_no)"
-                + " VALUES(member_seq.nextval, ?, ?, ?, ?, ?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, vo.getId());
-            pstmt.setString(2, vo.getPw());
-            pstmt.setString(3, vo.getName());
-            pstmt.setString(4, vo.getGender());
-            pstmt.setString(5, vo.getBirth());
-            pstmt.setString(6, vo.getTel());
-            pstmt.setString(7, vo.getEmail());
-            pstmt.setInt(8, vo.getGradeNo());
-        }
+        
+        // 점주/일반 구분 없이 member 테이블의 공통 컬럼만 INSERT[cite: 2]
+        String sql = "INSERT INTO member(no, id, pw, name, gender, birth, tel, email, grade_no)"
+                   + " VALUES(member_seq.nextval, ?, ?, ?, ?, ?, ?, ?, ?)";
+                   
+        pstmt = con.prepareStatement(sql);
+        pstmt.setString(1, vo.getId());
+        pstmt.setString(2, vo.getPw());
+        pstmt.setString(3, vo.getName());
+        pstmt.setString(4, vo.getGender());
+        pstmt.setString(5, vo.getBirth());
+        pstmt.setString(6, vo.getTel());
+        pstmt.setString(7, vo.getEmail());
+        pstmt.setInt(8, vo.getGradeNo());
+        
         result = pstmt.executeUpdate();
         DB.close(con, pstmt);
         return result;

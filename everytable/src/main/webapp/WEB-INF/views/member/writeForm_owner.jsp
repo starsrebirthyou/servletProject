@@ -136,33 +136,6 @@ $(function(){
     <input type="email" class="form-control" id="email" name="email"
            placeholder="이메일을 입력하세요." required maxlength="50">
   </div>
-  <hr>
-	<h5 class="mt-3">매장 정보</h5>
-	
-	<div class="mb-3">
-	    <label for="storeName" class="form-label">매장명</label>
-	    <input type="text" class="form-control" id="storeName" name="storeName"
-	           placeholder="매장명을 입력하세요." required maxlength="100">
-	</div>
-	
-	<div class="mb-3">
-	    <label for="storeCate" class="form-label">카테고리</label>
-	    <select class="form-select" id="storeCate" name="storeCate" required>
-	        <option value="">-- 선택하세요 --</option>
-	        <option value="한식">한식</option>
-	        <option value="중식">중식</option>
-	        <option value="일식">일식</option>
-	        <option value="양식">양식</option>
-	        <option value="카페">카페</option>
-	        <option value="기타">기타</option>
-	    </select>
-	</div>
-	
-	<div class="mb-3">
-	    <label for="storeAddr" class="form-label">주소</label>
-	    <input type="text" class="form-control" id="storeAddr" name="storeAddr"
-	           placeholder="매장 주소를 입력하세요." required maxlength="200">
-	</div>
 
   <button type="submit" class="btn btn-success">점주 가입</button>
   <button type="reset"  class="btn btn-warning">리셋</button>

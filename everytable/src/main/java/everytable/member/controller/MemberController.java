@@ -83,12 +83,6 @@ public class MemberController implements Controller {
                 if ("2".equals(request.getParameter("gradeNo"))) gradeNo = 2;
                 vo.setGradeNo(gradeNo);
 
-                if (gradeNo == 2) {
-                    vo.setStoreName(request.getParameter("storeName"));
-                    vo.setStoreCate(request.getParameter("storeCate"));
-                    vo.setStoreAddr(request.getParameter("storeAddr"));
-                }
-
                 Execute.execute(Init.getService(uri), vo);
 
                 loginVO = new LoginVO();

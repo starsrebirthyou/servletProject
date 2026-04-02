@@ -279,7 +279,7 @@ $(function(){
                     <c:choose>
                         <c:when test="${vo.status == '정상'}">
                             <span class="badge-status s-ok">활성</span></c:when>
-                        <c:when test="${vo.status == '탈퇴' || vo.status == '정지' || vo.status == '강퇴'}">
+                        <c:when test="${vo.status == '탈퇴' || vo.status == '정지' || vo.status == '휴면'}">
                             <span class="badge-status s-bad">${vo.status}</span></c:when>
                         <c:otherwise>
                             <span class="badge-status s-etc">${vo.status}</span></c:otherwise>
