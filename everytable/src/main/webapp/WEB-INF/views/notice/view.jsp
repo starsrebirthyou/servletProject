@@ -49,7 +49,7 @@ $(function(){
         <h4 class="fw-bold text-dark mb-3 mt-2">${vo.title}</h4>
         
         <div class="text-secondary mb-3 d-flex align-items-center" style="font-size: 0.9rem;">
-            <span class="me-3"><i class="fa fa-user"></i> 에브리테이블 관리자</span>
+            <span class="me-3"><i class="fa fa-user"></i> ${vo.writerName}</span>
 			<span class="me-4">
 		        <i class="fa fa-calendar"></i> ${vo.writeDate}
 		        <c:if test="${!empty vo.updateDate}">
