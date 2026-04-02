@@ -22,6 +22,7 @@ public class StatsController implements Controller {
         
         try {
             String uri = request.getServletPath();
+            System.out.println("StatsController 진입 - URI: " + uri);
             
             switch (uri) {
                 case "/stats/dashboard.do":
@@ -33,32 +34,19 @@ public class StatsController implements Controller {
                     request.setAttribute("pageObject", poHome);
                     return "stats/dashboard_home";
 
-                // --- 3. 기간별 매출 조회 수정 부분 ---
                 case "/stats/sales.do":
                     System.out.println("StatsController - 기간별 매출조회 시작");
-                    
-                    // 1) 날짜 파라미터 수집
                     String startDate = request.getParameter("startDate");
                     String endDate = request.getParameter("endDate");
                     
-                    // 2) 기본값 설정 (파라미터가 없을 때)
                     if(startDate == null || startDate.equals("")) startDate = "2026-03-01"; 
                     if(endDate == null || endDate.equals("")) endDate = "2026-03-31";
 
                     PageObject poSales = PageObject.getInstance(request);
                     
-                    // 3) 검색 데이터를 VO에 담아서 서비스로 전달 (Map을 써도 되지만 VO에 startDate/endDate를 추가했으므로 활용)
-                    StatsVO searchVo = new StatsVO();
-                    searchVo.setStoreId(id != null ? id : "A001");
-                    searchVo.setStartDate(startDate);
-                    searchVo.setEndDate(endDate);
-                    
-                    // 4) 데이터 요청 (Init에 등록된 서비스가 PageObject와 검색 조건을 모두 처리한다고 가정)
-                    // 만약 서비스가 하나만 받는다면 파라미터를 배열이나 Map에 담으세요.
                     @SuppressWarnings("unchecked")
                     List<StatsVO> salesList = (List<StatsVO>) Execute.execute(Init.getService("/stats/report.do"), poSales);
                     
-                    // 5) 매출 총합 계산 (JSP에서 요약 표시용)
                     double totalSum = 0;
                     if(salesList != null) {
                         for(StatsVO vo : salesList) {
@@ -67,9 +55,8 @@ public class StatsController implements Controller {
                     }
 
                     request.setAttribute("list", salesList);
-                    request.setAttribute("totalSum", totalSum); // 총합 전달
+                    request.setAttribute("totalSum", totalSum);
                     request.setAttribute("pageObject", poSales);
-                    // JSP에서 <input value="${startDate}"> 로 보여주기 위해 다시 저장
                     request.setAttribute("startDate", startDate);
                     request.setAttribute("endDate", endDate);
                     
@@ -84,21 +71,25 @@ public class StatsController implements Controller {
                     return "stats/report";
 
                 case "/stats/categorystats.do":
+                    System.out.println("StatsController - 카테고리 통계 시작");
+                    // 1) 페이지 객체 생성
                     PageObject pageObject3 = PageObject.getInstance(request);
-                    StatsVO categoryVo = new StatsVO();
-                    categoryVo.setStoreId(id != null ? id : "A001");
-                    request.setAttribute("categoryStats", Execute.execute(Init.getService("/stats/categorystats.do"), categoryVo));
+                    // 2) 서비스 호출 (Service에서 PageObject로 형변환하므로 pageObject3를 전달)
+                    request.setAttribute("list", Execute.execute(Init.getService("/stats/categorystats.do"), pageObject3));
                     request.setAttribute("pageObject", pageObject3);
-                    return "stats/categorystats";
-            }
+                    // 3) 아까 만든 JSP 파일명 (stats/category_stats 또는 stats/categorystats)
+                    return "stats/category_stats";
+
+                default:
+                    System.out.println("StatsController - 존재하지 않는 URI: " + uri);
+                    return "error/404";
+            } // end of switch
             
         } catch(Exception e) {
             e.printStackTrace();
             request.setAttribute("moduleName", "통계 모듈");
             request.setAttribute("e", e);
             return "error/err_500";
-        }
-        
-        return "error/404"; 
-    }
+        } // end of try-catch
+    } // end of execute
 }

@@ -60,6 +60,12 @@
                     <th>최종 수정일</th>
                     <td><fmt:formatDate value="${vo.updateDate}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
                 </tr>
+                <tr>
+				   <th>픽업 예정일</th>
+				  	 	<td class="fw-bold text-primary">
+				       <fmt:formatDate value="${vo.pickupDate}" pattern="yyyy-MM-dd HH:mm" />
+				    </td>
+				</tr>
                 </c:if>
             </tbody>
         </table>
@@ -69,9 +75,16 @@
                class="btn btn-warning">리스트</a>
           	
             <a href="updateForm.do?no=${vo.order_id}" class="btn btn-primary">수정</a> 
-            <button type="button" class="btn btn-danger" onclick="alert('결제 취소는 관리자에게 문의하세요.')">결제 취소 요청</button>
-        
-        
+			<c:if test="${vo.status == 'SUCCESS' && diffHours >= 12}">
+ 		    <a href="/refund/refundForm.do?no=${vo.order_id}" class="btn btn-danger">주문 취소 (환불신청)</a></c:if>
+
+			<c:if test="${vo.status == 'SUCCESS' && diffHours < 12}">
+    		<span class="text-muted">※ 픽업 12시간 이내이므로 취소가 불가합니다.</span>
+		</c:if>
+
+		<c:if test="${vo.status == 'REFUNDED'}">
+    		<span class="badge bg-secondary">환불 완료된 주문입니다.</span>
+			</c:if>        
         </div>
     </div>
 </body>
