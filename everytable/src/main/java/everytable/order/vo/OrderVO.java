@@ -4,12 +4,14 @@ public class OrderVO {
 
 	private long resNo;
 	private long storeId;
+	private String storeName;
 	private String userId;
 	private long totalPrice;
 	private String createdAt;
-	private String orderAdd;
+	private String orderAdd; // 요청사항
 	private long orderItemNo;
 	private long menuNo;
+	private String menuName;
 	private long quantity;
 	private long price;
 
@@ -27,6 +29,14 @@ public class OrderVO {
 
 	public void setStoreId(long storeId) {
 		this.storeId = storeId;
+	}
+
+	public String getStoreName() {
+		return storeName;
+	}
+
+	public void setStoreName(String storeName) {
+		this.storeName = storeName;
 	}
 
 	public String getUserId() {
@@ -76,6 +86,14 @@ public class OrderVO {
 	public void setMenuNo(long menuNo) {
 		this.menuNo = menuNo;
 	}
+	
+	public String getMenuName() {
+		return menuName;
+	}
+
+	public void setMenuName(String menuName) {
+		this.menuName = menuName;
+	}
 
 	public long getQuantity() {
 		return quantity;
@@ -95,9 +113,10 @@ public class OrderVO {
 
 	@Override
 	public String toString() {
-		return "OrderVO [resNo=" + resNo + ", storeId=" + storeId + ", userId=" + userId + ", totalPrice=" + totalPrice
-				+ ", createdAt=" + createdAt + ", orderAdd=" + orderAdd + ", orderItemNo=" + orderItemNo + ", menuNo="
-				+ menuNo + ", quantity=" + quantity + ", price=" + price + "]";
+		return "OrderVO [resNo=" + resNo + ", storeId=" + storeId + ", storeName=" + storeName + ", userId=" + userId
+				+ ", totalPrice=" + totalPrice + ", createdAt=" + createdAt + ", orderAdd=" + orderAdd
+				+ ", orderItemNo=" + orderItemNo + ", menuNo=" + menuNo + ", menuName=" + menuName + ", quantity="
+				+ quantity + ", price=" + price + "]";
 	}
 
 }

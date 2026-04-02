@@ -6,84 +6,30 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>리뷰 목록</title>
+<title>리뷰 목록 - 에브리테이블</title>
+
 <link rel="stylesheet"
 	href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-
-<script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-$(function() {
-    // 1. 리뷰 작성하기 버튼 클릭 이벤트
-    $("#writeBtn").click(function() {
-        // 현재 로그인 세션 체크 (JSP에서 세션 아이디가 있는지 확인)
-        let loginId = "${login.id}"; 
-        
-        if(!loginId) {
-            if(confirm("로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?")) {
-                location.href = "/member/loginForm.do";
-            }
-        } else {
-            // 로그인 되어 있다면 작성 페이지로 이동 (매장번호 1번 가정)
-            location.href = "writeForm.do?storeId=1";
-        }
-    });
-
-    // 2. 서버에서 리뷰 목록 가져오기
-    function loadReviewList() {
-        $.getJSON("/review/list.do", function(data) {
-            let list = data.list;
-            let html = "";
-            
-            $("#totalReviewCount").text(data.pageObject.totalRow);
-
-            if(!list || list.length == 0) {
-                html = "<div class='text-center py-5'>등록된 리뷰가 없습니다.</div>";
-            } else {
-                $(list).each(function(i, vo) {
-                    // 별점 그리기 로직
-                    let stars = "";
-                    for(let i=1; i<=5; i++) {
-                        if(i <= vo.rating) stars += "★";
-                        else stars += "<span class='star-empty'>★</span>";
-                    }
-
-                    // 백틱(`)을 사용한 템플릿 리터럴
-                    html += `
-                        <div class="review-card shadow-sm">
-                            <div class="d-flex align-items-center">
-                                <div class="user-avatar">\${vo.userName.substring(0,1)}</div>
-                                <div class="ml-3">
-                                    <div class="d-flex align-items-center">
-                                        <span class="font-weight-bold mr-2">\${vo.userName}님</span>
-                                        <span class="star-rating">\${stars}</span>
-                                    </div>
-                                    <div class="small text-muted">\${vo.createdAt}</div>
-                                </div>
-                            </div>
-                            <div class="review-content">\${vo.content}</div>
-                            <div class="menu-tag">매장 번호: \${vo.storeId}</div>
-                        </div>
-                    `; // <- 끝에 백틱(`)과 세미콜론 확인!
-                });
-            }
-            $("#reviewList").html(html);
-        });
-    }
-
-    // 페이지 로드 시 리스트 불러오기 실행
-    loadReviewList();
-});
-</script>
-
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
+body {
+	background-color: #fcfcfc;
+}
+
 .review-card {
 	border: 1px solid #e9ecef;
 	border-radius: 15px;
 	padding: 25px;
 	margin-bottom: 20px;
 	background: #fff;
+	transition: transform 0.2s;
+}
+
+.review-card:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
 }
 
 .user-avatar {
@@ -125,40 +71,118 @@ $(function() {
 	border: 1px solid #eee;
 }
 
-.btn-outline-success {
-	border-color: #1a9c82;
-	color: #1a9c82;
+.btn-write {
+	background-color: #1a9c82;
+	color: white;
+	border-radius: 10px;
+	padding: 15px 40px;
+	font-weight: bold;
 }
 
-.btn-outline-success:hover {
-	background-color: #1a9c82;
-	border-color: #1a9c82;
+.btn-write:hover {
+	background-color: #14806a;
+	color: #fff;
 }
 </style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+	$(function() {
+		// 리뷰 작성하기 버튼 클릭
+		$("#writeBtn").click(function() {
+			let loginId = "${login.id}";
+			if (!loginId) {
+				if (confirm("로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?")) {
+					location.href = "/member/loginForm.do";
+				}
+			} else {
+				// 작성 폼으로 이동 (기본 매장번호 1번 전달)
+				location.href = "writeForm.do?storeId=1";
+			}
+		});
+	});
+</script>
 </head>
 <body>
+
 	<div class="container mt-5">
 		<div
 			class="review-header d-flex justify-content-between align-items-center mb-4">
 			<h4 class="font-weight-bold">
-				총 <span id="totalReviewCount">0</span>개의 리뷰
+				총 <span id="totalReviewCount">${pageObject.totalRow}</span>개의 리뷰
 			</h4>
 			<select class="form-control col-md-2" id="sortOrder">
 				<option value="latest">최신순</option>
-				<option value="latest">오래된순</option>
-				<option value="latest">인기순</option>
+				<option value="oldest">오래된순</option>
+				<option value="rating">별점순</option>
 			</select>
 		</div>
 
-		<div id="reviewList"></div>
+		<div id="reviewList">
+			<c:choose>
+				<%-- 데이터가 없는 경우 --%>
+				<c:when test="${empty list}">
+					<div class="text-center py-5 bg-white rounded shadow-sm">
+						<i class="fa-regular fa-comment-dots fa-3x mb-3 text-muted"></i>
+						<p class="text-muted">
+							아직 등록된 리뷰가 없습니다.<br>첫 번째 리뷰의 주인공이 되어보세요!
+						</p>
+					</div>
+				</c:when>
 
-		<div class="text-center mt-5">
-			<button
-				class="btn btn-outline-success btn-lg px-5 py-3 font-weight-bold"
-				id="writeBtn">리뷰 작성하기</button>
-			<p class="text-muted mt-2 small">로그인 후 리뷰를 작성할 수 있습니다</p>
+				<%-- 데이터가 있는 경우 반복 출력 --%>
+				<c:otherwise>
+					<c:forEach var="vo" items="${list}">
+						<div class="review-card shadow-sm">
+							<div class="d-flex align-items-center">
+								<div class="user-avatar">${vo.userName.substring(0,1)}</div>
+								<div class="ml-3">
+									<div class="d-flex align-items-center">
+										<span class="font-weight-bold mr-2">${vo.userName}님</span> <span
+											class="star-rating"> <%-- 별점 로직: 1부터 5까지 반복하며 채워진 별과 빈 별 구분 --%>
+											<c:forEach begin="1" end="5" var="i">
+												<c:choose>
+													<c:when test="${i <= vo.rating}">★</c:when>
+													<c:otherwise>
+														<span class="star-empty">★</span>
+													</c:otherwise>
+												</c:choose>
+											</c:forEach>
+										</span>
+									</div>
+									<div class="small text-muted">${vo.createdAt}</div>
+								</div>
+							</div>
+							<div class="review-content">${vo.content}</div>
+							<div class="menu-tag">
+								<i class="fa-solid fa-shop mr-1"></i> 매장 번호: ${vo.storeId}
+							</div>
+						</div>
+					</c:forEach>
+				</c:otherwise>
+			</c:choose>
+		</div>
 
+		<div class="text-center mt-5 mb-5">
+			<c:choose>
+				<%-- 1. 로그인을 안 한 경우: 로그인 버튼 표시 --%>
+				<c:when test="${empty login}">
+					<button class="btn btn-secondary btn-lg"
+						onclick="location.href='/member/loginForm.do'">로그인하고 리뷰
+						쓰기</button>
+					<p class="text-muted mt-2 small">로그인 후 따뜻한 한마디를 남겨주세요</p>
+				</c:when>
+
+				<%-- 2. 로그인을 한 경우: 리뷰 작성하기 버튼 표시 --%>
+				<c:otherwise>
+					<button class="btn btn-write btn-lg" id="writeBtn">리뷰 작성하기
+					</button>
+					<p class="text-success mt-2 small">${login.name} 님이 작성하신 리뷰
+						목록입니다.</p>
+				</c:otherwise>
+			</c:choose>
 		</div>
 	</div>
+
 </body>
 </html>

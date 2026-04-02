@@ -28,31 +28,45 @@ public class ReviewController implements Controller {
 			Object result = null; // 서비스 실행 결과를 담을 변수
 
 			switch (uri) {
-				case "/review/list.do":
-					System.out.println("ReviewController.execute() - 리뷰 리스트 처리");
-					PageObject pageObject = PageObject.getInstance(request);
+			case "/review/list.do":
+			    System.out.println("ReviewController.execute() - 리뷰 리스트 처리");
+			    
+			    // 1. 세션에서 로그인 아이디 가져오기 (이미 상단에서 id 변수를 선언했다고 가정)
+			    // String id = (String) session.getAttribute("id"); // 이런 식으로 가져오셨을 겁니다.
+			    
+			    PageObject pageObject = PageObject.getInstance(request);
 
-					// 서비스 실행 및 리스트 저장
-					List<ReviewVO> list = (List<ReviewVO>) Execute.execute(Init.getService(uri), pageObject);
+			    // 2. 로그인 여부에 따른 처리
+			    if (id != null) {
+			        // 로그인 상태: 내 아이디를 pageObject에 저장 (DAO에서 검색 조건으로 사용)
+			        pageObject.setAccepter(id); 
+			    } else {
+			        // 로그인 안 함: 바로 로그인 페이지로 보낼지, 아니면 빈 리스트를 보여줄지 결정
+			        // 여기서는 로그인 페이지로 유도하는 방향으로 처리합니다.
+			        return "redirect:/member/loginForm.do";
+			    }
 
-					if (list != null) {
-						for (ReviewVO vo : list) {
-							// 1. 본인 확인 처리 (새 필드 userId 사용)
-							if (id != null && id.equals(vo.getUserId())) {
-								vo.setSameId(1);
-							}
-							// 2. content 특수 문자 처리 (JSON 응답 대비)
-							if (vo.getContent() != null) {
-								vo.setContent(vo.getContent()
-										.replace("\\", "\\\\").replace("\n", "\\n")
-										.replace("\"", "\\\""));
-							}
-						}
-					}
+			    // 3. 서비스 실행 (이제 DAO에서 내 아이디에 해당하는 데이터만 가져옵니다)
+			    List<ReviewVO> list = (List<ReviewVO>) Execute.execute(Init.getService(uri), pageObject);
 
-					request.setAttribute("list", list);
-					request.setAttribute("pageObject", pageObject);
-					return "review/list";
+			    if (list != null) {
+			        for (ReviewVO vo : list) {
+			            // 본인 확인 처리 (수정/삭제 버튼 노출용)
+			            if (id.equals(vo.getUserId())) {
+			                vo.setSameId(1);
+			            }
+			            // 특수 문자 처리
+			            if (vo.getContent() != null) {
+			                vo.setContent(vo.getContent()
+			                        .replace("\\", "\\\\").replace("\n", "\\n")
+			                        .replace("\"", "\\\""));
+			            }
+			        }
+			    }
+
+			    request.setAttribute("list", list);
+			    request.setAttribute("pageObject", pageObject);
+			    return "review/list";
 
 				case "/review/write.do":
 					// JSON 데이터 수집

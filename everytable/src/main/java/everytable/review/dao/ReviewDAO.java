@@ -15,26 +15,32 @@ public class ReviewDAO extends DAO {
 
 	    con = DB.getConnection();
 
-	    // 3. 쿼리 작성
-	    // [수정] users u -> member m 으로 변경, u.id -> m.id 로 변경
+	    // 1. 기본 쿼리 작성 (본인 아이디 필터링 조건 추가)
+	    // r.user_id = m.id (조인 조건) AND r.user_id = ? (본인 확인 조건)
 	    String sql = " select r.review_id, r.content, m.id as user_id, m.name, r.store_id, r.rating, r.is_deleted, "
 	            + " to_char(r.created_at, 'yyyy-mm-dd') created_at "
-	            + " from review r, member m " // users 대신 member 테이블 사용
-	            + " where r.user_id = m.id "  // 조인 조건 수정
+	            + " from review r, member m " 
+	            + " where r.user_id = m.id " 
+	            + " and r.user_id = ? "  // [추가] 본인 리뷰만 가져오기 위한 조건
 	            + " order by r.review_id desc ";
 
-	    // 3-2. 순서 번호(rnum) 붙이기 
+	    // 2. 순서 번호(rnum) 붙이기 
 	    sql = " select rownum rnum, review_id, content, user_id, name, store_id, rating, is_deleted, created_at "
 	        + " from ( " + sql + " ) ";
 
-	    // 3-3. 페이지 데이터 가져오기
-	    sql = " select rnum, review_id, content, user_id, name, store_id, rating, is_deleted, created_at "
-	        + " from ( " + sql + " ) "
+	    // 3. 페이지 데이터 가져오기 (rnum 필터링)
+	    String finalSql = " select * from ( " + sql + " ) "
 	        + " where rnum between ? and ? ";
 
-	    pstmt = con.prepareStatement(sql);
-	    pstmt.setLong(1, pageObject.getStartRow());
-	    pstmt.setLong(2, pageObject.getEndRow());
+	    pstmt = con.prepareStatement(finalSql);
+	    
+	    // [중요] 물음표(?) 순서대로 데이터 세팅
+	    int idx = 1;
+	    // 1번 물음표: Controller에서 pageObject.setAccepter(id)로 담아준 내 아이디
+	    pstmt.setString(idx++, pageObject.getAccepter()); 
+	    // 2번, 3번 물음표: 페이징 처리를 위한 시작/끝 번호
+	    pstmt.setLong(idx++, pageObject.getStartRow());
+	    pstmt.setLong(idx++, pageObject.getEndRow());
 
 	    rs = pstmt.executeQuery();
 

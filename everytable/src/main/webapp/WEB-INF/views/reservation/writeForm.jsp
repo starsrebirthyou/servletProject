@@ -11,12 +11,10 @@
 </style>
 <script type="text/javascript">
   $(function(){
-      // 취소 버튼 클릭 시 이전 페이지(매장 상세 페이지)로 이동
       $(".cancelBtn").click(function(){
          history.back();
       });
       
-      // 오늘 이전 날짜는 선택 못하게 설정 (선택 사항)
       let today = new Date().toISOString().split('T')[0];
       $("#resDate").attr('min', today);
   });
@@ -26,15 +24,15 @@
 <div class="container">
     <h2 class="my-4 fw-bold">📅 예약 정보 입력</h2>
     
-    <form action="write.do" method="post">
-        <input type="hidden" name="storeId" value="${storeVO.storeId}">
+    <form action="/order/write.do" method="post">
+        <input type="hidden" name="storeId" value="${memberVO.storeId}">
         <input type="hidden" name="userId" value="${login.id}">
         
         <div class="card p-4 shadow-sm">
             <div class="mb-3">
                 <label class="form-label">예약 매장</label>
                 <input type="text" class="form-control read-only-input" 
-                       value="${storeVO.storeName}" readonly>
+                       value="${memberVO.storeName}" readonly>
             </div>
 
             <div class="mb-3">
@@ -46,7 +44,7 @@
             <div class="mb-3">
                 <label for="resPhone" class="form-label">연락처</label>
                 <input type="tel" class="form-control" id="resPhone" name="resPhone" 
-                       placeholder="- 없이 숫자 11자리" value="${login.tel}" required >
+                       placeholder="- 없이 숫자 11자리" value="" required >
                 <div class="form-text text-muted">* 연락이 가능한 번호인지 확인해 주세요.</div>
             </div>
 
@@ -71,7 +69,6 @@
                     <label for="resType" class="form-label">방문 유형</label>
                     <select class="form-select" id="resType" name="resType">
                         <option value="단체">단체 방문</option>
-                        <option value="개인">개인 방문</option>
                         <option value="픽업">포장/픽업</option>
                     </select>
                 </div>
@@ -80,7 +77,7 @@
             <input type="hidden" name="totalPrice" value="0">
 
             <div class="text-center mt-4">
-                <button type="submit" class="btn btn-primary px-5 py-2">주문 하기</button>
+                <button type="submit" class="btn btn-primary px-5 py-2">메뉴 주문하기</button>
                 <button type="reset" class="btn btn-warning px-4 py-2">새로입력</button>
                 <button type="button" class="cancelBtn btn btn-outline-secondary px-4 py-2">취소</button>
             </div>

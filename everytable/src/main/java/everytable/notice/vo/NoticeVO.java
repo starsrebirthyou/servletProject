@@ -5,7 +5,9 @@ public class NoticeVO {
 	private long no;  // 글 고유 번호
 	private String title;  // 제목
 	private String content;  // 내용
-	private String fileName;
+	private String fileName;   // 이미지
+	private String writerId;		// 작성자 아이디
+	private String writerName;		// 작성자 이름
 	private String writeDate;  // 공지 최초 등록일
 	private String updateDate;  // 공지 수정일
 	private long cateNo;  // 공지 유형 번호
@@ -35,6 +37,18 @@ public class NoticeVO {
 	}
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
+	}
+	public String getWriterId() {
+		return writerId;
+	}
+	public void setWriterId(String writerId) {
+		this.writerId = writerId;
+	}
+	public String getWriterName() {
+		return writerName;
+	}
+	public void setWriterName(String writerName) {
+		this.writerName = writerName;
 	}
 	public String getWriteDate() {
 		return writeDate;
@@ -70,8 +84,8 @@ public class NoticeVO {
 	@Override
 	public String toString() {
 		return "NoticeVO [no=" + no + ", title=" + title + ", content=" + content + ", fileName=" + fileName
-				+ ", writeDate=" + writeDate + ", updateDate=" + updateDate + ", cateNo=" + cateNo + ", cateName="
-				+ cateName + ", hit=" + hit + "]";
+				+ ", writerId=" + writerId + ", writerName=" + writerName + ", writeDate=" + writeDate + ", updateDate="
+				+ updateDate + ", cateNo=" + cateNo + ", cateName=" + cateName + ", hit=" + hit + "]";
 	}
 	
 }

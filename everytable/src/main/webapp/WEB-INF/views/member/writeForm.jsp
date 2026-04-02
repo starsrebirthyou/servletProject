@@ -23,6 +23,16 @@ $(function(){
       $("#id").focus();
       return false;
     }
+    if(!telCheck){
+        alert("이미 가입된 연락처이거나 형식이 올바르지 않습니다.");
+        $("#tel").focus();
+        return false;
+    }
+    if(!emailCheck){
+      alert("이미 가입된 이메일이거나 형식이 올바르지 않습니다.");
+      $("#email").focus();
+      return false;
+    }
   });
 
   $(".cancelBtn").click(function(){
@@ -60,6 +70,46 @@ $(function(){
                .addClass("alert-" + type)
                .text(msg);
   }
+  
+//연락처 중복 체크
+  $("#tel").blur(function(){
+      telCheck = false;
+      let tel = $(this).val();
+      
+      // 정규식 등 기본 길이/형식 체크 (예시)
+      if(tel.length >= 10){
+          $.ajax({
+              url: "checkTel.do?tel=" + tel,
+              success: function(result){
+                  if(result.trim()){ // 결과가 있으면 중복
+                      alert("이미 가입된 연락처입니다.");
+                  } else {
+                      telCheck = true; // 중복 아님
+                  }
+              }
+          });
+      }
+  });
+
+  // 이메일 중복 체크
+  $("#email").blur(function(){
+      emailCheck = false;
+      let email = $(this).val();
+      
+      if(email.length > 5 && email.includes("@")){
+          $.ajax({
+              url: "checkEmail.do?email=" + email,
+              success: function(result){
+                  if(result.trim()){
+                      alert("이미 가입된 계정(이메일)입니다. 아이디/비밀번호 찾기를 이용해주세요.");
+                  } else {
+                      emailCheck = true;
+                  }
+              }
+          });
+      }
+  });
+  
 });
 </script>
 </head>
@@ -106,12 +156,12 @@ $(function(){
     <div class="d-flex p-1">
       <div class="form-check m-3">
         <label class="form-check-label" for="gender1">
-          <input type="radio" class="form-check-input" id="gender1" name="gender" value="남자" checked>남자
+          <input type="radio" class="form-check-input" id="gender1" name="gender" value="여자" checked>여자
         </label>
       </div>
       <div class="form-check m-3">
         <label class="form-check-label" for="gender2">
-          <input type="radio" class="form-check-input" id="gender2" name="gender" value="여자">여자
+          <input type="radio" class="form-check-input" id="gender2" name="gender" value="남자">남자
         </label>
       </div>
     </div>

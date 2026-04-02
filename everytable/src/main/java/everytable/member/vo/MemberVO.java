@@ -11,6 +11,9 @@ public class MemberVO {
 	private String birth;  	   // 생년월일
 	private String tel; 		   // 전화번호
 	private String email; 	   // 이메일
+	private String storeName;   // 매장 이름
+	private String storeCate;   // 매장 카테고리
+	private String storeAddr;   // 매장 주소
 	private String status;  	   // 상태
 	private Integer gradeNo;   // 등급 번호
 	private String gradeName;  // 등급 이름
@@ -74,6 +77,24 @@ public class MemberVO {
 	public String getStatus() {
 		return status;
 	}
+	public String getStoreName() {
+		return storeName;
+	}
+	public void setStoreName(String storeName) {
+		this.storeName = storeName;
+	}
+	public String getStoreCate() {
+		return storeCate;
+	}
+	public void setStoreCate(String storeCate) {
+		this.storeCate = storeCate;
+	}
+	public String getStoreAddr() {
+		return storeAddr;
+	}
+	public void setStoreAddr(String storeAddr) {
+		this.storeAddr = storeAddr;
+	}
 	public void setStatus(String status) {
 		this.status = status;
 	}
@@ -105,9 +126,9 @@ public class MemberVO {
 	@Override
 	public String toString() {
 		return "MemberVO [no=" + no + ", id=" + id + ", pw=" + pw + ", newPw=" + newPw + ", name=" + name + ", gender="
-				+ gender + ", birth=" + birth + ", tel=" + tel + ", email=" + email + ", joinDate=" + joinDate
-				+ ", lastLogin=" + lastLogin + ", status=" + status + ", gradeNo=" + gradeNo + ", gradeName=" + gradeName
-				+ "]";
+				+ gender + ", birth=" + birth + ", tel=" + tel + ", email=" + email + ", storeName=" + storeName
+				+ ", storeCate=" + storeCate + ", storeAddr=" + storeAddr + ", status=" + status + ", gradeNo="
+				+ gradeNo + ", gradeName=" + gradeName + ", joinDate=" + joinDate + ", lastLogin=" + lastLogin + "]";
 	}
 	
 }

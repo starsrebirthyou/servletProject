@@ -1,9 +1,9 @@
 package everytable.order.controller;
 
-import java.util.List;
-
 import everytable.main.controller.Controller;
-import everytable.order.service.OrderWriteService;
+import everytable.main.controller.Init;
+import everytable.main.service.Execute;
+import everytable.order.vo.OrderVO;
 import jakarta.servlet.http.HttpServletRequest;
 
 public class OrderController implements Controller {
@@ -16,28 +16,50 @@ public class OrderController implements Controller {
 		try {
 			String uri = request.getServletPath();
 			
-			switch(uri) {
+			OrderVO vo;
+			
+			switch (uri) {
 			
 			case "/order/writeForm.do":
-			    // 1. 파라미터 수집 (앞 단계에서 넘겨준 storeId)
-			    Long storeId = Long.parseLong(request.getParameter("storeId"));
-			    
-			    // 2. 서비스 호출 (해당 식당의 메뉴 리스트 가져오기)
-			    // SQL: select * from menu where store_id = ?
-			    OrderWriteService service = new OrderWriteService();
-			    List<MenuVO> menuList = service.list(storeId);
-			    
-			    // 3. JSP로 데이터 전달
-			    request.setAttribute("menuList", menuList);
-			    request.setAttribute("storeId", storeId); // 다음 단계 전송용
-			    
-			    return "order/writeForm";
+				return "order/writeForm";
 			
-		} catch(Exception e) {
+			case "/order/write.do":
+				System.out.println("/order/write.do - 메뉴 주문 처리");
+				
+				vo = new OrderVO();
+				
+				// 사용자 입력
+				vo.setOrderItemNo(Long.parseLong(request.getParameter("orderItemNo")));
+				vo.setMenuName(request.getParameter("menuName"));
+				vo.setQuantity(Long.parseLong(request.getParameter("quantity")));
+				
+				vo.setOrderAdd(request.getParameter("orderAdd"));
+				
+				// hidden으로 넘어온 값
+				vo.setStoreName(request.getParameter("storeName"));
+				
+				// 불러오기 - 자동 계산
+				vo.setMenuNo(Long.parseLong(request.getParameter("menuNo")));
+				vo.setPrice(Long.parseLong(request.getParameter("price")));
+				vo.setTotalPrice(Long.parseLong(request.getParameter("totalPrice")));
+				
+				Long resNo = (Long) Execute.execute(Init.getService(uri), vo);
+				
+				request.getSession().setAttribute("msg", "메뉴 주문이 완료되었습니다");
+				
+				return "rediredct:/order/view.do?resNo=" + resNo;
+				
+				
+				
+				
+				
+			
+			} // switch~case 끝
+			
+		} catch (Exception e) {
 			e.printStackTrace();
 		} // try~catch 끝
-		
-		return null;
-	} // execute() 끝
 
+		return null;
+	}
 }

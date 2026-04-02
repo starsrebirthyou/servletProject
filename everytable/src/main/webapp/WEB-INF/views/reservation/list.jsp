@@ -173,10 +173,6 @@
 
 				<%-- 버튼 영역 수정 --%>
 				<div class="d-flex justify-content-end gap-2">
-					<%-- 대기(1) 또는 승인(2) 상태일 때만 주문 취소 버튼 표시 --%>
-					<c:if test="${vo.resStatus == 1 || vo.resStatus == 2}">
-						<button class="btn btn-outline-danger btn-sm px-4">주문 취소</button>
-					</c:if>
 					<button class="btn btn-dark btn-sm px-4">상세보기</button>
 				</div>
 
