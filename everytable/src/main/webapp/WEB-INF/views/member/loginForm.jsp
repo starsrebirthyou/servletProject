@@ -44,10 +44,10 @@
   </div>
 
   <button type="submit" class="btn btn-primary">로그인</button>
-  <button type="button" class="btn btn-secondary"
-          onclick="location.href='${pageContext.request.contextPath}/member/writeTypeSelect.do'">
-    회원가입
-  </button>
+  <button type="button" class="btn btn-secondary" 
+  		onclick="location.href='${pageContext.request.contextPath}/member/writeTypeSelect.do'">회원가입</button>
+	<button type="button" class="btn btn-success" 
+	onclick="location.href='${pageContext.request.contextPath}/member/searchIdForm.do'">아이디 찾기</button>
 
 </form>
 </body>
