@@ -3,7 +3,6 @@ package everytable.stats.service;
 import everytable.main.dao.DAO;
 import everytable.main.service.Service;
 import everytable.stats.dao.StatsDAO;
-import everytable.stats.vo.StatsVO;
 import everytable.util.page.PageObject;
 
 public class StatsDashboardService implements Service{
