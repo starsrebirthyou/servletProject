@@ -23,6 +23,16 @@ $(function(){
       $("#id").focus();
       return false;
     }
+    if(!telCheck){
+        alert("이미 가입된 연락처이거나 형식이 올바르지 않습니다.");
+        $("#tel").focus();
+        return false;
+    }
+    if(!emailCheck){
+      alert("이미 가입된 이메일이거나 형식이 올바르지 않습니다.");
+      $("#email").focus();
+      return false;
+    }
   });
 
   $(".cancelBtn").click(function(){
@@ -60,6 +70,7 @@ $(function(){
                .addClass("alert-" + type)
                .text(msg);
   }
+  
 });
 </script>
 </head>
