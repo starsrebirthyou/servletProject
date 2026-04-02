@@ -36,6 +36,9 @@ import everytable.payment.service.PaymentListService;
 import everytable.payment.service.PaymentUpdateService;
 import everytable.payment.service.PaymentViewService;
 import everytable.payment.service.PaymentWriteService;
+import everytable.refund.controller.RefundController;
+import everytable.refund.dao.RefundDAO;
+import everytable.refund.service.RefundRefundService;
 import everytable.reservation.controller.ReservationController;
 import everytable.reservation.dao.ReservationDAO;
 import everytable.reservation.service.ReservationCancelService;
@@ -233,6 +236,15 @@ public class Init extends HttpServlet {
 
 		serviceMap.get("/order/write.do").setDAO(daoMap.get("orderDAO"));
 		
+		// ==============================================
+		// 10. 환불 (Refund)
+		// ==============================================
+		controllerMap.put("/refund", new RefundController());
+		daoMap.put("RefundDAO", new RefundDAO());
+
+		serviceMap.put("/refund/refund.do", new RefundRefundService());
+
+		serviceMap.get("/refund/refund.do").setDAO(daoMap.get("RefundDAO"));
 
 		System.out.println("Init.init() --- 모든 객체 로딩 및 조립 완료 ---");
 	}
