@@ -136,8 +136,8 @@ public class NoticeDAO extends DAO {
 		// 1. 2. DB 연결
 		con = DB.getConnection();
 		// 3. sql 작성
-		String sql = "select no, title, content, image, to_char(write_date, 'yyyy-mm-dd hh:mm') write_date, "
-				+ " to_char(update_date, 'yyyy-mm-dd hh:mm') update_date, "
+		String sql = "select no, title, content, image, to_char(write_date, 'yyyy-mm-dd HH24:mi') write_date, "
+				+ " to_char(update_date, 'yyyy-mm-dd HH24:mi') update_date, "
 				+ " n.cate_no, c.cate_name, n.hit "
 		        + " from notice n, notice_cate c where no = ? and n.cate_no = c.cate_no";
 		// 4. 실행 객체 & 데이터 세팅
