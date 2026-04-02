@@ -46,7 +46,7 @@
 	          <a class="nav-link" href="/member/loginForm.do">로그인</a>
 	        </li>
 	        <li class="nav-item">
-	          <a class="nav-link" href="/member/writeForm.do">회원가입</a>
+	          <a class="nav-link" href="/member/writeTypeSelect.do">회원가입</a>
 	        </li>
 	        <li class="nav-item">
 	          <a class="nav-link" href="/member/idSearchForm.do">아이디 찾기</a>
