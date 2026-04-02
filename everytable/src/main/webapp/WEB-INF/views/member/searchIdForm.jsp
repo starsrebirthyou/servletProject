@@ -50,65 +50,58 @@
 				</div>
 				
 				<script>
-				$(function() {
-				    // 1단계 -> 2단계 이동 (이름/이메일 체크)
-				    $("#nextBtn").click(function() {
-				        let name = $("#name").val();
-				        let email = $("#email").val();
-				
-				        $.ajax({
-				            url: "/member/checkMemberInfo.do",
-				            data: { name: name, email: email },
-				            success: function(res) {
-				                let result = res.trim();
-				                console.log("서버 응답: " + result); 
-				
-				                // 결과가 "no"가 아니고 내용이 있으면 (아이디를 가져왔으면)
-				                if(result !== "no" && result.length > 0) {
-				                    $("#step1").hide();
-				                    $("#step2").fadeIn();
-				                    // 찾아온 아이디를 히든 필드에 저장
-				                    $("#foundId").val(result); 
-				                } else {
-				                    alert("일치하는 정보가 없습니다.");
-				                }
-				            }
-				        });
-				    });
-				
-				 // 2단계 -> 최종 확인 (비밀번호 체크 후 아이디 공개)
-				    $("#findIdBtn").click(function() {
-				        let id = $("#foundId").val(); // 1단계에서 뽑아둔 아이디
-				        let pw = $("#pw").val();
+				// 1단계 -> 2단계 이동 부분 수정
+				$("#nextBtn").click(function() {
+				    let name = $("#name").val();
+				    let email = $("#email").val();
 
-				        if(!pw) {
-				            alert("비밀번호를 입력해주세요.");
-				            $("#pw").focus();
-				            return;
+				    $.ajax({
+				        url: "/member/checkMemberInfo.do",
+				        data: { name: name, email: email },
+				        success: function(res) {
+				            // 🔥 핵심: res(HTML 덩어리) 안에서 우리가 심어놓은 span의 텍스트만 추출
+				            let result = $(res).find("#ajax-data-result").text().trim();
+				            
+				            // 혹시 find로 안 잡히면 filter로 재시도 (SiteMesh 구조에 따라 다름)
+				            if(!result) result = $(res).filter("#ajax-data-result").text().trim();
+
+				            console.log("정제된 아이디: [" + result + "]"); 
+
+				            if(result !== "no" && result.length > 0) {
+				                $("#step1").hide();
+				                $("#step2").fadeIn();
+				                $("#foundId").val(result); // 이제 깨끗한 'user01'만 들어감!
+				            } else {
+				                alert("일치하는 정보가 없습니다.");
+				            }
 				        }
+				    });
+				});
 
-				        $.ajax({
-				            url: "/member/checkPwForId.do", // 전용 체크 주소로 변경
-				            data: { id: id, pw: pw },
-				            success: function(res) {
-				                let result = res.trim();
-				                console.log("비밀번호 체크 결과: " + result);
+				// 2단계 -> 최종 확인 부분 수정
+				$("#findIdBtn").click(function() {
+				    let id = $("#foundId").val();
+				    let pw = $("#pw").val();
 
-				                if(result === "match") {
-				                    // 성공! 아이디 공개
-				                    $("#step2").hide();
-				                    $("#showId").text(id); // 보관했던 아이디 출력
-				                    $("#resultStep").fadeIn();
-				                } else {
-				                    // 실패!
-				                    alert("비밀번호가 일치하지 않습니다. 다시 확인해 주세요.");
-				                    $("#pw").val("").focus();
-				                }
-				            },
-				            error: function() {
-				                alert("서버 통신 중 오류가 발생했습니다.");
+				    $.ajax({
+				        url: "/member/checkPwForId.do",
+				        data: { id: id, pw: pw },
+				        success: function(res) {
+				            // 🔥 여기서도 똑같이 정제 작업 필요!
+				            let result = $(res).find("#ajax-data-result").text().trim();
+				            if(!result) result = $(res).filter("#ajax-data-result").text().trim();
+				            
+				            console.log("비밀번호 체크 결과: " + result);
+
+				            if(result === "match") {
+				                $("#step2").hide();
+				                $("#showId").text(id); 
+				                $("#resultStep").fadeIn();
+				            } else {
+				                alert("비밀번호가 일치하지 않습니다.");
+				                $("#pw").val("").focus();
 				            }
-				        });
+				        }
 				    });
 				});
 				</script>
