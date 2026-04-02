@@ -10,47 +10,47 @@ import everytable.util.page.PageObject;
 
 public class PaymentDAO extends DAO {
 
-    // 1. 결제 리스트
-    public List<PaymentVO> list(PageObject pageObject) throws Exception {
-        List<PaymentVO> list = new ArrayList<>();
-        
-        con = DB.getConnection();
-        
-        String sql = "select order_id, user_id, method, amount, status, pay_date, update_date from payment ";
-        sql += search(pageObject);
-        sql += " order by order_id desc ";
+	// 1. 결제 리스트
+	public List<PaymentVO> list(PageObject pageObject) throws Exception {
+	    List<PaymentVO> list = new ArrayList<>();
+	    
+	    con = DB.getConnection();
+	    String sql = "select order_id, user_id, method, amount, status, pickup_date, pay_date, update_date from payment ";
+	    sql += search(pageObject);
+	    sql += " order by order_id desc ";
 
-        sql = "select rownum rnum, order_id, user_id, method, amount, status, pay_date, update_date "
-            + " from (" + sql + ")";
-        
-        sql = "select rnum, order_id, user_id, method, amount, status, pay_date, update_date "
-            + " from (" + sql + ") where rnum between ? and ?";
-        
-        pstmt = con.prepareStatement(sql);
-        int idx = 1;
-        idx = searchDataSet(pstmt, idx, pageObject);
-        pstmt.setLong(idx++, pageObject.getStartRow());
-        pstmt.setLong(idx++, pageObject.getEndRow());
-        
-        rs = pstmt.executeQuery();
-        
-        if (rs != null) {
-            while(rs.next()) {
-                PaymentVO vo = new PaymentVO();
-                vo.setOrder_id(rs.getLong("order_id"));
-                vo.setUser_id(rs.getString("user_id")); 
-                vo.setMethod(rs.getString("method"));
-                vo.setAmount(rs.getLong("amount"));
-                vo.setStatus(rs.getString("status"));
-                vo.setPayDate(rs.getDate("pay_date"));
-                vo.setUpdateDate(rs.getDate("update_date"));
-                list.add(vo); 
-            }
-        }
-        
-        DB.close(con, pstmt, rs);
-        return list;
-    }
+	    sql = "select rownum rnum, order_id, user_id, method, amount, status, pickup_date, pay_date, update_date "
+	        + " from (" + sql + ")";
+	    
+	    sql = "select rnum, order_id, user_id, method, amount, status, pickup_date, pay_date, update_date "
+	        + " from (" + sql + ") where rnum between ? and ?";
+	    
+	    pstmt = con.prepareStatement(sql);
+	    int idx = 1;
+	    idx = searchDataSet(pstmt, idx, pageObject);
+	    pstmt.setLong(idx++, pageObject.getStartRow());
+	    pstmt.setLong(idx++, pageObject.getEndRow());
+	    
+	    rs = pstmt.executeQuery();
+	    
+	    if (rs != null) {
+	        while(rs.next()) {
+	            PaymentVO vo = new PaymentVO();
+	            vo.setOrder_id(rs.getLong("order_id"));
+	            vo.setUser_id(rs.getString("user_id")); 
+	            vo.setMethod(rs.getString("method"));
+	            vo.setAmount(rs.getLong("amount"));
+	            vo.setStatus(rs.getString("status"));
+	            vo.setPayDate(rs.getDate("pay_date"));
+	            vo.setUpdateDate(rs.getDate("update_date"));
+	            vo.setPickupDate(rs.getTimestamp("pickup_date"));
+	            list.add(vo); 
+	        }
+	    }
+	    
+	    DB.close(con, pstmt, rs);
+	    return list;
+	}
 
     // 2. 전체 데이터 개수 구하기
     public Long getTotalRow(PageObject pageObject) throws Exception {
@@ -76,9 +76,10 @@ public class PaymentDAO extends DAO {
         PaymentVO vo = null;
         con = DB.getConnection();
         
-        String sql = "select order_id, user_id, method, amount, status, "
-                   + " pay_date, update_date "
-                   + " from payment where order_id = ? ";
+        String sql = "select order_id, user_id, method, amount, status, pickup_date, " // 👈 추가
+                + " pay_date, update_date "
+                + " from payment where order_id = ? ";
+    
         
         pstmt = con.prepareStatement(sql);
         pstmt.setLong(1, no);
@@ -93,6 +94,7 @@ public class PaymentDAO extends DAO {
             vo.setStatus(rs.getString("status"));
             vo.setPayDate(rs.getDate("pay_date"));
             vo.setUpdateDate(rs.getDate("update_date"));
+            vo.setPickupDate(rs.getTimestamp("pickup_date"));
         }
         DB.close(con, pstmt, rs);
         return vo;
@@ -126,9 +128,8 @@ public class PaymentDAO extends DAO {
     public Integer write(PaymentVO vo) throws Exception {
         con = DB.getConnection();
         
-        String sql = "insert into payment(payment_id, order_id, user_id, method, amount, status) "
-                   + " values(payment_seq.nextval, ?, ?, ?, ?, ?)";
-        
+        String sql = "insert into payment(payment_id, order_id, user_id, method, amount, status, pickup_date) "
+                + " values(payment_seq.nextval, ?, ?, ?, ?, ?, ?)";
         pstmt = con.prepareStatement(sql);
         
         pstmt.setLong(1, vo.getOrder_id()); 
@@ -136,7 +137,7 @@ public class PaymentDAO extends DAO {
         pstmt.setString(3, vo.getMethod());
         pstmt.setLong(4, vo.getAmount());
         pstmt.setString(5, vo.getStatus());
-        
+        pstmt.setTimestamp(6, new java.sql.Timestamp(vo.getPickupDate().getTime()));
         int result = pstmt.executeUpdate();
         
         DB.close(con, pstmt);
@@ -158,8 +159,7 @@ public class PaymentDAO extends DAO {
 	public Integer update(PaymentVO vo) throws Exception {
 		Integer result = 0;
 		con= DB.getConnection();
-		String sql = "update payment set status = ?, update_date = sysdate "
-	               + " where order_id = ? ";
+		String sql = "update payment set status = ?, update_date = sysdate where order_id = ?";
 		pstmt = con.prepareStatement(sql);
 		pstmt.setString(1,vo.getStatus());
 		pstmt.setLong(2,vo.getOrder_id());

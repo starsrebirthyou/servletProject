@@ -12,7 +12,9 @@
     <form action="write.do" method="post">
     <input type="hidden" name="order_id" value="1">
     <input type="hidden" name="user_id" value="admin">
-	<input type="hidden" name="amount" value="300000">
+	//<input type="hidden" name="amount" value="300000">
+	<!-- <input type="hidden" name="amount" value="${vo.totalPrice }"> -->
+	<input type="hidden" name="pickup_date" value="2026-04-12">
 
         <div class="card shadow-sm mx-auto" style="max-width: 500px;">
             <div class="card-body">

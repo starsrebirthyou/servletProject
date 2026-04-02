@@ -2,13 +2,16 @@ package everytable.payment.vo;
 import java.util.Date;
 
 public class PaymentVO {
-	private Long order_id;//결제번호
-	private String user_id;//주문번호
+	private Long order_id;//주문번호
+	private String user_id;//회원번호
 	private String method;//결제수단 카드,통장입금
 	private Long amount;// 결제금액
 	private String status;//결제상태
 	private Date payDate;//결제 일시
 	private Date updateDate;//수정일시
+	private Date pickupDate; //픽업예정 일시
+	
+	
 	public Long getOrder_id() {
 		return order_id;
 	}
@@ -51,12 +54,17 @@ public class PaymentVO {
 	public void setUpdateDate(Date updateDate) {
 		this.updateDate = updateDate;
 	}
+	public Date getPickupDate() {
+		return pickupDate;
+	}
+	public void setPickupDate(Date pickupDate) {
+		this.pickupDate = pickupDate;
+	}
 	@Override
 	public String toString() {
 		return "PaymentVO [order_id=" + order_id + ", user_id=" + user_id + ", method=" + method + ", amount=" + amount
-				+ ", status=" + status + ", payDate=" + payDate + ", updateDate=" + updateDate + "]";
+				+ ", status=" + status + ", payDate=" + payDate + ", updateDate=" + updateDate + ", pickupDate="
+				+ pickupDate + "]";
 	}
-	
-	
 	
 }
