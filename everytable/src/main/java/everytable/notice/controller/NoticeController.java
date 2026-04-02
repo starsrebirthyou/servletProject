@@ -215,8 +215,9 @@ public class NoticeController implements Controller {
 				// 파일이 큰 경우 업로드되는데 시간이 필요하다.
 				Thread.sleep(1000);
 				
-				return "redirect:view.do?no=" + vo.getNo() + "&page=" + request.getParameter("page")
-					+ "&perPageNum=" + request.getParameter("perPageNum");
+				return "redirect:list.do?page=" + request.getParameter("page") 
+			    + "&perPageNum=" + request.getParameter("perPageNum") 
+			    + "&key=" + request.getParameter("key");
 				
 				
 			// 5. 공지 삭제

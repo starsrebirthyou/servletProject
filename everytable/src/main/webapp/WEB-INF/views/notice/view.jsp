@@ -50,7 +50,13 @@ $(function(){
         
         <div class="text-secondary mb-3 d-flex align-items-center" style="font-size: 0.9rem;">
             <span class="me-3"><i class="fa fa-user"></i> 에브리테이블 관리자</span>
-            <span class="me-3"><i class="fa fa-calendar"></i> ${vo.writeDate}</span>
+			<span class="me-4">
+		        <i class="fa fa-calendar"></i> ${vo.writeDate}
+		        <c:if test="${!empty vo.updateDate}">
+		            <em style="margin-left: 6px; font-size: 0.8rem; font-style: normal; 
+		            		opacity: 0.7;">(수정: ${vo.updateDate})</em>
+		        </c:if>
+			</span>
             <span><i class="fa fa-eye"></i> 조회수 ${vo.hit}</span>
         </div>
         

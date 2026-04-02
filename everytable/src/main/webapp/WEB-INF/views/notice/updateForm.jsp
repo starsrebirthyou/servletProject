@@ -107,6 +107,7 @@ $(function(){
             <input type="hidden" name="page" value="${param.page}">
             <input type="hidden" name="perPageNum" value="${param.perPageNum}">
             <input type="hidden" name="delFileName" value="${vo.fileName}">
+			<input type="hidden" name="key" value="${param.key}">
 
             <div class="mb-4">
                 <label for="cateNo" class="form-label">카테고리</label>

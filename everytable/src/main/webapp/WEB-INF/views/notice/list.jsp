@@ -107,13 +107,6 @@ $(function(){
         location = "list.do?key=" + key + "&perPageNum=${pageObject.perPageNum}";
     });
 
-    // 현재 선택된 카테고리 버튼 활성화 유지
-    $(".filter-btn").each(function(){
-        $(this).removeClass("active");
-        if($(this).val() == "${pageObject.key}"){
-            $(this).addClass("active");
-        }
-    });
 });
 </script>
 </head>
