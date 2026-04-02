@@ -4,21 +4,28 @@ package everytable.member.service;
 import everytable.main.dao.DAO;
 import everytable.main.service.Service;
 import everytable.member.dao.MemberDAO;
+import everytable.member.vo.MemberVO;
+import everytable.util.page.PageObject;
 
 public class MemberListService implements Service {
 
-	private MemberDAO dao = null;
-	
-	// Init에서 이미 생성된 dao를 전달해서 저장해 놓는다. - 서버가 시작될 때 : 코딩 필수
-	public void setDAO(DAO dao) {
-		this.dao = (MemberDAO) dao;
-	}
-	
-	@Override
-	public Object service(Object obj) throws Exception {
-		// TODO Auto-generated method stub
-		return dao.list();
-	}
-
+    private MemberDAO dao = null;
+    
+    public void setDAO(DAO dao) {
+        this.dao = (MemberDAO) dao;
+    }
+ 
+    // obj = Object[]{PageObject, MemberVO(filterVO)}
+    @Override
+    public Object service(Object obj) throws Exception {
+        Object[] params = (Object[]) obj;
+        PageObject pageObject = (PageObject) params[0];
+        MemberVO  filterVO   = (MemberVO)   params[1];
+ 
+        // 전체 행 수 계산 → pageObject에 세팅 (startRow/endRow/totalPage 자동 계산)
+        pageObject.setTotalRow(dao.getTotalRow(pageObject, filterVO));
+ 
+        return dao.list(pageObject, filterVO);
+    }
 	
 }
