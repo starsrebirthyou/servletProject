@@ -42,7 +42,7 @@
         <div class="mb-3 mt-3">
             <label for="resPhone" class="form-label">연락처</label>
             <input type="tel" class="form-control" id="resPhone" name="resPhone" 
-                   value="${vo.resPhone}" pattern="0\d{1,2}-\d{3,4}-\d{4}" required>
+                   value="${vo.resPhone}" required>
         </div>
 
         <div class="mb-3 mt-3">

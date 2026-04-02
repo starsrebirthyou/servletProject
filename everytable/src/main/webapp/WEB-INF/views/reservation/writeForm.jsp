@@ -27,14 +27,14 @@
     <h2 class="my-4 fw-bold">📅 예약 정보 입력</h2>
     
     <form action="write.do" method="post">
-        <input type="hidden" name="storeId" value="${storeVO.storeId}">
+        <input type="hidden" name="storeName" value="${memberVO.storeName}">
         <input type="hidden" name="userId" value="${login.id}">
         
         <div class="card p-4 shadow-sm">
             <div class="mb-3">
                 <label class="form-label">예약 매장</label>
                 <input type="text" class="form-control read-only-input" 
-                       value="${storeVO.storeName}" readonly>
+                       value="${memberVO.storeName}" readonly>
             </div>
 
             <div class="mb-3">
@@ -71,7 +71,6 @@
                     <label for="resType" class="form-label">방문 유형</label>
                     <select class="form-select" id="resType" name="resType">
                         <option value="단체">단체 방문</option>
-                        <option value="개인">개인 방문</option>
                         <option value="픽업">포장/픽업</option>
                     </select>
                 </div>
