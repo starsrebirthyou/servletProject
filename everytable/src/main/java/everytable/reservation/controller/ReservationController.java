@@ -3,9 +3,11 @@ package everytable.reservation.controller;
 import everytable.main.controller.Controller;
 import everytable.main.controller.Init;
 import everytable.main.service.Execute;
+import everytable.member.vo.LoginVO;
 import everytable.reservation.vo.ReservationVO;
 import everytable.util.page.PageObject;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 public class ReservationController implements Controller {
 
@@ -20,18 +22,32 @@ public class ReservationController implements Controller {
 			ReservationVO vo;
 			Long no;
 			Integer result;
-			;
 
 			switch (uri) {
 			case "/reservation/list.do":
-				PageObject pageObject = PageObject.getInstance(request);
+			    // 1. 페이지 및 검색 정보 생성
+			    PageObject pageObject = PageObject.getInstance(request);
+			    
+			    // 2. 세션에서 로그인 객체 꺼내기 (MemberController 저장 방식에 맞춤)
+			    HttpSession session = request.getSession();
+			    LoginVO loginVO = (LoginVO) session.getAttribute("login");
+			    
+			    // 로그인이 안 되어 있으면 로그인 폼으로 리다이렉트
+			    if (loginVO == null) {
+			        session.setAttribute("msg", "로그인이 필요한 서비스입니다.");
+			        return "redirect:/member/loginForm.do";
+			    }
+			    
+			    // 3. PageObject의 accepter 필드에 로그인 아이디 심기
+			    pageObject.setAccepter(loginVO.getId());
 
-				request.setAttribute("list", Execute.execute(Init.getService(uri), pageObject));
+			    // 4. 서비스 실행 (pageObject 하나만 전달)
+			    request.setAttribute("list", Execute.execute(Init.getService(uri), pageObject));
+			    
+			    // 5. JSP 전달용 데이터
+			    request.setAttribute("pageObject", pageObject);
 
-				System.out.println("ReservationControllr.execute().pageObject - " + pageObject);
-				request.setAttribute("pageObject", pageObject);
-
-				return "reservation/list";
+			    return "reservation/list";
 
 			case "/reservation/view.do":
 				// 1. 파라미터 수집 (no가 null이면 리스트로 튕겨냄)
@@ -50,34 +66,32 @@ public class ReservationController implements Controller {
 				return "reservation/writeForm";
 
 			case "/reservation/write.do":
-				System.out.println("write.do - 예약 등록 처리");
+			    System.out.println("/reservation/write.do - 예약 등록 처리");
 
-				// 1. VO 객체 생성
-				// (위에서 vo 변수가 선언되어 있다면 그대로 사용, 안 되어 있다면 ReservationVO vo = new
-				// ReservationVO();)
-				vo = new ReservationVO();
+			    vo = new ReservationVO();
 
-				// 2. 넘어오는 데이터 수집 (JSP의 input name 속성과 일치해야 함)
-				// - 사용자 입력 정보
-				vo.setResDate(request.getParameter("resDate"));
-				vo.setResTime(request.getParameter("resTime"));
-				vo.setResCount(Long.parseLong(request.getParameter("resCount")));
-				vo.setResPhone(request.getParameter("resPhone"));
-				vo.setResType(request.getParameter("resType"));
+			    // 1. 사용자 입력 데이터 수집
+			    vo.setResDate(request.getParameter("resDate"));
+			    vo.setResTime(request.getParameter("resTime"));
+			    vo.setResCount(Long.parseLong(request.getParameter("resCount")));
+			    vo.setResPhone(request.getParameter("resPhone"));
+			    vo.setResType(request.getParameter("resType"));
 
-				// - 시스템 정보 (hidden으로 넘어온 값들)
-				vo.setUserId(request.getParameter("userId")); // 회원 ID
-				vo.setStoreName(request.getParameter("storeName")); // 매장 번호
+			    // 2. 시스템 정보 수집
+			    vo.setUserId(request.getParameter("userId")); 
+			    vo.setStoreId(Long.parseLong(request.getParameter("storeId"))); // 이름보다 ID가 정확함
+			    // vo.setResNo는 여기서 하지 않습니다! (DB에서 생성함)
 
-				// 3. 서비스 실행 (Init에 등록된 ReservationWriteService 실행)
-				Execute.execute(Init.getService(uri), vo);
+			    // 3. 서비스 실행 및 생성된 번호 받기 (핵심!)
+			    // Execute.execute가 리턴하는 Object를 Long으로 캐스팅해서 변수에 담습니다.
+			    Long resNo = (Long) Execute.execute(Init.getService(uri), vo);
 
-				// 4. 처리 결과 메시지 담기
-				request.getSession().setAttribute("msg", "예약이 완료되었습니다.");
+			    // 4. 처리 결과 메시지
+			    request.getSession().setAttribute("msg", "예약이 완료되었습니다. 메뉴를 선택해주세요.");
 
-				// 5. 리스트로 이동 (페이지 정보가 있다면 파라미터 유지)
-				return "redirect:list.do?perPageNum=" + request.getParameter("perPageNum");
-
+			    // 5. 생성된 번호를 들고 메뉴 주문 폼으로 이동
+			    return "redirect:/order/writeForm.do?resNo=" + resNo;
+				
 			case "/reservation/updateForm.do":
 				// 1. 파라미터 수집
 				String strUpdateNo = request.getParameter("no");

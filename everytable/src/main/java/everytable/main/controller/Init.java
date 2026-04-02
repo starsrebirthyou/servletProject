@@ -27,6 +27,9 @@ import everytable.notice.service.NoticeListService;
 import everytable.notice.service.NoticeUpdateService;
 import everytable.notice.service.NoticeViewService;
 import everytable.notice.service.NoticeWriteService;
+import everytable.order.controller.OrderController;
+import everytable.order.dao.OrderDAO;
+import everytable.order.service.OrderWriteService;
 import everytable.payment.controller.PaymentController;
 import everytable.payment.dao.PaymentDAO;
 import everytable.payment.service.PaymentListService;
@@ -67,19 +70,19 @@ public class Init extends HttpServlet {
 	private static Map<String, Controller> controllerMap = new HashMap<>();
 	private static Map<String, Service> serviceMap = new HashMap<>();
 	private static Map<String, DAO> daoMap = new HashMap<>();
-	
+
 	// 객체 꺼내기 메서드
 	public static Controller getController(String module) {
 		return controllerMap.get(module);
 	}
-	
+
 	public static Service getService(String uri) {
 		return serviceMap.get(uri);
 	}
-	
-    public Init() {
-        super();
-    }
+
+	public Init() {
+		super();
+	}
 
 	public void init(ServletConfig config) throws ServletException {
 		System.out.println("Init.init() --- 객체 생성 및 조립 시작 ---");
@@ -105,13 +108,13 @@ public class Init extends HttpServlet {
 		serviceMap.get("/notice/update.do").setDAO(daoMap.get("noticeDAO"));
 		serviceMap.get("/notice/delete.do").setDAO(daoMap.get("noticeDAO"));
 		serviceMap.get("/notice/increaseHit.do").setDAO(daoMap.get("noticeDAO"));
-		
+
 		// ==============================================
 		// 2. 회원관리 (Member)
 		// ==============================================
 		controllerMap.put("/member", new MemberController());
 		daoMap.put("memberDAO", new MemberDAO());
-		
+
 		serviceMap.put("/member/login.do", new LoginService());
 		serviceMap.put("/member/updateLastLogin.do", new MemberUpdateLastLoginService());
 		serviceMap.put("/member/write.do", new MemberWriteService());
@@ -121,7 +124,7 @@ public class Init extends HttpServlet {
 		serviceMap.put("/member/checkId.do", new MemberCheckIdService());
 		serviceMap.put("/member/checkTel.do", new MemberCheckTelService());
 		serviceMap.put("/member/checkEmail.do", new MemberCheckEmailService());
-		
+
 		serviceMap.get("/member/login.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/updateLastLogin.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/write.do").setDAO(daoMap.get("memberDAO"));
@@ -131,17 +134,17 @@ public class Init extends HttpServlet {
 		serviceMap.get("/member/checkId.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/checkTel.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/checkEmail.do").setDAO(daoMap.get("memberDAO"));
-		
+
 		// ==============================================
 		// 3. 매장관리 (Store) - 추가됨
 		// ==============================================
 		controllerMap.put("/store", new StoreController());
 		daoMap.put("storeDAO", new StoreDAO());
-		
+
 		serviceMap.put("/store/list.do", new StoreListService());
 		serviceMap.put("/store/view.do", new StoreViewService());
 		// 필요한 경우 write, update, delete 서비스 추가
-		
+
 		serviceMap.get("/store/list.do").setDAO(daoMap.get("storeDAO"));
 		serviceMap.get("/store/view.do").setDAO(daoMap.get("storeDAO"));
 
@@ -150,10 +153,10 @@ public class Init extends HttpServlet {
 		// ==============================================
 		controllerMap.put("/menu", new MenuController());
 		daoMap.put("menuDAO", new MenuDAO());
-		
+
 		serviceMap.put("/menu/list.do", new MenuListService());
 		// serviceMap.put("/menu/view.do", new MenuViewService());
-		
+
 		serviceMap.get("/menu/list.do").setDAO(daoMap.get("menuDAO"));
 
 		// ==============================================
@@ -161,13 +164,13 @@ public class Init extends HttpServlet {
 		// ==============================================
 		controllerMap.put("/reservation", new ReservationController());
 		daoMap.put("reservationDAO", new ReservationDAO());
-		
+
 		serviceMap.put("/reservation/list.do", new ReservationListService());
 		serviceMap.put("/reservation/view.do", new ReservationViewService());
 		serviceMap.put("/reservation/write.do", new ReservationWriteService());
 		serviceMap.put("/reservation/update.do", new ReservationUpdateService());
 		serviceMap.put("/reservation/cancel.do", new ReservationCancelService());
-		
+
 		serviceMap.get("/reservation/list.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/view.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/write.do").setDAO(daoMap.get("reservationDAO"));
@@ -179,12 +182,12 @@ public class Init extends HttpServlet {
 		// ==============================================
 		controllerMap.put("/payment", new PaymentController());
 		daoMap.put("paymentDAO", new PaymentDAO());
-		
+
 		serviceMap.put("/payment/list.do", new PaymentListService());
 		serviceMap.put("/payment/view.do", new PaymentViewService());
 		serviceMap.put("/payment/write.do", new PaymentWriteService());
 		serviceMap.put("/payment/update.do", new PaymentUpdateService());
-		
+
 		serviceMap.get("/payment/list.do").setDAO(daoMap.get("paymentDAO"));
 		serviceMap.get("/payment/view.do").setDAO(daoMap.get("paymentDAO"));
 		serviceMap.get("/payment/write.do").setDAO(daoMap.get("paymentDAO"));
@@ -195,12 +198,12 @@ public class Init extends HttpServlet {
 		// ==============================================
 		controllerMap.put("/review", new ReviewController());
 		daoMap.put("reviewDAO", new ReviewDAO());
-		
-		serviceMap.put("/review/list.do", new ReviewListService()); 
+
+		serviceMap.put("/review/list.do", new ReviewListService());
 		serviceMap.put("/review/write.do", new ReviewWriteService());
 		serviceMap.put("/review/update.do", new ReviewUpdateService());
 		serviceMap.put("/review/delete.do", new ReviewDeleteService());
-		
+
 		serviceMap.get("/review/list.do").setDAO(daoMap.get("reviewDAO"));
 		serviceMap.get("/review/write.do").setDAO(daoMap.get("reviewDAO"));
 		serviceMap.get("/review/update.do").setDAO(daoMap.get("reviewDAO"));
@@ -211,15 +214,26 @@ public class Init extends HttpServlet {
 		// ==============================================
 		controllerMap.put("/stats", new StatsController());
 		daoMap.put("statsDAO", new StatsDAO());
-		
-		serviceMap.put("/stats/dashboard.do", new StatsDashboardService()); 
+
+		serviceMap.put("/stats/dashboard.do", new StatsDashboardService());
 		serviceMap.put("/stats/report.do", new StatsReportService());
 		serviceMap.put("/stats/categorystats.do", new CategoryStatsService());
 
 		serviceMap.get("/stats/dashboard.do").setDAO(daoMap.get("statsDAO"));
 		serviceMap.get("/stats/report.do").setDAO(daoMap.get("statsDAO"));
 		serviceMap.get("/stats/categorystats.do").setDAO(daoMap.get("statsDAO"));
+
+		// ==============================================
+		// 9. 주문 (Order)
+		// ==============================================
+		controllerMap.put("/order", new OrderController());
+		daoMap.put("orderDAO", new OrderDAO());
+
+		serviceMap.put("/order/write.do", new OrderWriteService());
+
+		serviceMap.get("/order/write.do").setDAO(daoMap.get("orderDAO"));
 		
+
 		System.out.println("Init.init() --- 모든 객체 로딩 및 조립 완료 ---");
 	}
 }
