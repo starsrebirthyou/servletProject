@@ -38,6 +38,7 @@ import everytable.payment.service.PaymentViewService;
 import everytable.payment.service.PaymentWriteService;
 import everytable.reservation.controller.ReservationController;
 import everytable.reservation.dao.ReservationDAO;
+import everytable.reservation.service.ReservationAdminListService;
 import everytable.reservation.service.ReservationCancelService;
 import everytable.reservation.service.ReservationListService;
 import everytable.reservation.service.ReservationUpdateService;
@@ -170,12 +171,16 @@ public class Init extends HttpServlet {
 		serviceMap.put("/reservation/write.do", new ReservationWriteService());
 		serviceMap.put("/reservation/update.do", new ReservationUpdateService());
 		serviceMap.put("/reservation/cancel.do", new ReservationCancelService());
+		// 관리자 
+		serviceMap.put("/reservation/adminList.do", new ReservationAdminListService());
 
 		serviceMap.get("/reservation/list.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/view.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/write.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/update.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/cancel.do").setDAO(daoMap.get("reservationDAO"));
+		// 관리자
+		serviceMap.get("/reservation/adminList.do").setDAO(daoMap.get("reservationDAO"));
 
 		// ==============================================
 		// 6. 결제 (Payment)
