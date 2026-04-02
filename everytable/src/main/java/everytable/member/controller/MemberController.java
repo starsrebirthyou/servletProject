@@ -121,6 +121,24 @@ public class MemberController implements Controller {
             }
 
             // --------------------------------------------------------
+            // 전화번호 중복 체크
+            // --------------------------------------------------------
+            case "/member/checkTel.do": {
+                String tel = request.getParameter("tel");
+                request.setAttribute("tel", Execute.execute(Init.getService(uri), tel));
+                return "member/checkTel"; // checkId.jsp처럼 단순 출력용 JSP 필요
+            }
+
+            // --------------------------------------------------------
+            // 이메일 중복 체크
+            // --------------------------------------------------------
+            case "/member/checkEmail.do": {
+                String email = request.getParameter("email");
+                request.setAttribute("email", Execute.execute(Init.getService(uri), email));
+                return "member/checkEmail"; // checkId.jsp처럼 단순 출력용 JSP 필요
+            }
+
+            // --------------------------------------------------------
             // 관리자 - 회원 목록 (검색 + 페이지네이션)
             // --------------------------------------------------------
             case "/member/list.do": {

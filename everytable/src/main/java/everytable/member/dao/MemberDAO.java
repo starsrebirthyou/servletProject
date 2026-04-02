@@ -310,4 +310,37 @@ public class MemberDAO extends DAO {
         DB.close(con, pstmt, rs);
         return id;
     }
+    
+
+    // ----------------------------------------------------------------
+    // 전화번호 중복 체크
+    // ----------------------------------------------------------------
+
+    public String checkTel(String inTel) throws Exception {
+        String tel = null;
+        con = DB.getConnection();
+        String sql = "SELECT tel FROM member WHERE tel = ?";
+        pstmt = con.prepareStatement(sql);
+        pstmt.setString(1, inTel);
+        rs = pstmt.executeQuery();
+        if (rs != null && rs.next()) tel = rs.getString("tel");
+        DB.close(con, pstmt, rs);
+        return tel;
+    }
+
+    // ----------------------------------------------------------------
+    // 이메일 중복 체크
+    // ----------------------------------------------------------------
+
+    public String checkEmail(String inEmail) throws Exception {
+        String email = null;
+        con = DB.getConnection();
+        String sql = "SELECT email FROM member WHERE email = ?";
+        pstmt = con.prepareStatement(sql);
+        pstmt.setString(1, inEmail);
+        rs = pstmt.executeQuery();
+        if (rs != null && rs.next()) email = rs.getString("email");
+        DB.close(con, pstmt, rs);
+        return email;
+    }
 }
