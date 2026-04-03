@@ -68,7 +68,7 @@ public class DispatcherServlet extends HttpServlet {
 			System.out.println("DispatcherServlet.service() - 요청하신 페이지가 존재하지 않습니다.");
 			return;
 		}
-		String module = uri.substring(0, pos);
+		String module = uri.substring(1, pos);
 		// 모듈 출력하기
 		System.out.println("DispatcherServlet.service().module = " + module);
 		

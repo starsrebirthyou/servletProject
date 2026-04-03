@@ -5,6 +5,7 @@ import everytable.main.controller.Init;
 import everytable.main.service.Execute;
 import everytable.member.vo.LoginVO;
 import everytable.member.vo.MemberVO;
+import everytable.util.mail.Mail;
 import everytable.util.page.PageObject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -125,6 +126,109 @@ public class MemberController implements Controller {
 	             
 	             if (findId != null) {
 	                 request.setAttribute("msg", "회원님의 아이디는 [" + findId + "] 입니다.");
+	             } else {
+	                 request.setAttribute("msg", "입력하신 정보와 일치하는 회원 정보가 없습니다.");
+	             }
+	             
+	             // 결과를 띄워줄 적절한 페이지로 리다이렉트 또는 포워드 (예: 로그인 폼으로 돌아가기)
+	             request.setAttribute("redirectUrl", "/member/loginForm.do");
+	             return "member/loginForm";
+	             
+	             
+	         // --------------------------------------------------------
+	         // 비밀번호 찾기 - 폼 이동
+	         // --------------------------------------------------------
+	         case "/member/searchPwForm.do":
+	             return "member/searchPwForm";
+	             
+	          // ── 1단계: 아이디/이메일 확인 및 인증번호 발송 ──
+	         case "/member/sendAuthCode.do":
+	             findId = request.getParameter("id");
+	             String findEmail = request.getParameter("email");
+	             
+	             vo = new MemberVO();
+	             vo.setId(findId);
+	             vo.setEmail(findEmail);
+	             
+	             // DB에서 해당 정보가 있는지 확인 (기존 checkMemberInfo 사용)
+	             String checkId = (String) Execute.execute(Init.getService("/member/checkMemberInfo.do"), vo);
+	             
+	             if (checkId != null) {
+	                 // 1. 랜덤 인증번호 생성 (6자리)
+	                 int authCode = (int)(Math.random() * 899999) + 100000;
+	                 
+	                 // 2. 세션에 인증번호 저장 (나중에 확인용)
+	                 session.setAttribute("authCode", String.valueOf(authCode));
+	                 session.setAttribute("resetId", checkId); // 비밀번호 바꿀 대상 아이디 저장
+	                 
+	                 // 3. 이메일 발송 (작성하신 MailUtil 활용)
+	                 try {
+	                     String subject = "[EveryTable] 비밀번호 찾기 인증번호입니다.";
+	                     String content = "인증번호: <b>" + authCode + "</b>";
+	                     Mail.sendMail(findEmail, subject, content);
+	                     request.setAttribute("result", "ok");
+	                 } catch(Exception e) {
+	            	 	 	e.printStackTrace();
+	                    request.setAttribute("result", "mail_error");
+	                 }
+	             } else {
+	                 request.setAttribute("result", "not_found");
+	             }
+	             return "member/ajaxResult"; // {"result": "${result}"} 형태의 JSP
+
+	         // ── 2단계: 인증번호 확인 ──
+	         case "/member/verifyAuthCode.do":
+	             String inputCode = request.getParameter("code");
+	             String savedCode = (String) session.getAttribute("authCode");
+	             
+	             if (savedCode != null && savedCode.equals(inputCode)) {
+	                 session.setAttribute("authStatus", true); // 인증 완료 상태 저장
+	                 request.setAttribute("result", "ok");
+	             } else {
+	                 request.setAttribute("result", "fail");
+	             }
+	             return "member/ajaxResult";
+
+	         // ── 3단계: 비밀번호 재설정 ──
+	         case "/member/resetPw.do":
+	             // 인증을 거쳤는지 확인
+	             Boolean authStatus = (Boolean) session.getAttribute("authStatus");
+	             String resetId = (String) session.getAttribute("resetId");
+	             String newPw = request.getParameter("newPw");
+	             
+	             if (authStatus != null && authStatus && resetId != null) {
+	                 vo = new MemberVO();
+	                 vo.setId(resetId);
+	                 vo.setNewPw(newPw); // MemberVO에 newPw 필드가 있어야 함
+	                 
+	                 // 비밀번호 변경 서비스 호출 (changePw 서비스 재활용)
+	                 Integer res = (Integer) Execute.execute(Init.getService("/member/changePw.do"), vo);
+	                 
+	                 if (res == 1) {
+	                     session.removeAttribute("authCode");
+	                     session.removeAttribute("authStatus");
+	                     session.removeAttribute("resetId");
+	                     request.setAttribute("result", "ok");
+	                 } else {
+	                     request.setAttribute("result", "fail");
+	                 }
+	             } else {
+	                 request.setAttribute("result", "fail");
+	             }
+	             return "member/ajaxResult";
+	
+	         // --------------------------------------------------------
+	         // 비밀번호 찾기 - 처리
+	         // --------------------------------------------------------
+	         case "/member/searchPw.do":
+	             vo = new MemberVO();
+	             vo.setName(request.getParameter("id"));
+	             vo.setEmail(request.getParameter("email"));
+	             
+	             String findPw = (String) Execute.execute(Init.getService(uri), vo);
+	             
+	             if (findPw != null) {
+	                 request.setAttribute("msg", "회원님의 아이디는 [" + findPw + "] 입니다.");
 	             } else {
 	                 request.setAttribute("msg", "입력하신 정보와 일치하는 회원 정보가 없습니다.");
 	             }
