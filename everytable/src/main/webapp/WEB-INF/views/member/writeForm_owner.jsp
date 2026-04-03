@@ -176,15 +176,15 @@ $(function(){
 
   <div class="mb-3">
     <label for="tel" class="form-label">연락처</label>
-    <input type="tel" class="form-control" id="tel" name="tel"
-           placeholder="예) 010-1234-5678"
-           title="010-xxxx-xxxx 형식" pattern="0\d{1,2}-\d{3,4}-\d{4}">
+    <input type="tel" class="form-control" id="tel" name="tel" placeholder="예) 010-1234-5678" 
+    			title="010-xxxx-xxxx 형식" pattern="0\d{1,2}-\d{3,4}-\d{4}">
+    <div class="alert mt-1" id="telMsg" style="display:none; padding: 5px 10px;"></div>
   </div>
 
   <div class="mb-3">
     <label for="email" class="form-label">이메일</label>
-    <input type="email" class="form-control" id="email" name="email"
-           placeholder="이메일을 입력하세요." required maxlength="50">
+    <input type="email" class="form-control" id="email" name="email" placeholder="이메일을 입력하세요." 
+    			required maxlength="50">
   </div>
 
   <button type="submit" class="btn btn-success">점주 가입</button>

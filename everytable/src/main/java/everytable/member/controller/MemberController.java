@@ -110,6 +110,74 @@ public class MemberController implements Controller {
                 request.setAttribute("redirectUrl", redirectUrl);
                 return "member/loginForm";
             }
+            
+         // --------------------------------------------------------
+         // 아이디 찾기 - 폼 이동
+         // --------------------------------------------------------
+         case "/member/searchIdForm.do":
+             return "member/searchIdForm";
+
+         // --------------------------------------------------------
+         // 아이디 찾기 - 처리
+         // --------------------------------------------------------
+         case "/member/searchId.do": {
+             MemberVO vo = new MemberVO();
+             vo.setName(request.getParameter("name"));
+             vo.setEmail(request.getParameter("email"));
+             
+             // DB에서 아이디 찾아오기 (Init.java에 MemberSearchIdService 등록 필요)
+             String findId = (String) Execute.execute(Init.getService(uri), vo);
+             
+             if (findId != null) {
+                 request.setAttribute("msg", "회원님의 아이디는 [" + findId + "] 입니다.");
+             } else {
+                 request.setAttribute("msg", "입력하신 정보와 일치하는 회원 정보가 없습니다.");
+             }
+             
+             // 결과를 띄워줄 적절한 페이지로 리다이렉트 또는 포워드 (예: 로그인 폼으로 돌아가기)
+             request.setAttribute("redirectUrl", "/member/loginForm.do");
+             return "member/loginForm";
+         }
+         
+         
+         case "/member/checkMemberInfo.do": {
+        	    String name = request.getParameter("name");
+        	    String email = request.getParameter("email");
+
+        	    MemberVO vo = new MemberVO();
+        	    vo.setName(name);
+        	    vo.setEmail(email);
+
+        	    String id = (String) Execute.execute(Init.getService("/member/searchId.do"), vo);
+
+        	    if (id != null) {
+        	        // 성공 시 아이디만 출력하고 끝!
+        	        // response.getWriter().print(id); 
+        	        // return null; 
+        	    }
+        	    
+        	    request.setAttribute("result", (id != null) ? id : "no");
+        	    return "member/ajaxResult"; 
+        	}
+         
+      // --------------------------------------------------------
+      // 아이디 찾기 - 최종 비밀번호 확인
+      // --------------------------------------------------------
+      case "/member/checkPwForId.do": {
+          loginVO = new LoginVO();
+          loginVO.setId(request.getParameter("id"));
+          loginVO.setPw(request.getParameter("pw"));
+
+          // 로그인 서비스를 재활용해서 회원 정보가 있는지 확인
+          LoginVO resultVO = (LoginVO) Execute.execute(Init.getService("/member/login.do"), loginVO);
+
+          if (resultVO != null) {
+              request.setAttribute("result", "match"); // 비밀번호 일치
+          } else {
+              request.setAttribute("result", "mismatch"); // 불일치
+          }
+          return "member/ajaxResult"; 
+      }
 
             // --------------------------------------------------------
             // 아이디 중복 체크

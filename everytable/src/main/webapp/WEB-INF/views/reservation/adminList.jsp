@@ -7,7 +7,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>매장 주문 관리 (관리자)</title>
+<title>주문 관리</title>
 <style type="text/css">
     body { background-color: #f8f9fa; }
     .res-card {

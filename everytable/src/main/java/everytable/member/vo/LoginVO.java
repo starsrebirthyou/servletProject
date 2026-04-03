@@ -8,6 +8,7 @@ public class LoginVO {
 	private String name;
 	private Integer gradeNo;
 	private String gradeName;
+	private long storeId;
 	
 	public String getId() {
 		return id;
@@ -23,6 +24,12 @@ public class LoginVO {
 	}
 	public String getName() {
 		return name;
+	}
+	public long getStoreId() {
+		return storeId;
+	}
+	public void setStoreId(long storeId) {
+		this.storeId = storeId;
 	}
 	public void setName(String name) {
 		this.name = name;
@@ -43,7 +50,7 @@ public class LoginVO {
 	@Override
 	public String toString() {
 		return "LoginVO [id=" + id + ", pw=" + pw + ", name=" + name + ", gradeNo=" + gradeNo + ", gradeName="
-				+ gradeName + "]";
+				+ gradeName + ", storeId=" + storeId + "]";
 	}
 	
 }
