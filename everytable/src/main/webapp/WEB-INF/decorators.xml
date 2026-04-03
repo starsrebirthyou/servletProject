@@ -2,6 +2,8 @@
 <decorators>
     <excludes>
         <pattern>/member/checkId*</pattern>
+        <pattern>/member/checkTel*</pattern>
+        <pattern>/member/checkEmail*</pattern>
         <pattern>/error.jsp</pattern>
         <pattern>/fund-list.json*</pattern>
     </excludes>

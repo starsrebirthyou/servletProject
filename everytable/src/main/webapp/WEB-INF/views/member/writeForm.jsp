@@ -11,29 +11,64 @@
 $(function(){
   let idCheck = false;
 
-  $("#writeForm").submit(function(){
-    if($("#pw").val() != $("#pw2").val()){
-      alert("비밀번호와 비밀번호 확인이 같지 않습니다. 다시 입력해 주세요.");
-      $("#pw, #pw2").val("");
-      $("#pw").focus();
-      return false;
-    }
-    if(!idCheck){
-      alert("아이디 중복 확인을 해주세요.");
-      $("#id").focus();
-      return false;
-    }
-    if(!telCheck){
-        alert("이미 가입된 연락처이거나 형식이 올바르지 않습니다.");
-        $("#tel").focus();
-        return false;
-    }
-    if(!emailCheck){
-      alert("이미 가입된 이메일이거나 형식이 올바르지 않습니다.");
-      $("#email").focus();
-      return false;
-    }
-  });
+  $("#writeForm").submit(function(e){
+	    e.preventDefault();  // 일단 무조건 막음
+	    let form = this;
+
+	    // pw 체크
+	    if($("#pw").val() != $("#pw2").val()){
+	        alert("비밀번호와 비밀번호 확인이 같지 않습니다. 다시 입력해 주세요.");
+	        $("#pw, #pw2").val(""); $("#pw").focus();
+	        return;
+	    }
+	    if(!idCheck){
+	        alert("아이디 중복 확인을 해주세요.");
+	        $("#id").focus();
+	        return;
+	    }
+
+	    let tel   = $("#tel").val().trim();
+	    let email = $("#email").val().trim();
+
+	    // tel 체크 (값 있을 때만)
+	    let telPromise = $.Deferred();
+	    if(tel === ""){
+	        telPromise.resolve(true);
+	    } else {
+	        $.ajax({
+	            url: "checkTel.do?tel=" + tel,
+	            success: function(result){
+	                telPromise.resolve(!result.trim());  // 중복 없으면 true
+	            },
+	            error: function(){ telPromise.resolve(false); }
+	        });
+	    }
+
+	    // email 체크
+	    let emailPromise = $.Deferred();
+	    $.ajax({
+	        url: "checkEmail.do?email=" + email,
+	        success: function(result){
+	            emailPromise.resolve(!result.trim());  // 중복 없으면 true
+	        },
+	        error: function(){ emailPromise.resolve(false); }
+	    });
+
+	    // 둘 다 응답 오면 그때 판단
+	    $.when(telPromise, emailPromise).done(function(telOk, emailOk){
+	        if(!telOk){
+	            alert("이미 가입된 연락처입니다.");
+	            $("#tel").focus();
+	            return;
+	        }
+	        if(!emailOk){
+	            alert("이미 가입된 이메일입니다.");
+	            $("#email").focus();
+	            return;
+	        }
+	        form.submit();  // 모든 검증 통과 → 실제 제출
+	    });
+	});
 
   $(".cancelBtn").click(function(){
     history.back();
@@ -64,63 +99,22 @@ $(function(){
       });
     }
   });
-
+  
   function setIdMsg(type, msg){
     $("#idMsg").removeClass("alert-danger alert-success")
                .addClass("alert-" + type)
                .text(msg);
   }
   
-//연락처 중복 체크
-  $("#tel").blur(function(){
-      telCheck = false;
-      let tel = $(this).val();
-      
-      // 정규식 등 기본 길이/형식 체크 (예시)
-      if(tel.length >= 10){
-          $.ajax({
-              url: "checkTel.do?tel=" + tel,
-              success: function(result){
-                  if(result.trim()){ // 결과가 있으면 중복
-                      alert("이미 가입된 연락처입니다.");
-                  } else {
-                      telCheck = true; // 중복 아님
-                  }
-              }
-          });
-      }
-  });
-
-  // 이메일 중복 체크
-  $("#email").blur(function(){
-      emailCheck = false;
-      let email = $(this).val();
-      
-      if(email.length > 5 && email.includes("@")){
-          $.ajax({
-              url: "checkEmail.do?email=" + email,
-              success: function(result){
-                  if(result.trim()){
-                      alert("이미 가입된 계정(이메일)입니다. 아이디/비밀번호 찾기를 이용해주세요.");
-                  } else {
-                      emailCheck = true;
-                  }
-              }
-          });
-      }
-  });
-  
 });
 </script>
 </head>
 <body>
 
-<h2>일반회원 가입</h2>
+<h2>회원가입</h2>
 
 <form action="write.do" method="post" id="writeForm">
-
-  <!-- 등급 번호: 일반회원 = 1 (Controller에서 사용, 화면에는 표시 안 함) -->
-  <input type="hidden" name="gradeNo" value="1">
+  <input type="hidden" name="gradeNo" value="${param.gradeNo}">
 
   <div class="mb-3 mt-3">
     <label for="id" class="form-label">아이디</label>

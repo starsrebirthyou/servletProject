@@ -5,7 +5,6 @@
 <head>
 <meta charset="UTF-8">
 <title>아이디 찾기</title>
-<!-- 부트스트랩 CSS나 공통 헤더가 있다면 여기에 인클루드 해주세요 -->
 </head>
 <body>
 <div class="container mt-5">
@@ -32,7 +31,7 @@
 				    <!-- 비밀번호 입력 (처음엔 숨김) -->
 				    <div id="step2" style="display:none;">
 				    		<input type="hidden" id="foundId">
-				        <p class="text-primary text-center mb-4">정보가 일치합니다! <br>본인 확인을 위해 비밀번호를 입력해 주세요.</p>
+				        <p class="text-primary text-center mb-4">본인 확인을 위해 비밀번호를 입력해 주세요.</p>
 				        <div class="mb-4">
 				            <label class="form-label fw-bold">비밀번호</label>
 				            <input type="password" class="form-control" id="pw" name="pw" required>
@@ -50,7 +49,7 @@
 				</div>
 				
 				<script>
-				// 1단계 -> 2단계 이동 부분 수정
+				// 이름과 이메일 입력받아 일치하는 member 정보가 있는지 확인
 				$("#nextBtn").click(function() {
 				    let name = $("#name").val();
 				    let email = $("#email").val();
@@ -59,10 +58,9 @@
 				        url: "/member/checkMemberInfo.do",
 				        data: { name: name, email: email },
 				        success: function(res) {
-				            // 🔥 핵심: res(HTML 덩어리) 안에서 우리가 심어놓은 span의 텍스트만 추출
+			        			// 응답에서 #ajax-data-result 찾아옴
 				            let result = $(res).find("#ajax-data-result").text().trim();
-				            
-				            // 혹시 find로 안 잡히면 filter로 재시도 (SiteMesh 구조에 따라 다름)
+		        				// 없으면 자기가 맞는지 확인
 				            if(!result) result = $(res).filter("#ajax-data-result").text().trim();
 
 				            console.log("정제된 아이디: [" + result + "]"); 
@@ -78,7 +76,7 @@
 				    });
 				});
 
-				// 2단계 -> 최종 확인 부분 수정
+				// 비밀번호를 입력받아 해당 계정의 비밀번호가 맞는지 확인 후 맞으면 아이디 알려줌
 				$("#findIdBtn").click(function() {
 				    let id = $("#foundId").val();
 				    let pw = $("#pw").val();
@@ -87,8 +85,9 @@
 				        url: "/member/checkPwForId.do",
 				        data: { id: id, pw: pw },
 				        success: function(res) {
-				            // 🔥 여기서도 똑같이 정제 작업 필요!
+				        		// 응답에서 #ajax-data-result 찾아옴
 				            let result = $(res).find("#ajax-data-result").text().trim();
+			        			// 없으면 자기가 맞는지 확인
 				            if(!result) result = $(res).filter("#ajax-data-result").text().trim();
 				            
 				            console.log("비밀번호 체크 결과: " + result);

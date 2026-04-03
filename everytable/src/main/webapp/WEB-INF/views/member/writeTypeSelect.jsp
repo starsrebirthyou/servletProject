@@ -16,23 +16,23 @@
 
   <!-- 일반회원 선택 카드 -->
   <div class="card text-center" style="width: 220px; cursor: pointer;"
-       onclick="location.href='writeForm.do?type=member'">
+       onclick="location.href='writeForm.do?gradeNo=1'">
     <div class="card-body py-4">
       <div style="font-size: 2.5rem;">👤</div>
       <h5 class="card-title mt-3">일반회원</h5>
-      <p class="card-text text-muted small">메뉴 주문 및 리뷰 작성</p>
+      <p class="card-text text-muted small">서비스 이용</p>
       <button type="button" class="btn btn-primary w-100 mt-2">일반회원 가입</button>
     </div>
   </div>
 
   <!-- 매장점주 선택 카드 -->
   <div class="card text-center" style="width: 220px; cursor: pointer;"
-       onclick="location.href='writeForm.do?type=owner'">
+       onclick="location.href='writeForm.do?gradeNo=2'">
     <div class="card-body py-4">
       <div style="font-size: 2.5rem;">🏪</div>
       <h5 class="card-title mt-3">매장점주</h5>
-      <p class="card-text text-muted small">매장 등록 및 메뉴 관리</p>
-      <button type="button" class="btn btn-success w-100 mt-2">매장점주 가입</button>
+      <p class="card-text text-muted small">매장 운영</p>
+      <button type="button"  class="btn btn-success w-100 mt-2">매장점주 가입</button>
     </div>
   </div>
 

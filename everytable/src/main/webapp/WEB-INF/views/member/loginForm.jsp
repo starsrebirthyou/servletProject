@@ -47,7 +47,9 @@
   <button type="button" class="btn btn-secondary" 
   		onclick="location.href='${pageContext.request.contextPath}/member/writeTypeSelect.do'">회원가입</button>
 	<button type="button" class="btn btn-success" 
-	onclick="location.href='${pageContext.request.contextPath}/member/searchIdForm.do'">아이디 찾기</button>
+		onclick="location.href='${pageContext.request.contextPath}/member/searchIdForm.do'">아이디 찾기</button>
+	<button type="button" class="btn btn-info" 
+		onclick="location.href='${pageContext.request.contextPath}/member/searchPwForm.do'">비밀번호 찾기</button>
 
 </form>
 </body>
