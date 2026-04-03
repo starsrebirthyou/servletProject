@@ -73,8 +73,9 @@
         <div class="mt-3">
             <a href="list.do?page=${pageObject.page}&perPageNum=${pageObject.perPageNum}&key=${pageObject.key}&word=${pageObject.word}" 
                class="btn btn-warning">리스트</a>
-          	
+          	<c:if test="${login.gradeNo == 9}">
             <a href="updateForm.do?no=${vo.payment_id}" class="btn btn-primary">수정</a> 
+            </c:if>
 			<c:if test="${vo.status == 'SUCCESS' && diffHours >= 12}">
  		    <a href="/refund/refundForm.do?no=${vo.payment_id}" class="btn btn-danger">주문 취소 (환불신청)</a></c:if>
 
