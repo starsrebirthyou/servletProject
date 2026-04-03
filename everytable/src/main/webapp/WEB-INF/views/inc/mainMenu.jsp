@@ -4,12 +4,19 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>EveryTable</title>
+<title>🕒(👥)EveryTable</title>
+<style>
+	/* 네비게이션 바와 푸터에 적용할 연녹색 스타일 */
+	.custom-green {
+		background-color: #87a372 !important; /* 로고와 일치하는 연녹색 */
+	}
+</style>
 </head>
 <body>
-<nav class="navbar navbar-expand-sm navbar-dark bg-dark fixed-top">
+<!-- 상단 네비게이션 바: bg-dark를 제거하고 custom-green 추가 -->
+<nav class="navbar navbar-expand-sm navbar-dark custom-green fixed-top">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/">EveryTable</a>
+    <a class="navbar-brand" href="/">🕒(👥)EveryTable</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -67,14 +74,17 @@
     </div>
   </div>
 </nav>
-<!--  
-<nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-bottom">
+
+<!-- 하단 푸터 (필요시 주석 해제하여 사용) -->
+<!-- 
+<nav class="navbar navbar-expand-sm navbar-dark custom-green fixed-bottom">
   <div class="container-fluid">
     <span class="navbar-text text-white">
       © CopyRight everytable.com
     </span>
   </div>
-  -->
 </nav>
+-->
+
 </body>
 </html>
