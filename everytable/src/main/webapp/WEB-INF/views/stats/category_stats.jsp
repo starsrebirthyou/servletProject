@@ -2,62 +2,108 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>EveryTable - 카테고리 통계</title>
     <style>
-        body { margin: 0; padding: 0; font-family: 'Malgun Gothic', sans-serif; background-color: #f4f7f6; display: flex; height: 100vh; }
+        /* 기본 레이아웃 설정 */
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Malgun Gothic', sans-serif; 
+            background-color: #f4f7f6; 
+        }
+
+        /* 메인 콘텐츠 영역 (사이드바 제외 영역) */
+        .main-content-area { 
+            padding: 40px; 
+            min-height: 80vh; 
+        }
         
-        /* 사이드바 */
-        .sidebar { width: 250px; background-color: #343a40; color: #fff; padding: 20px; display: flex; flex-direction: column; }
-        .sidebar h2 { font-size: 24px; margin-bottom: 30px; font-weight: bold; }
-        .sidebar ul { list-style: none; padding: 0; margin: 0; }
-        .sidebar ul li { margin-bottom: 15px; }
-        .sidebar ul li a { text-decoration: none; color: #adb5bd; font-size: 16px; }
-        .sidebar ul li a:hover, .sidebar ul li a.active { color: #fff; font-weight: bold; }
+        /* 제목 스타일 */
+        .header-title { 
+            font-size: 28px; 
+            font-weight: bold; 
+            color: #333; 
+        }
 
-        /* 메인 콘텐츠 */
-        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
-        .header-title { font-size: 28px; font-weight: bold; margin-bottom: 30px; color: #333; }
+        /* [추가] 대시보드로 돌아가기 버튼 스타일 */
+        .btn-back { 
+            background-color: #6c757d; 
+            color: white !important; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 5px; 
+            text-decoration: none; 
+            font-size: 14px; 
+            cursor: pointer; 
+            transition: background 0.3s;
+        }
+        .btn-back:hover { 
+            background-color: #5a6268; 
+        }
 
-        /* 레이아웃: 차트와 테이블 나란히 배치 */
-        .stats-container { display: flex; gap: 20px; flex-wrap: wrap; }
-        .card { background-color: #fff; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 25px; flex: 1; min-width: 400px; }
-        .card-title { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #495057; border-left: 5px solid #28a745; padding-left: 10px; }
+        /* 카드 레이아웃 */
+        .stats-container { 
+            display: flex; 
+            gap: 20px; 
+            flex-wrap: wrap; 
+        }
+        .card { 
+            background-color: #fff; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            padding: 25px; 
+            flex: 1; 
+            min-width: 400px; 
+            border: none;
+        }
+        .card-title { 
+            font-size: 18px; 
+            font-weight: bold; 
+            margin-bottom: 20px; 
+            color: #495057; 
+            border-left: 5px solid #87a372; /* 서비스 메인 컬러 */
+            padding-left: 10px; 
+        }
 
         /* 통계 요약 숫자 */
-        .stat-summary { display: flex; justify-content: space-around; margin-bottom: 20px; text-align: center; }
+        .stat-summary { 
+            display: flex; 
+            justify-content: space-around; 
+            margin-bottom: 20px; 
+            text-align: center; 
+        }
         .stat-item .label { font-size: 14px; color: #868e96; }
-        .stat-item .value { font-size: 20px; font-weight: bold; color: #28a745; margin-top: 5px; }
+        .stat-item .value { font-size: 20px; font-weight: bold; color: #198754; margin-top: 5px; }
 
         /* 테이블 스타일 */
         .category-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .category-table th { background-color: #f8f9fa; padding: 12px; border-bottom: 2px solid #dee2e6; font-size: 14px; }
         .category-table td { padding: 12px; border-bottom: 1px solid #dee2e6; text-align: center; font-size: 14px; }
         
-        /* 색상 포인트 (이미지의 카테고리 색상 참고) */
-        .badge-korean { background-color: #ff6b81; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
-        .badge-japanese { background-color: #339af0; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
-        
+        .badge-category { 
+            background-color: #87a372; 
+            color: white; 
+            padding: 3px 8px; 
+            border-radius: 4px; 
+            font-size: 12px; 
+        }
         .no-data { text-align: center; padding: 40px; color: #adb5bd; }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <h2>Seller Admin</h2>
-        <ul>
-            <li><a href="/stats/dashboard.do">대시보드 홈</a></li>
-            <li><a href="/stats/sales.do">기간별 매출 조회</a></li>
-            <li><a href="/stats/category.do" class="active">카테고리 통계</a></li>
-        </ul>
-    </div>
-
-    <div class="main-content">
-        <div class="header-title">카테고리별 통계 분석</div>
+    <div class="main-content-area">
+        <!-- 상단 헤더 영역: 제목과 버튼 배치 -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <div class="header-title">카테고리별 통계 분석</div>
+            <a href="/stats/dashboard.do" class="btn-back">대시보드로 돌아가기</a>
+        </div>
 
         <div class="stats-container">
+            <!-- 왼쪽 카드: 데이터 요약 및 테이블 -->
             <div class="card">
                 <div class="card-title">판매 비중 요약</div>
                 <div class="stat-summary">
@@ -71,7 +117,6 @@
                     </div>
                 </div>
                 
-                <%-- 실제 데이터 리스트 출력 --%>
                 <c:if test="${empty list}">
                     <div class="no-data">데이터가 없습니다.</div>
                 </c:if>
@@ -89,7 +134,7 @@
                         <tbody>
                             <c:forEach items="${list}" var="vo">
                                 <tr>
-                                    <td><span class="badge-korean">${vo.categoryName}</span></td>
+                                    <td><span class="badge-category">${vo.categoryName}</span></td>
                                     <td>${vo.saleCount} 건</td>
                                     <td><fmt:formatNumber value="${vo.salesAmount}" type="number"/>원</td>
                                     <td>${vo.ratio}%</td>
@@ -100,9 +145,12 @@
                 </c:if>
             </div>
 
-            <div class="card" style="display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #f8f9fa;">
-                <p style="color: #adb5bd;">[ 차트 영역 ]</p>
-                <p style="font-size: 13px; color: #ced4da;">Chart.js 등을 연동하여 도넛 차트를 시각화할 수 있습니다.</p>
+            <!-- 오른쪽 카드: 차트 시각화 영역 -->
+            <div class="card" style="display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #f8f9fa; border: 1px dashed #dee2e6;">
+                <p style="color: #adb5bd; font-weight: bold; margin-bottom: 10px;">[ 시각화 차트 ]</p>
+                <p style="font-size: 13px; color: #ced4da; text-align: center; line-height: 1.6;">
+                    Chart.js 등을 연동하면<br>이곳에 도넛 차트가 표시됩니다.
+                </p>
             </div>
         </div>
     </div>
