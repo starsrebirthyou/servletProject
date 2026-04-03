@@ -79,8 +79,6 @@ body { background-color: #f4f6f3; }
     border-bottom: 1px solid #f3f5f2;
     font-size: 0.9rem; color: #333;
 }
-.dataRow { transition: background-color 0.15s; cursor: pointer; }
-.dataRow:hover { background-color: #f0f7f4; }
 
 /* ── 아바타 ── */
 .avatar {
@@ -119,13 +117,6 @@ body { background-color: #f4f6f3; }
 
 <script type="text/javascript">
 $(function(){
-
-    /* 행 클릭 → 상세보기 (noMove 요소 제외) */
-    $(".dataRow").click(function(){
-        let id = $(this).find(".col-id").text().trim();
-        location = "view.do?id=" + id + "&inc=1";
-    });
-    $(".dataRow").on("click", ".noMove", function(){ return false; });
 
     /* 상태 select 변경 → 수정 버튼 표시 */
     $(".status").on("change", function(){

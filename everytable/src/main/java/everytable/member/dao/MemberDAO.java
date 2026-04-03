@@ -158,6 +158,21 @@ public class MemberDAO extends DAO {
         DB.close(con, pstmt, rs);
         return id;
     }
+    
+    
+    // 비밀번호 찾기 - 아이디 + 이메일 일치 여부 확인
+    public String checkMemberInfo(MemberVO vo) throws Exception {
+        String id = null;
+        con = DB.getConnection();
+        String sql = "SELECT id FROM member WHERE id = ? AND email = ?";
+        pstmt = con.prepareStatement(sql);
+        pstmt.setString(1, vo.getId());
+        pstmt.setString(2, vo.getEmail());
+        rs = pstmt.executeQuery();
+        if (rs != null && rs.next()) id = rs.getString("id");
+        DB.close(con, pstmt, rs);
+        return id;
+    }
 
     // ----------------------------------------------------------------
     // 관리자 - 회원 목록 (검색 + 페이지네이션)
