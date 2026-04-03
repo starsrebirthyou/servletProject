@@ -8,7 +8,7 @@ public class LoginVO {
 	private String name;
 	private Integer gradeNo;
 	private String gradeName;
-	private String storeId;
+	private long storeId;
 	
 	public String getId() {
 		return id;
@@ -25,10 +25,10 @@ public class LoginVO {
 	public String getName() {
 		return name;
 	}
-	public String getStoreId() {
+	public long getStoreId() {
 		return storeId;
 	}
-	public void setStoreId(String storeId) {
+	public void setStoreId(long storeId) {
 		this.storeId = storeId;
 	}
 	public void setName(String name) {

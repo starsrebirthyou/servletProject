@@ -21,15 +21,20 @@ public class RefundController implements Controller {
             switch (uri) {
                 // 1. 환불 신청
                 case "/refund/refundForm.do":
-                    // 글번호(주문번호) 받기
-                    no = Long.parseLong(request.getParameter("no"));
-                    
-                    // 결제 정보 가져오기 (Init에서 서비스 가져와서 실행)
+                    // 글번호
+                	String strNo = request.getParameter("no");
+                   // no = Long.parseLong(request.getParameter("no"));
+                    if (strNo == null || strNo.equals("")) {
+                        request.getSession().setAttribute("msg", "잘못된 접근입니다. 주문 번호가 없어요!");
+                        return "redirect:/payment/list.do"; // 리스트로 쫓아내기
+                    }
+                    no = Long.parseLong(strNo);
+                    // 결제 정보 가져오기 
                     PaymentVO paymentVO = (PaymentVO) Execute.execute(Init.getService("/payment/view.do"), no);
                     
                     long now = new java.util.Date().getTime();
                     long pickup = paymentVO.getPickupDate().getTime();
-                    long diffHours = (pickup - now) / (1000 * 60 * 60); // ms를 시간으로 변환
+                    long diffHours = (pickup - now) / (1000 * 60 * 60); // 분을 시간으로 변환
                     
                     int rate = 0;
                     if (diffHours >= 24) rate = 100;      // 24시간 전: 100%
@@ -58,7 +63,7 @@ public class RefundController implements Controller {
                     vo.setRefund_amount(Long.parseLong(request.getParameter("refund_amount")));
                     vo.setRefund_rate(Long.parseLong(request.getParameter("refund_rate")));
                     vo.setReason(request.getParameter("reason")); // 사용자가 쓴 사유
-                    
+                    vo.setPayment_id(Long.parseLong(request.getParameter("payment_id")));
                     result = Execute.execute(Init.getService(uri), vo);
                     
                     if ((Integer)result == 1) {

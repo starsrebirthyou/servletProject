@@ -14,16 +14,17 @@ public class RefundDAO extends DAO {
         con = DB.getConnection();
         
         // 3. SQL 작성 (괄호 닫는 거 잊지 않기!)
-        String sql = "insert into refund(refund_id, order_id, user_id, refund_amount, refund_rate, reason, refund_date, status) "
-                   + " values(refund_seq.nextval, ?, ?, ?, ?, ?, sysdate, 'REFUNDED') ";
+        String sql = "insert into refund(refund_id, order_id, user_id, payment_id, refund_amount, refund_rate, reason, refund_date, status) "
+                   + " values(refund_seq.nextval, ?, ?, ?, ?, ?, ?, sysdate, 'REQUESTED') ";
         
         // 4. 실행 객체 & 데이터 세팅
         pstmt = con.prepareStatement(sql);
         pstmt.setLong(1, vo.getOrder_id());
         pstmt.setString(2, vo.getUser_id());
-        pstmt.setLong(3, vo.getRefund_amount());
-        pstmt.setLong(4, vo.getRefund_rate());
-        pstmt.setString(5, vo.getReason());
+        pstmt.setLong(3, vo.getPayment_id());
+        pstmt.setLong(4, vo.getRefund_amount());
+        pstmt.setLong(5, vo.getRefund_rate());
+        pstmt.setString(6, vo.getReason());
         
         // 5. 실행
         result = pstmt.executeUpdate();
@@ -40,10 +41,10 @@ public class RefundDAO extends DAO {
     }
 
     // 상태 변경 메서드 
-    public void updatePaymentStatus(Long orderId) throws Exception {
-        String sql = "update payment set status = 'REFUNDED', update_date = sysdate where order_id = ?";
+    public void updatePaymentStatus(Long paymentId) throws Exception {
+        String sql = "update payment set status = 'REFUNDED', update_date = sysdate where payment_id = ?";
         pstmt = con.prepareStatement(sql);
-        pstmt.setLong(1, orderId);
+        pstmt.setLong(1, paymentId);
         pstmt.executeUpdate();
     }
 }

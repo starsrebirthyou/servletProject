@@ -210,10 +210,8 @@ public class ReservationDAO extends DAO {
 	    // PageObject의 accepter에 담긴 값은 로그인한 관리자의 storeId라고 가정합니다.
 	    String storeId = pageObject.getAccepter();
 
-	    // 관리자 리스트에서는 식당 이름 대신 '예약자 아이디/이름'이 중요하므로 member 조인을 고려할 수 있습니다.
-	    // 여기서는 기존 구조를 유지하며 store_id 조건으로 검색합니다.
 	    String sql = "select r.res_no, r.user_id, to_char(r.res_date, 'yyyy-mm-dd') res_date, "
-	            + " r.res_time, r.res_type, r.res_status, r.res_count, r.res_created_at, r.res_phone "
+	            + " r.res_time, r.res_type, r.res_status, r.res_count, r.res_created_at, r.res_phone, r.total_price "
 	            + " from reservation r " 
 	            + " where r.store_id = ? "; // 매장 번호 조건
 
@@ -221,7 +219,7 @@ public class ReservationDAO extends DAO {
 	    sql += " order by r.res_date desc, r.res_time desc"; // 방문일 기준 내림차순
 
 	    // 페이징 처리 래퍼
-	    sql = "select rownum rnum, res_no, user_id, res_date, res_time, res_type, res_status, res_count, res_phone " 
+	    sql = "select rownum rnum, res_no, user_id, res_date, res_time, res_type, res_status, res_count, res_phone, total_price " 
 	        + " from (" + sql + ")";
 	    sql = "select * from (" + sql + ") where rnum between ? and ?";
 
@@ -244,6 +242,7 @@ public class ReservationDAO extends DAO {
 	            vo.setResType(rs.getString("res_type"));
 	            vo.setResStatus(rs.getLong("res_status"));
 	            vo.setResPhone(rs.getString("res_phone")); // 연락처 추가
+	            vo.setTotalPrice(rs.getLong("totalPrice"));
 	            list.add(vo);
 	        }
 	    }
@@ -252,7 +251,7 @@ public class ReservationDAO extends DAO {
 	}
 
 	// [추가] 2-1. 매장 관리자용 전체 개수
-	public Long getTotalRowForAdmin(PageObject pageObject) throws Exception {
+	public Long getTotalRowAdmin(PageObject pageObject) throws Exception {
 	    Long totalRow = 0L;
 	    con = DB.getConnection();
 	    
@@ -261,7 +260,7 @@ public class ReservationDAO extends DAO {
 	    String sql = "select count(*) from reservation r where r.store_id = ? " + search(pageObject);
 	    
 	    pstmt = con.prepareStatement(sql);
-	    pstmt.setString(1, storeId);
+	    pstmt.setLong(1, Long.parseLong(storeId));
 	    
 	    rs = pstmt.executeQuery();
 	    if (rs != null && rs.next()) {
