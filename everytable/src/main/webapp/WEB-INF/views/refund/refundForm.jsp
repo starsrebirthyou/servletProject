@@ -12,6 +12,7 @@
 	<hr>
 	<form action="refund.do" method="post">
 		<input type="hidden" name="order_id" value="${vo.order_id}">
+		<input type="hidden" name="payment_id" value="${vo.order_id}">
 		<input type="hidden" name="user_id" value="${vo.user_id}">
 		<input type="hidden" name="refund_rate" value="${refund_rate}">
 		<input type="hidden" name="refund_amount" value="${refund_amount}">

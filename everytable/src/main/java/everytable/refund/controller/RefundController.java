@@ -63,7 +63,7 @@ public class RefundController implements Controller {
                     vo.setRefund_amount(Long.parseLong(request.getParameter("refund_amount")));
                     vo.setRefund_rate(Long.parseLong(request.getParameter("refund_rate")));
                     vo.setReason(request.getParameter("reason")); // 사용자가 쓴 사유
-                    
+                    vo.setPayment_id(Long.parseLong(request.getParameter("payment_id")));
                     result = Execute.execute(Init.getService(uri), vo);
                     
                     if ((Integer)result == 1) {

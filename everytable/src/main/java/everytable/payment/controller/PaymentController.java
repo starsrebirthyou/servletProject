@@ -56,7 +56,7 @@ public class PaymentController implements Controller {
 			    String amountStr = request.getParameter("amount");
 			    String pickupDateStr = request.getParameter("pickup_date"); // 픽업 날짜 추가
 
-			    // 2. 필수 데이터 검증 (픽업 날짜가 없으면 에러를 던져서 DB 에러를 방지!)
+			    // 2. 필수 데이터 검증 
 			    if (orderIdStr == null || orderIdStr.trim().isEmpty() || 
 			        amountStr == null || amountStr.trim().isEmpty() ||
 			        pickupDateStr == null || pickupDateStr.trim().isEmpty()) { // 픽업날짜 체크 추가
@@ -102,7 +102,7 @@ public class PaymentController implements Controller {
 			case "/payment/update.do":
 			    // 1. 권한 체크 (하드코딩 유지 - 나중에 세션으로 변경)
 			    LoginVO loginForUpdate = new LoginVO();
-			    loginForUpdate.setGradeNo(2);
+			    loginForUpdate.setGradeNo(9);
 			    
 			    if (loginForUpdate == null || loginForUpdate.getGradeNo() != 2) {
 			        request.getSession().setAttribute("msg", "권한이 없습니다.");
