@@ -36,7 +36,7 @@
 
           <c:if test="${login.gradeNo == 2}">
             <li class="nav-item"><a class="nav-link" href="/shop/manage.do">매장관리</a></li>
-            <li class="nav-item"><a class="nav-link" href="/order/manage.do">주문관리</a></li>
+            <li class="nav-item"><a class="nav-link" href="/reservation/adminList.do">주문관리</a></li>
             <li class="nav-item"><a class="nav-link" href="/menu/manage.do">메뉴관리</a></li>
           </c:if>
 
