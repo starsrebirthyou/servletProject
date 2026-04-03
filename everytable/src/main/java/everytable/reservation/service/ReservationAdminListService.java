@@ -20,7 +20,7 @@ public class ReservationAdminListService implements Service {
 
         // 1. [수정] 매장 주문 총 개수 구하기 (관리자용 메서드 호출)
         // 내부에서 pageObject.getAccepter()에 담긴 storeId를 사용합니다.
-        pageObject.setTotalRow(dao.getTotalRowForAdmin(pageObject));
+        pageObject.setTotalRow(dao.getTotalRowAdmin(pageObject));
 
         // 2. [수정] 매장 주문 리스트 가져오기 (관리자용 메서드 호출)
         return dao.adminList(pageObject);

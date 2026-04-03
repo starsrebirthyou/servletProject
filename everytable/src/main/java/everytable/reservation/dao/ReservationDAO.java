@@ -252,7 +252,7 @@ public class ReservationDAO extends DAO {
 	}
 
 	// [추가] 2-1. 매장 관리자용 전체 개수
-	public Long getTotalRowForAdmin(PageObject pageObject) throws Exception {
+	public Long getTotalRowAdmin(PageObject pageObject) throws Exception {
 	    Long totalRow = 0L;
 	    con = DB.getConnection();
 	    
@@ -261,7 +261,7 @@ public class ReservationDAO extends DAO {
 	    String sql = "select count(*) from reservation r where r.store_id = ? " + search(pageObject);
 	    
 	    pstmt = con.prepareStatement(sql);
-	    pstmt.setString(1, storeId);
+	    pstmt.setLong(1, Long.parseLong(storeId));
 	    
 	    rs = pstmt.executeQuery();
 	    if (rs != null && rs.next()) {

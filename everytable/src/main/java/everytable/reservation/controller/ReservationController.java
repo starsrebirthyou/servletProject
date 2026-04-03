@@ -31,37 +31,33 @@ public class ReservationController implements Controller {
 			String jsp = null; // 리턴할 jsp 경로 변수
 
 			switch (uri) {
-			// 1. 예약/주문 리스트 (일반사용자 vs 매장관리자 분기)
+			// 1. 예약/주문 리스트 - 일반사용자
 			case "/reservation/list.do":
 				PageObject pageObject = PageObject.getInstance(request);
-				
-				if (loginVO.getGradeNo() == 2) { 
-					// --- [매장 관리자] ---
-					// ★ 중요: 관리자는 본인 ID가 아니라 본인 매장 번호(StoreId)로 조회해야 함
-					pageObject.setAccepter(String.valueOf(loginVO.getStoreId()));
-					request.setAttribute("list", Execute.execute(Init.getService("/reservation/adminList.do"), pageObject));
-					request.setAttribute("pageObject", pageObject);
-					jsp = "reservation/adminList"; 
-				} else {
-					// --- [일반 사용자] ---
-					pageObject.setAccepter(loginVO.getId());
-					request.setAttribute("list", Execute.execute(Init.getService(uri), pageObject));
-					request.setAttribute("pageObject", pageObject);
-					jsp = "reservation/list"; 
-				}
-				break;
+
+				pageObject.setAccepter(loginVO.getId());
+				request.setAttribute("list", Execute.execute(Init.getService(uri), pageObject));
+				request.setAttribute("pageObject", pageObject);
+				return "reservation/list";
+
+			// 1. 관리자용 주문 관리 리스트
+			case "/reservation/adminList.do":
+				PageObject adminPage = PageObject.getInstance(request);
+				System.out.println("로그인 객체의 StoreID: " + loginVO.getStoreId());
+				adminPage.setAccepter(String.valueOf(loginVO.getStoreId()));
+				request.setAttribute("list", Execute.execute(Init.getService("/reservation/adminList.do"), adminPage));
+				request.setAttribute("pageObject", adminPage);
+				return "reservation/adminList";
 
 			// 2. 예약 상세 보기
 			case "/reservation/view.do":
 				no = Long.parseLong(request.getParameter("no"));
 				request.setAttribute("vo", Execute.execute(Init.getService(uri), no));
-				jsp = "reservation/view";
-				break;
+				return "reservation/view";
 
 			// 3. 예약 등록 (작성 폼)
 			case "/reservation/writeForm.do":
-				jsp = "reservation/writeForm";
-				break;
+				return "reservation/writeForm";
 
 			// 4. 예약 등록 처리
 			case "/reservation/write.do":
@@ -71,13 +67,12 @@ public class ReservationController implements Controller {
 				vo.setResCount(Long.parseLong(request.getParameter("resCount")));
 				vo.setResPhone(request.getParameter("resPhone"));
 				vo.setResType(request.getParameter("resType"));
-				vo.setUserId(request.getParameter("userId")); 
+				vo.setUserId(request.getParameter("userId"));
 				vo.setStoreId(Long.parseLong(request.getParameter("storeId")));
 
 				Long writeResNo = (Long) Execute.execute(Init.getService(uri), vo);
 				session.setAttribute("msg", "예약이 완료되었습니다. 메뉴를 선택해주세요.");
-				jsp = "redirect:/order/writeForm.do?resNo=" + writeResNo;
-				break;
+				return "redirect:/order/writeForm.do?resNo=" + writeResNo;
 
 			// 5. [관리자 전용] 상태 변경 처리 (승인: 2, 거절: 4)
 			case "/reservation/adminUpdate.do":
@@ -88,19 +83,17 @@ public class ReservationController implements Controller {
 				vo.setCancelReason(request.getParameter("cancelReason"));
 
 				Execute.execute(Init.getService(uri), vo);
-				
+
 				String statusMsg = (status == 2) ? "예약을 승인하였습니다." : "예약을 거절(취소)하였습니다.";
 				session.setAttribute("msg", statusMsg);
 				// ★ 수정: adminList.do가 아니라 다시 list.do로 보내야 관리자 리스트가 나옴
-				jsp = "redirect:list.do";
-				break;
+				return "redirect:list.do";
 
 			// 6. 예약 수정 폼
 			case "/reservation/updateForm.do":
 				no = Long.parseLong(request.getParameter("no"));
 				request.setAttribute("vo", Execute.execute(Init.getService("/reservation/view.do"), no));
-				jsp = "reservation/updateForm";
-				break;
+				return "reservation/updateForm";
 
 			// 7. 예약 수정 처리
 			case "/reservation/update.do":
@@ -114,28 +107,23 @@ public class ReservationController implements Controller {
 
 				Execute.execute(Init.getService(uri), vo);
 				session.setAttribute("msg", "예약 정보가 수정되었습니다.");
-				jsp = "redirect:view.do?no=" + vo.getResNo();
-				break;
+				return "redirect:view.do?no=" + vo.getResNo();
 
 			// 8. 사용자 예약 취소 (상태 4로 변경)
 			case "/reservation/cancel.do":
 				vo = new ReservationVO();
 				vo.setResNo(Long.parseLong(request.getParameter("resNo")));
 				vo.setCancelReason(request.getParameter("cancelReason"));
-				vo.setResStatus(4L); 
+				vo.setResStatus(4L);
 
 				Execute.execute(Init.getService(uri), vo);
 				session.setAttribute("msg", "예약 취소가 완료되었습니다.");
-				jsp = "redirect:list.do";
-				break;
+				return "redirect:list.do";
 
 			default:
 				// 정의되지 않은 URI인 경우 404 페이지로 유도하여 NPE 방지
-				jsp = "error/404";
-				break;
+				return "error/404";
 			} // end of switch
-			
-			return jsp; // 최종 결정된 jsp 경로 반환
 
 		} catch (Exception e) {
 			e.printStackTrace();
