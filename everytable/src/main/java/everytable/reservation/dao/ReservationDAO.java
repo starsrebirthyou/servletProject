@@ -207,24 +207,27 @@ public class ReservationDAO extends DAO {
 	    List<ReservationVO> list = new ArrayList<>();
 	    con = DB.getConnection();
 
-	    // PageObject의 accepter에 담긴 값은 로그인한 관리자의 storeId라고 가정합니다.
 	    String storeId = pageObject.getAccepter();
 
+	    // 1. 내부 쿼리 (검색 및 정렬 포함)
 	    String sql = "select r.res_no, r.user_id, to_char(r.res_date, 'yyyy-mm-dd') res_date, "
 	            + " r.res_time, r.res_type, r.res_status, r.res_count, r.res_created_at, r.res_phone, r.total_price "
 	            + " from reservation r " 
-	            + " where r.store_id = ? "; // 매장 번호 조건
+	            + " where r.store_id = ? ";
 
-	    sql += search(pageObject); // 검색 조건 유지
-	    sql += " order by r.res_date desc, r.res_time desc"; // 방문일 기준 내림차순
+	    sql += search(pageObject); 
+	    sql += " order by r.res_date desc, r.res_time desc";
 
-	    // 페이징 처리 래퍼
-	    sql = "select rownum rnum, res_no, user_id, res_date, res_time, res_type, res_status, res_count, res_phone, total_price " 
+	    // 2. 페이징 처리 래퍼 (res_created_at 컬럼을 중간 단계에도 넣어줘야 함!)
+	    sql = "select rownum rnum, res_no, user_id, res_date, res_time, res_type, res_status, res_count, res_phone, total_price, res_created_at " 
 	        + " from (" + sql + ")";
+	    
+	    // 3. 최종 페이징 쿼리
 	    sql = "select * from (" + sql + ") where rnum between ? and ?";
 
 	    pstmt = con.prepareStatement(sql);
 	    
+	    // setString 혹은 setLong (DB 타입에 맞춰서)
 	    pstmt.setString(1, storeId);
 	    pstmt.setLong(2, pageObject.getStartRow());
 	    pstmt.setLong(3, pageObject.getEndRow());
@@ -235,14 +238,18 @@ public class ReservationDAO extends DAO {
 	        while (rs.next()) {
 	            ReservationVO vo = new ReservationVO();
 	            vo.setResNo(rs.getLong("res_no"));
-	            vo.setUserId(rs.getString("user_id")); // 누가 예약했는지 확인용
+	            vo.setUserId(rs.getString("user_id"));
 	            vo.setResCount(rs.getLong("res_count"));
 	            vo.setResDate(rs.getString("res_date"));
 	            vo.setResTime(rs.getString("res_time"));
 	            vo.setResType(rs.getString("res_type"));
 	            vo.setResStatus(rs.getLong("res_status"));
-	            vo.setResPhone(rs.getString("res_phone")); // 연락처 추가
-	            vo.setTotalPrice(rs.getLong("totalPrice"));
+	            vo.setResPhone(rs.getString("res_phone"));
+	            vo.setResCreatedAt(rs.getString("res_created_at")); // 날짜 표시를 위해 추가
+	            
+	            // [중요!] totalPrice -> total_price 로 수정
+	            vo.setTotalPrice(rs.getLong("total_price")); 
+	            
 	            list.add(vo);
 	        }
 	    }
