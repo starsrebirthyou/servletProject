@@ -31,7 +31,7 @@
           <c:if test="${login.gradeNo == 1}">
             <li class="nav-item"><a class="nav-link" href="/shop/list.do">매장둘러보기</a></li>
             <li class="nav-item"><a class="nav-link" href="/reservation/list.do">내주문보기</a></li>
-            <li class="nav-item"><a class="nav-link" href="/review/myList.do">내 리뷰보기</a></li>
+            <li class="nav-item"><a class="nav-link" href="/review/list.do">내 리뷰보기</a></li>
           </c:if>
 
           <c:if test="${login.gradeNo == 2}">

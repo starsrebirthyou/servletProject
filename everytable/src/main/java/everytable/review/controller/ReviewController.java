@@ -11,75 +11,89 @@ import jakarta.servlet.http.HttpSession;
 
 public class ReviewController implements Controller {
 
-    @Override
-    public String execute(HttpServletRequest request) {
-        // 세션 미리 꺼내기 (중복 선언 방지)
-        HttpSession session = request.getSession();
-        LoginVO login = (LoginVO) session.getAttribute("login");
-        
-        try {
-            String uri = request.getServletPath();
-            String storeIdStr = request.getParameter("storeId"); // 공통으로 많이 쓰임
+	@Override
+	public String execute(HttpServletRequest request) {
+		// 세션 미리 꺼내기 (중복 선언 방지)
+		HttpSession session = request.getSession();
+		LoginVO login = (LoginVO) session.getAttribute("login");
 
-            switch (uri) {
-                // 1. 리뷰 리스트
-                case "/review/list.do":
-                    PageObject pageObject = PageObject.getInstance(request);
-                    if (login != null) {
-                        pageObject.setAccepter(login.getId());
-                    }
-                    request.setAttribute("list", Execute.execute(Init.getService(uri), pageObject));
-                    request.setAttribute("pageObject", pageObject);
-                    return "review/list";
+		try {
+			String uri = request.getServletPath();
+			String storeIdStr = request.getParameter("storeId"); // 공통으로 많이 쓰임
 
-                // 2. 리뷰 작성 폼 이동
-                case "/review/writeForm.do":
-                    request.setAttribute("storeId", storeIdStr);
-                    return "review/writeForm";
+			switch (uri) {
+			// 1. 리뷰 리스트
+			case "/review/list.do":
+				PageObject pageObject = PageObject.getInstance(request);
+				if (login != null) {
+					pageObject.setAccepter(login.getId());
+				}
+				request.setAttribute("list", Execute.execute(Init.getService(uri), pageObject));
+				request.setAttribute("pageObject", pageObject);
+				return "review/list";
 
-                // 3. 실제 리뷰 등록 처리
-                case "/review/write.do":
-                    ReviewVO writeVO = new ReviewVO();
-                    writeVO.setStoreId(Long.parseLong(storeIdStr));
-                    // 로그인 세션에서 아이디 가져오기 (login 객체가 null이면 테스트용 아이디 사용)
-                    writeVO.setUserId((login != null) ? login.getId() : "user01");
-                    writeVO.setContent(request.getParameter("content"));
-                    writeVO.setRating(Double.parseDouble(request.getParameter("rating")));
+			// 2. 리뷰 작성 폼 이동
+			case "/review/writeForm.do":
+				// 1. DB에서 활성화된 매장 리스트를 가져옵니다. (매장 서비스/DAO 필요)
+				// 예: List<StoreVO> storeList = (List<StoreVO>)
+				// Execute.execute(storeListService, null);
+				// request.setAttribute("storeList", storeList);
 
-                    Execute.execute(Init.getService(uri), writeVO);
-                    return "redirect:list.do?storeId=" + storeIdStr;
+				// 테스트용: 만약 매장 서비스가 없다면 임시로 storeId를 직접 받게 처리
+				request.setAttribute("storeId", request.getParameter("storeId"));
+				return "review/writeForm";
 
-                 // 4. 리뷰 수정 폼 이동
-                case "/review/updateForm.do":
-                    long updateNo = Long.parseLong(request.getParameter("no"));
-                    request.setAttribute("vo", Execute.execute(Init.getService("/review/view.do"), updateNo));
-                    return "review/updateForm";
+			// 3. 실제 리뷰 등록 처리
+			case "/review/write.do":
+				// 방어 코드: storeIdStr이 null이거나 빈 문자열인지 확인
+				if (storeIdStr == null || storeIdStr.trim().isEmpty()) {
+					System.out.println("에러: storeId가 전달되지 않았습니다.");
+					return "redirect:list.do"; // 혹은 에러 페이지로 이동
+				}
 
-                // 4-2. 실제 리뷰 수정 처리 (이 부분이 추가되어야 합니다!)
-                case "/review/update.do":
-                    ReviewVO updateVO = new ReviewVO();
-                    // 수정할 리뷰의 PK 번호
-                    updateVO.setNo(Long.parseLong(request.getParameter("no"))); 
-                    updateVO.setContent(request.getParameter("content"));
-                    updateVO.setRating(Double.parseDouble(request.getParameter("rating")));
+				ReviewVO writeVO = new ReviewVO();
+				// 이제 숫자로 변환해도 에러가 나지 않습니다.
+				writeVO.setStoreId(Long.parseLong(storeIdStr));
 
-                    // DB 업데이트 실행
-                    Execute.execute(Init.getService(uri), updateVO);
-                    
-                    // 수정한 리뷰가 속한 매장의 리스트로 돌아가기
-                    return "redirect:list.do?storeId=" + request.getParameter("storeId");
-                    
-                // 5. 리뷰 삭제 처리 (추가됨)
-                case "/review/delete.do":
-                    long no = Long.parseLong(request.getParameter("no"));
-                    
-                    Execute.execute(Init.getService(uri), no);
-                    return "redirect:list.do?storeId=" + storeIdStr;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "error/500";
-        }
-        return "error/404";
-    }
+				writeVO.setUserId((login != null) ? login.getId() : "user01");
+				writeVO.setContent(request.getParameter("content"));
+
+				String ratingStr = request.getParameter("rating");
+				writeVO.setRating((ratingStr != null) ? Double.parseDouble(ratingStr) : 5.0);
+
+				Execute.execute(Init.getService(uri), writeVO);
+				return "redirect:list.do?storeId=" + storeIdStr;
+			// 4. 리뷰 수정 폼 이동
+			case "/review/updateForm.do":
+				long updateNo = Long.parseLong(request.getParameter("no"));
+				request.setAttribute("vo", Execute.execute(Init.getService("/review/view.do"), updateNo));
+				return "review/updateForm";
+
+			// 4-2. 실제 리뷰 수정 처리 (이 부분이 추가되어야 합니다!)
+			case "/review/update.do":
+				ReviewVO updateVO = new ReviewVO();
+				// 수정할 리뷰의 PK 번호
+				updateVO.setNo(Long.parseLong(request.getParameter("no")));
+				updateVO.setContent(request.getParameter("content"));
+				updateVO.setRating(Double.parseDouble(request.getParameter("rating")));
+
+				// DB 업데이트 실행
+				Execute.execute(Init.getService(uri), updateVO);
+
+				// 수정한 리뷰가 속한 매장의 리스트로 돌아가기
+				return "redirect:list.do?storeId=" + request.getParameter("storeId");
+
+			// 5. 리뷰 삭제 처리 (추가됨)
+			case "/review/delete.do":
+				long no = Long.parseLong(request.getParameter("no"));
+
+				Execute.execute(Init.getService(uri), no);
+				return "redirect:list.do?storeId=" + storeIdStr;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "error/500";
+		}
+		return "error/404";
+	}
 }

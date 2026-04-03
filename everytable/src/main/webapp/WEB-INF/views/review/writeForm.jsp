@@ -20,8 +20,26 @@
     <div class="write-box shadow-sm">
         <h4 class="text-center font-weight-bold mb-4">리뷰 작성하기</h4>
         <form action="write.do" method="post">
-            <input type="hidden" name="storeId" value="${param.storeId}">
-            
+            <!-- ★ 수정된 부분: param.storeId -> storeId ★ -->
+            <input type="hidden" name="storeId" value="${storeId}">
+            <!-- 별점 선택 위에 추가하세요 -->
+<div class="form-group">
+    <label for="storeId" class="text-muted">리뷰를 작성할 매장을 선택해주세요</label>
+    <select name="storeId" id="storeId" class="form-control" required>
+        <option value="">-- 매장 선택 --</option>
+        <!-- 컨트롤러에서 넘겨준 storeList가 있다면 반복문 사용 -->
+        <c:forEach items="${storeList}" var="store">
+            <option value="${store.storeId}">${store.storeName}</option>
+        </c:forEach>
+        
+        <!-- 테스트용 하드코딩 (리스트가 아직 없다면) -->
+        <option value="1">사근동 맛집 1호점</option>
+        <option value="2">역삼동 분식점</option>
+    </select>
+</div>
+
+<!-- 기존 hidden 태그는 삭제하거나 위 select 박스가 대체하게 합니다 -->
+<!-- <input type="hidden" name="storeId" value="${storeId}"> -->
             <div class="form-group text-center">
                 <label class="text-muted">별점을 선택해주세요</label>
                 <div class="star-radio">

@@ -51,7 +51,7 @@
         <ul>
             <li><a href="/stats/dashboard.do">대시보드 홈</a></li>
             <li><a href="/stats/sales.do" class="active">기간별 매출 조회</a></li>
-            <li><a href="/stats/category.do">카테고리 통계</a></li>
+            <li><a href="/stats/categorystats.do">카테고리 통계</a></li>
         </ul>
     </div>
 

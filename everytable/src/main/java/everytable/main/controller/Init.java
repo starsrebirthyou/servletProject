@@ -53,6 +53,7 @@ import everytable.review.dao.ReviewDAO;
 import everytable.review.service.ReviewDeleteService;
 import everytable.review.service.ReviewListService;
 import everytable.review.service.ReviewUpdateService;
+import everytable.review.service.ReviewViewService;
 import everytable.review.service.ReviewWriteService;
 import everytable.stats.controller.StatsController;
 import everytable.stats.dao.StatsDAO;
@@ -214,11 +215,13 @@ public class Init extends HttpServlet {
 		serviceMap.put("/review/write.do", new ReviewWriteService());
 		serviceMap.put("/review/update.do", new ReviewUpdateService());
 		serviceMap.put("/review/delete.do", new ReviewDeleteService());
+		serviceMap.put("/review/view.do", new ReviewViewService());
 
 		serviceMap.get("/review/list.do").setDAO(daoMap.get("reviewDAO"));
 		serviceMap.get("/review/write.do").setDAO(daoMap.get("reviewDAO"));
 		serviceMap.get("/review/update.do").setDAO(daoMap.get("reviewDAO"));
 		serviceMap.get("/review/delete.do").setDAO(daoMap.get("reviewDAO"));
+		serviceMap.get("/review/view.do").setDAO(daoMap.get("reviewDAO"));
 
 		// ==============================================
 		// 8. 통계 (Stats)
