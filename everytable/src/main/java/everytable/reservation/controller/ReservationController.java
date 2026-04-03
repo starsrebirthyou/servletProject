@@ -77,19 +77,18 @@ public class ReservationController implements Controller {
 				return "redirect:/order/writeForm.do?resNo=" + writeResNo;
 
 			// 5. [관리자 전용] 상태 변경 처리 (승인: 2, 거절: 4)
-//			case "/reservation/adminUpdate.do":
-//				vo = new ReservationVO();
-//				long status = Long.parseLong(request.getParameter("resStatus"));
-//				vo.setResNo(Long.parseLong(request.getParameter("resNo")));
-//				vo.setResStatus(status);
-//				vo.setCancelReason(request.getParameter("cancelReason"));
-//
-//				Execute.execute(Init.getService(uri), vo);
-//
-//				String statusMsg = (status == 2) ? "예약을 승인하였습니다." : "예약을 거절(취소)하였습니다.";
-//				session.setAttribute("msg", statusMsg);
-//				// ★ 수정: adminList.do가 아니라 다시 list.do로 보내야 관리자 리스트가 나옴
-//				return "redirect:list.do";
+				// 관리자 상태 변경 (승인: 2, 거절: 4)
+			case "/reservation/updateStatus.do":
+			    vo = new ReservationVO();
+			    vo.setResNo(Long.parseLong(request.getParameter("resNo")));
+			    vo.setResStatus(Long.parseLong(request.getParameter("resStatus")));
+			    vo.setCancelReason(request.getParameter("cancelReason"));
+
+			    Execute.execute(Init.getService(uri), vo);
+
+			    String statusMsg = (vo.getResStatus() == 2) ? "예약을 승인하였습니다." : "예약을 거절하였습니다.";
+			    session.setAttribute("msg", statusMsg);
+			    return "redirect:adminList.do";
 
 			// 6. 예약 수정 폼
 			case "/reservation/updateForm.do":

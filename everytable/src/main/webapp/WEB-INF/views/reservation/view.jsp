@@ -25,11 +25,8 @@
 <script type="text/javascript">
 $(function() {
     $("#cancelBtn").click(function() {
-        $("#cancelReason").val("");
-        $("#cancelDiv").toggle();
-        if ($("#cancelDiv").is(":visible")) {
-            $('html, body').animate({ scrollTop: $(document).height() }, 500);
-        }
+        $("#cancelResNo").val("${vo.resNo}");
+        $("#cancelModal").modal("show");
     });
 });
 </script>
@@ -152,24 +149,31 @@ $(function() {
            class="btn btn-outline-secondary px-4">목록으로</a>
     </div>
 
-    <%-- 예약 취소 폼 --%>
-    <div id="cancelDiv" class="card card-body bg-light mb-5">
-        <form action="cancel.do" method="post">
-            <input type="hidden" name="resNo" value="${vo.resNo}">
-            <input type="hidden" name="page" value="${param.page}">
-            <input type="hidden" name="perPageNum" value="${param.perPageNum}">
-            <div class="mb-3">
-                <label for="cancelReason" class="form-label text-danger">
-                    <strong>취소 사유를 입력해주세요.</strong>
-                </label>
-                <textarea class="form-control" id="cancelReason" name="cancelReason" rows="3" required></textarea>
-            </div>
-            <div class="text-end">
-                <button type="submit" class="btn btn-danger px-4">취소 확정</button>
-                <button type="button" onclick="$('#cancelDiv').hide();" class="btn btn-light border px-4">닫기</button>
-            </div>
-        </form>
-    </div>
+    <!-- 취소 모달 -->
+	<div class="modal" id="cancelModal">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">예약 취소</h4>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<form action="/reservation/cancel.do" method="post">
+					<input type="hidden" name="resNo" id="cancelResNo">
+					<div class="modal-body">
+						<label class="form-label text-danger fw-bold">취소 사유를
+							입력해주세요.</label>
+						<textarea class="form-control" name="cancelReason" rows="3"
+							required></textarea>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-bs-dismiss="modal">닫기</button>
+						<button type="submit" class="btn btn-danger px-4">취소 확정</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 
 </div>
 </body>
