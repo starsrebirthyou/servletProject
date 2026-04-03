@@ -74,9 +74,9 @@
             <a href="list.do?page=${pageObject.page}&perPageNum=${pageObject.perPageNum}&key=${pageObject.key}&word=${pageObject.word}" 
                class="btn btn-warning">리스트</a>
           	
-            <a href="updateForm.do?no=${vo.order_id}" class="btn btn-primary">수정</a> 
+            <a href="updateForm.do?no=${vo.payment_id}" class="btn btn-primary">수정</a> 
 			<c:if test="${vo.status == 'SUCCESS' && diffHours >= 12}">
- 		    <a href="/refund/refundForm.do?no=${vo.order_id}" class="btn btn-danger">주문 취소 (환불신청)</a></c:if>
+ 		    <a href="/refund/refundForm.do?no=${vo.payment_id}" class="btn btn-danger">주문 취소 (환불신청)</a></c:if>
 
 			<c:if test="${vo.status == 'SUCCESS' && diffHours < 12}">
     		<span class="text-muted">※ 픽업 12시간 이내이므로 취소가 불가합니다.</span>

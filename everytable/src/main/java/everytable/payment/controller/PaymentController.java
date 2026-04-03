@@ -45,6 +45,13 @@ public class PaymentController implements Controller {
 				return "payment/view";
 				
 			case "/payment/writeForm.do":
+				String strNo = request.getParameter("no");
+				if(strNo != null) {
+					no=Long.parseLong(strNo);
+					paymentVO=(PaymentVO)Execute.execute(Init.getService("/payment/view.do"), no);
+					request.setAttribute("vo", paymentVO);
+				}
+				
 				return "payment/writeForm";
 				
 			case "/payment/write.do":
@@ -54,7 +61,7 @@ public class PaymentController implements Controller {
 			    // 1. 파라미터 수집
 			    String orderIdStr = request.getParameter("order_id");
 			    String amountStr = request.getParameter("amount");
-			    String pickupDateStr = request.getParameter("pickup_date"); // 픽업 날짜 추가
+			    String pickupDateStr = request.getParameter("pickupDate"); // 픽업 날짜 추가
 
 			    // 2. 필수 데이터 검증 
 			    if (orderIdStr == null || orderIdStr.trim().isEmpty() || 
@@ -88,8 +95,8 @@ public class PaymentController implements Controller {
 			case "/payment/updateForm.do":
 				LoginVO login = (LoginVO) request.getSession().getAttribute("login");
 
-			    if (login == null || login.getGradeNo() != 2) {
-			        request.getSession().setAttribute("msg", "매장 관리자 권한이 필요한 서비스입니다.");
+			    if (login == null || login.getGradeNo() != 9) {
+			        request.getSession().setAttribute("msg", "관리자 권한이 필요한 서비스입니다.");
 			        return "redirect:list.do"; // 권한 없으면 리스트로 튕기기
 			    }
 
@@ -98,44 +105,41 @@ public class PaymentController implements Controller {
 			    
 			    return "payment/updateForm";
 			    
+			    
 			
 			case "/payment/update.do":
-			    // 1. 권한 체크 (하드코딩 유지 - 나중에 세션으로 변경)
-			    LoginVO loginForUpdate = new LoginVO();
-			    loginForUpdate.setGradeNo(9);
+			    // 1. 권한 체크 (세션에서 로그인 정보 가져오기)
+			    LoginVO loginForUpdate = (LoginVO) request.getSession().getAttribute("login");
 			    
-			    if (loginForUpdate == null || loginForUpdate.getGradeNo() != 2) {
+			    // 관리자가 아니면 차단 (gradeNo가 9가 관리자라고 가정)
+			    if (loginForUpdate == null || loginForUpdate.getGradeNo() != 9) {
 			        request.getSession().setAttribute("msg", "권한이 없습니다.");
 			        return "redirect:list.do";
 			    }
 
 			    // 2. 데이터 수집
-			    pageObject = PageObject.getInstance(request);
-			    vo = new PaymentVO();
+			    vo = new PaymentVO(); 
+			    String payIdstr = request.getParameter("no"); 
 			    
-			    String strId = request.getParameter("order_id");
-			    String status = request.getParameter("status");
-			    
-			    // 데이터 확인용 콘솔 출력
-			    System.out.println(">>> 수정 시도 - ID: " + strId + ", STATUS: " + status);
+			    // 만약 JSP hidden 태그 name이 "payment_id"라면 그대로 두셔도 되지만, 
+			    // 안 바뀐다면 아래처럼 두 가지 다 체크해보는 게 안전합니다.
+			    if(payIdstr == null) payIdstr = request.getParameter("payment_id");
 
-			    if(strId != null && !strId.trim().equals("")) {
-			        vo.setOrder_id(Long.parseLong(strId));
-			    } else {
-			        return "redirect:list.do"; 
-			    }
-			    vo.setStatus(status);
+			    String status = request.getParameter("status"); 
 			    
-			    // 3. DB 실행 (DAO 호출)
-			    result = (Integer) Execute.execute(Init.getService(uri), vo);
-			    
-			    if(result != null && result == 1) {
-			        request.getSession().setAttribute("msg", "수정 완료!");
-			    } else {
-			        request.getSession().setAttribute("msg", "수정 실패!");
+			    System.out.println(">>> [확인] 넘어온 번호: " + payIdstr + ", 상태: " + status);
+
+			    if(payIdstr != null && !payIdstr.trim().equals("")) {
+			        vo.setPayment_id(Long.parseLong(payIdstr));
+			        vo.setStatus(status);
+			        
+			        // 실행!
+			        result = (Integer) Execute.execute(Init.getService(uri), vo);
+			        System.out.println(">>> [확인] DB 수정 결과: " + result);
 			    }
 			    
-			    return "redirect:view.do?no=" + vo.getOrder_id() + "&" + pageObject.getPageQuery();
+			    // 리다이렉트 시에도 payIdstr를 사용하세요!
+			    return "redirect:view.do?no=" + payIdstr + "&" + PageObject.getInstance(request).getPageQuery();
 			    
 			    
 			case"/payment/cancel.do":

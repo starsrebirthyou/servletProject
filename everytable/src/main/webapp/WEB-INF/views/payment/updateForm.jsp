@@ -26,22 +26,22 @@ $(function(){
         </div>
         <div class="card-body">
             <form action="update.do" method="post">
-    <input type="hidden" name="page" value="${(empty param.page) ? 1 : param.page}">
-    <input type="hidden" name="perPageNum" value="${(empty param.perPageNum) ? 10 : param.perPageNum}">
-    <input type="hidden" name="key" value="${param.key}">
-    <input type="hidden" name="word" value="${param.word}">
+			   <input type="hidden" name="no" value="${vo.payment_id}">
+			   <input type="hidden" name="page" value="${(empty param.page) ? 1 : param.page}">
+			   <input type="hidden" name="perPageNum" value="${(empty param.perPageNum) ? 10 : param.perPageNum}">
+			   <input type="hidden" name="key" value="${param.key}">
+			   <input type="hidden" name="word" value="${param.word}">
 
     <div class="mb-3 mt-3">
-        <label for="order_id" class="form-label fw-bold">주문번호</label>
-        <input type="text" class="form-control bg-light" id="order_id" 
-               name="order_id" value="${vo.order_id}" readonly="readonly">
-
-                <div class="mb-3">
-                    <label for="user_id" class="form-label fw-bold">구매자 아이디</label>
-                    <input type="text" class="form-control bg-light" id="user_id"
-                           name="user_id" value="${vo.user_id}" readonly="readonly">
-                </div>
-                
+	    <label for="order_id" class="form-label fw-bold">주문번호</label>
+	    <input type="text" class="form-control bg-light" id="order_id" 
+           name="order_id" value="${vo.order_id}" readonly="readonly">
+		</div> <div class="mb-3">
+	  	  <label for="user_id" class="form-label fw-bold">구매자 아이디</label>
+	      <input type="text" class="form-control bg-light" id="user_id"
+			           name="user_id" value="${vo.user_id}" readonly="readonly">
+			</div>
+			                
                 <div class="mb-3">
                     <label for="amount" class="form-label fw-bold">결제 금액</label>
                     <input type="text" class="form-control bg-light" id="amount"

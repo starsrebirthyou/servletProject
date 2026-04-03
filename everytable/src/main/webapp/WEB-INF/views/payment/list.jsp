@@ -17,7 +17,7 @@
  $(function(){
      $(".dataRow").click(function(){
          // 1. 주문번호 가져오기
-         let no = $(this).find(".order_id").text();
+         let no = $(this).find(".payment_id").text();
          
          // 2. [수정] 상세 보기 페이지로 이동하는 코드가 반드시 있어야 합니다!
          // 클릭했을 때 브라우저 주소창에 ?no=번호 가 붙어서 넘어가게 해줘요.
@@ -87,16 +87,19 @@
         <c:if test="${!empty list }">
             <c:forEach items="${list }" var="vo" >
                 <tr class="dataRow">
-                    <td class="order_id">${vo.order_id }</td>
-                    <td>${vo.user_id }</td>
-                    <td>${vo.method }</td>
-                    <td>${vo.amount }원</td>
-                    <td>
-                        <span class="badge ${vo.status == 'SUCCESS' ? 'bg-success' : 'bg-danger'}">
-                            ${vo.status }
-                        </span>
-                    </td>
-                    <td>${vo.payDate }</td>
+                   <td>${vo.order_id}</td> 
+            
+		            <td class="payment_id" style="display:none;">${vo.payment_id}</td>
+		            
+		            <td>${vo.user_id}</td>
+		            <td>${vo.method}</td>
+		            <td>${vo.amount}원</td>
+		            <td>
+		                <span class="badge ${vo.status == 'SUCCESS' ? 'bg-success' : 'bg-danger'}">
+		                    ${vo.status}
+		                </span>
+		            </td>
+		            <td>${vo.payDate}</td>
                 </tr>
             </c:forEach>
         </c:if>
