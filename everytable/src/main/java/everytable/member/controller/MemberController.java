@@ -168,10 +168,11 @@ public class MemberController implements Controller {
 	                     Mail.sendMail(findEmail, subject, content);
 	                     request.setAttribute("result", "ok");
 	                 } catch(Exception e) {
-	                     request.setAttribute("result", "fail");
+	            	 	 	e.printStackTrace();
+	                    request.setAttribute("result", "mail_error");
 	                 }
 	             } else {
-	                 request.setAttribute("result", "fail");
+	                 request.setAttribute("result", "not_found");
 	             }
 	             return "member/ajaxResult"; // {"result": "${result}"} 형태의 JSP
 

@@ -22,8 +22,8 @@ public class Mail {
         props.put("mail.smtp.ssl.protocols", "TLSv1.2");
 
         // 2. 인증 정보
-        final String username = ""; // 본인 지메일 주소
-        final String password = ""; // 구글에서 발급받은 16자리 앱 비밀번호
+        final String username = "jooyeonoh3526777@gmail.com"; // 본인 지메일 주소
+        final String password = "rrsj pqgi tzro cyks"; // 구글에서 발급받은 16자리 앱 비밀번호
 
         Session session = Session.getInstance(props, new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {

@@ -30,9 +30,12 @@ $(function(){
                 if(result === "ok"){
                     $("#step1").hide();
                     $("#step2").fadeIn();
+                } else if (result === "mail_error") {
+                    alert("서버 문제로 메일 발송에 실패했습니다. 콘솔 창의 에러를 확인하세요.");
+                    $("#nextBtn").prop("disabled", false).text("인증번호 받기"); // [cite: 5]
                 } else {
-                    alert("아이디 또는 이메일이 일치하지 않습니다.");
-                    $("#nextBtn").prop("disabled", false).text("인증번호 받기");
+                    alert("아이디 또는 이메일이 일치하지 않습니다."); // 
+                    $("#nextBtn").prop("disabled", false).text("인증번호 받기"); // [cite: 5]
                 }
             }
         });
@@ -51,9 +54,9 @@ $(function(){
             url: "/member/verifyAuthCode.do",
             method: "POST",
             data: { code: code },
-            dataType: "json",
             success: function(data){
-                if(data.result === "ok"){
+            	let result = $(data).find("#ajax-data-result").text().trim();
+                if(result === "ok"){
                     $("#step2").hide();
                     $("#step3").fadeIn();
                 } else {
@@ -90,9 +93,9 @@ $(function(){
             url: "/member/resetPw.do",
             method: "POST",
             data: { newPw: pw },
-            dataType: "json",
             success: function(data){
-                if(data.result === "ok"){
+            	let result = $(data).find("#ajax-data-result").text().trim();
+                if(result === "ok"){
                     $("#step3").hide();
                     $("#step4").fadeIn();
                 } else {
