@@ -53,7 +53,7 @@
         <c:choose>
           <c:when test="${empty login}">
             <li class="nav-item"><a class="nav-link" href="/member/loginForm.do">로그인</a></li>
-            <li class="nav-item"><a class="nav-link" href="/member/writeForm.do">회원가입</a></li>
+            <li class="nav-item"><a class="nav-link" href="/member/writeTypeSelect.do">회원가입</a></li>
           </c:when>
           <c:otherwise>
             <li class="nav-item">
