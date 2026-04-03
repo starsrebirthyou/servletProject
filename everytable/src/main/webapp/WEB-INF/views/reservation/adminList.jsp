@@ -33,7 +33,7 @@
     $(function() {
         // 필터 버튼 클릭
         $("#filterKey .btn").click(function() {
-            location = "list.do?page=1&perPageNum=${pageObject.perPageNum}&key=" + $(this).val();
+            location = "adminList.do?page=1&perPageNum=${pageObject.perPageNum}&key=" + $(this).val();
         });
 
         // 현재 필터 활성화
@@ -96,7 +96,7 @@
                 </div>
                 <div class="col-md-4 ps-md-4">
                     <div class="small text-muted">주문 금액</div>
-                    <div class="fw-bold fs-5 text-primary"><fmt:formatNumber value="${vo.totalPrice}" pattern="#,###"/>원</div>
+                    <div class="fw-bold fs-5 text-primary"><fmt:formatNumber value="${vo.totalPrice}"/>원</div>
                 </div>
             </div>
 
