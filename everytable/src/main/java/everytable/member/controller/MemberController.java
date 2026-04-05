@@ -174,8 +174,8 @@ public class MemberController implements Controller {
 	             } else {
 	                 request.setAttribute("result", "not_found");
 	             }
-	             return "member/ajaxResult"; // {"result": "${result}"} 형태의 JSP
-
+	             return "member/ajaxResult";
+	             
 	         // ── 2단계: 인증번호 확인 ──
 	         case "/member/verifyAuthCode.do":
 	             String inputCode = request.getParameter("code");
@@ -202,7 +202,7 @@ public class MemberController implements Controller {
 	                 vo.setNewPw(newPw); // MemberVO에 newPw 필드가 있어야 함
 	                 
 	                 // 비밀번호 변경 서비스 호출 (changePw 서비스 재활용)
-	                 Integer res = (Integer) Execute.execute(Init.getService("/member/changePw.do"), vo);
+	                 Integer res = (Integer) Execute.execute(Init.getService("/member/resetPw.do"), vo);
 	                 
 	                 if (res == 1) {
 	                     session.removeAttribute("authCode");

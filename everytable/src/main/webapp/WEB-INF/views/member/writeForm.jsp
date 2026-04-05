@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -225,7 +226,7 @@ $(function(){
     <button type="button" class="btn btn-success w-100" id="nextBtn">인증번호 받기</button>
   </div>
   
-  <div>
+  <div clas="emailAuthDiv">
   	<p class="text-primary text-center mb-4">
        입력하신 이메일로 6자리 인증번호를 발송했습니다.
    	</p>

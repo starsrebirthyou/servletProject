@@ -120,9 +120,9 @@ public class Init extends HttpServlet {
 		// ==============================================
 		// 2. 회원관리 (Member)
 		// ==============================================
+		// -- Controller 저장
 		controllerMap.put("/member", new MemberController());
-		daoMap.put("memberDAO", new MemberDAO());
-
+		// -- Service 저장
 		serviceMap.put("/member/login.do", new LoginService());
 		serviceMap.put("/member/updateLastLogin.do", new MemberUpdateLastLoginService());
 		serviceMap.put("/member/write.do", new MemberWriteService());
@@ -135,7 +135,9 @@ public class Init extends HttpServlet {
 		serviceMap.put("/member/searchId.do", new MemberSearchIdService());
 		serviceMap.put("/member/checkMemberInfo.do", new MemberCheckMemberInfoService());
 		serviceMap.put("/member/resetPw.do", new MemberResetPwService());
-
+		// -- DAO 저장
+		daoMap.put("memberDAO", new MemberDAO());
+		// -- service에 dao 조립
 		serviceMap.get("/member/login.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/updateLastLogin.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/write.do").setDAO(daoMap.get("memberDAO"));
