@@ -64,7 +64,7 @@
           </c:when>
           <c:otherwise>
             <li class="nav-item">
-              <a class="nav-link" href="/member/myInfo.do"><strong>${login.name}</strong>(${login.gradeName})님</a>
+              <a class="nav-link" href="/member/view.do"><strong>${login.name}</strong>(${login.gradeName})님</a>
             </li>
             <li class="nav-item"><a class="nav-link" href="/member/logout.do">로그아웃</a></li>
           </c:otherwise>
