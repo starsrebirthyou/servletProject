@@ -149,38 +149,40 @@ public class ReservationController implements Controller {
 
 			// 10. 메뉴 주문
 			case "/reservation/orderWrite.do":
-				System.out.println("/reservation/orderWrite.do - 메뉴 주문 처리");
+			    System.out.println("/reservation/orderWrite.do - 메뉴 주문 처리");
 
-				// 2. [주의] 'OrderVO vo = ...' 가 아니라 그냥 'vo = ...' 라고 써야 합니다!
-				vo = new ReservationVO();
+			    vo = new ReservationVO();
 
-				// JSP에서 보내는 배열 데이터 받기
-				String[] menuNo = request.getParameterValues("menuNo");
-				String[] quantity = request.getParameterValues("quantity");
-				String StoreId = request.getParameter("storeId");
-				String TotalPrice = request.getParameter("totalPrice");
+			    // [수정] JSP의 name="menuNos", name="quantities"와 일치시켜야 합니다!
+			    String[] menuNos = request.getParameterValues("menuNos");
+			    String[] quantities = request.getParameterValues("quantities");
+			    String storeIdStr = request.getParameter("storeId");
+			    String totalPriceStr = request.getParameter("totalPrice");
 
-				// 기본 정보 세팅 (null 체크)
-				vo.setStoreId((StoreId != null && !StoreId.equals("")) ? Long.parseLong(StoreId) : 0L);
-				vo.setTotalPrice((TotalPrice != null && !TotalPrice.equals("")) ? Long.parseLong(TotalPrice) : 0L);
+			    // 기본 정보 세팅
+			    vo.setStoreId((storeIdStr != null && !storeIdStr.equals("")) ? Long.parseLong(storeIdStr) : 0L);
+			    vo.setTotalPrice((totalPriceStr != null && !totalPriceStr.equals("")) ? Long.parseLong(totalPriceStr) : 0L);
 
-				// 수량이 0보다 큰 첫 번째 메뉴만 우선 담기 (에러 방지용)
-				if (menuNo != null && quantity != null) {
-					for (int i = 0; i < menuNo.length; i++) {
-						if (!quantity[i].equals("0")) {
-							vo.setMenuNo(Long.parseLong(menuNo[i]));
-							vo.setQuantity(Long.parseLong(quantity[i]));
-							break;
-						}
-					}
-				}
+			    // 수량이 0보다 큰 데이터 처리
+			    if (menuNos != null && quantities != null) {
+			        for (int i = 0; i < menuNos.length; i++) {
+			            // 빈값이거나 "0"인 경우 제외
+			            if (quantities[i] != null && !quantities[i].equals("0") && !quantities[i].equals("")) {
+			                // VO 구조에 따라 리스트로 담거나, 일단 첫 번째 값을 세팅
+			                vo.setMenuNo(Long.parseLong(menuNos[i]));
+			                vo.setQuantity(Long.parseLong(quantities[i]));
+			                break; // 일단 로직상 한 개만 처리하게 되어있으므로 break
+			            }
+			        }
+			    }
 
-				Long resNo = (Long) Execute.execute(Init.getService(uri), vo);
+			    // 서비스 실행 (resNo 반환)
+			    Long resNo = (Long) Execute.execute(Init.getService(uri), vo);
 
-				request.getSession().setAttribute("msg", "메뉴 주문이 완료되었습니다.");
+			    request.getSession().setAttribute("msg", "메뉴 주문이 완료되었습니다.");
 
-				return "redirect:/reservation/orderView.do?resNo=" + resNo;
-
+			    // 상세페이지로 이동
+			    return "redirect:/reservation/orderView.do?resNo=" + resNo;
 			default:
 				// 정의되지 않은 URI인 경우 404 페이지로 유도하여 NPE 방지
 				return "error/404";
