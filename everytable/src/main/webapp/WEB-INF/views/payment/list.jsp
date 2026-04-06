@@ -94,11 +94,19 @@
 		            <td>${vo.user_id}</td>
 		            <td>${vo.method}</td>
 		            <td>${vo.amount}원</td>
-		            <td>
-		                <span class="badge ${vo.status == 'SUCCESS' ? 'bg-success' : 'bg-danger'}">
-		                    ${vo.status}
-		                </span>
-		            </td>
+		           <td>
+    <c:choose>
+        <c:when test="${vo.status == 'SUCCESS'}">
+            <span class="badge bg-success">SUCCESS</span>
+        </c:when>
+        <c:when test="${vo.status == 'REFUNDED'}">
+            <span class="badge bg-secondary">REFUNDED</span>
+        </c:when>
+        <c:otherwise>
+            <span class="badge bg-danger">${vo.status}</span>
+        </c:otherwise>
+    </c:choose>
+</td>
 		            <td>${vo.payDate}</td>
                 </tr>
             </c:forEach>

@@ -397,6 +397,7 @@ public class MemberDAO extends DAO {
         DB.close(con, pstmt, rs);
         return tel;
     }
+    
 
     // ----------------------------------------------------------------
     // 이메일 중복 체크
