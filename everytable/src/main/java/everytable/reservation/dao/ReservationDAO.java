@@ -10,78 +10,146 @@ import everytable.util.page.PageObject;
 
 public class ReservationDAO extends DAO {
 
-	// 1. 예약 리스트 (내 예약만 + 식당 이름 조인)
 	// 1. 예약 리스트
 	public List<ReservationVO> list(PageObject pageObject) throws Exception {
-	    List<ReservationVO> list = new ArrayList<>();
-	    con = DB.getConnection();
+		List<ReservationVO> list = new ArrayList<>();
+		con = DB.getConnection();
 
-	    String loginId = pageObject.getAccepter();
+		String loginId = pageObject.getAccepter();
 
-	    // [수정] s.store_id = r.store_id (+) 처럼 처리하거나 
-	    // 표준 ANSI JOIN인 LEFT OUTER JOIN을 써서 식당정보가 없어도 예약은 나오게 합니다.
-	    String sql = "select s.store_name, r.res_no, to_char(r.res_date, 'yyyy-mm-dd') res_date, "
-	            + " r.res_time, r.res_type, r.res_status, r.res_count, r.res_created_at "
-	            + " from reservation r LEFT OUTER JOIN store s ON r.store_id = s.store_id " 
-	            + " where r.user_id = ? "; // 내 아이디 조건
+		String sql = "select s.store_name, r.res_no, to_char(r.res_date, 'yyyy-mm-dd') res_date, "
+				+ " r.res_time, r.res_type, r.res_status, r.res_count, r.res_created_at "
+				+ " from reservation r LEFT OUTER JOIN store s ON r.store_id = s.store_id " + " where r.user_id = ? "; // 내
+																														// 아이디
+		sql += search(pageObject);
 
-	    // 검색 조건 추가 (search 메서드에서 'and'로 시작하므로 자연스럽게 연결됨)
-	    sql += search(pageObject);
-	    
-	    sql += " order by r.res_created_at desc";
+		sql += " order by r.res_created_at desc";
 
-	    // 페이징 처리 래퍼
-	    sql = "select rownum rnum, store_name, res_no, res_date, res_time, res_type, res_status, res_count " 
-	        + " from (" + sql + ")";
-	    sql = "select * from (" + sql + ") where rnum between ? and ?";
+		sql = "select rownum rnum, store_name, res_no, res_date, res_time, res_type, res_status, res_count " + " from ("
+				+ sql + ")";
+		sql = "select * from (" + sql + ") where rnum between ? and ?";
 
-	    pstmt = con.prepareStatement(sql);
-	    
-	    pstmt.setString(1, loginId);
-	    pstmt.setLong(2, pageObject.getStartRow());
-	    pstmt.setLong(3, pageObject.getEndRow());
+		pstmt = con.prepareStatement(sql);
 
-	    rs = pstmt.executeQuery();
-	    
-	    if (rs != null) {
-	        while (rs.next()) {
-	            ReservationVO vo = new ReservationVO();
-	            vo.setStoreName(rs.getString("store_name"));
-	            vo.setResNo(rs.getLong("res_no"));
-	            vo.setResCount(rs.getLong("res_count"));
-	            vo.setResDate(rs.getString("res_date"));
-	            vo.setResTime(rs.getString("res_time"));
-	            vo.setResType(rs.getString("res_type"));
-	            vo.setResStatus(rs.getLong("res_status"));
-	            list.add(vo);
-	        }
-	    }
-	    DB.close(con, pstmt, rs);
-	    return list;
+		pstmt.setString(1, loginId);
+		pstmt.setLong(2, pageObject.getStartRow());
+		pstmt.setLong(3, pageObject.getEndRow());
+
+		rs = pstmt.executeQuery();
+
+		if (rs != null) {
+			while (rs.next()) {
+				ReservationVO vo = new ReservationVO();
+				vo.setStoreName(rs.getString("store_name"));
+				vo.setResNo(rs.getLong("res_no"));
+				vo.setResCount(rs.getLong("res_count"));
+				vo.setResDate(rs.getString("res_date"));
+				vo.setResTime(rs.getString("res_time"));
+				vo.setResType(rs.getString("res_type"));
+				vo.setResStatus(rs.getLong("res_status"));
+				list.add(vo);
+			}
+		}
+		DB.close(con, pstmt, rs);
+		return list;
 	}
 
-	// 2. 전체 개수 (검색 조건 포함)
+	// 1. 예약 리스트 매장용
+	public List<ReservationVO> adminList(PageObject pageObject) throws Exception {
+		List<ReservationVO> list = new ArrayList<>();
+		con = DB.getConnection();
+
+		String storeId = pageObject.getAccepter();
+
+		// 1. 내부 쿼리 (검색 및 정렬 포함)
+		String sql = "select r.res_no, r.user_id, to_char(r.res_date, 'yyyy-mm-dd') res_date, "
+				+ " r.res_time, r.res_type, r.res_status, r.res_count, r.res_created_at, r.res_phone, r.total_price "
+				+ " from reservation r " + " where r.store_id = ? ";
+
+		sql += search(pageObject);
+		sql += " order by r.res_date desc, r.res_time desc";
+
+		// 2. 페이징 처리 래퍼 (res_created_at 컬럼을 중간 단계에도 넣어줘야 함!)
+		sql = "select rownum rnum, res_no, user_id, res_date, res_time, res_type, res_status, res_count, res_phone, total_price, res_created_at "
+				+ " from (" + sql + ")";
+
+		// 3. 최종 페이징 쿼리
+		sql = "select * from (" + sql + ") where rnum between ? and ?";
+
+		pstmt = con.prepareStatement(sql);
+
+		// setString 혹은 setLong (DB 타입에 맞춰서)
+		pstmt.setString(1, storeId);
+		pstmt.setLong(2, pageObject.getStartRow());
+		pstmt.setLong(3, pageObject.getEndRow());
+
+		rs = pstmt.executeQuery();
+
+		if (rs != null) {
+			while (rs.next()) {
+				ReservationVO vo = new ReservationVO();
+				vo.setResNo(rs.getLong("res_no"));
+				vo.setUserId(rs.getString("user_id"));
+				vo.setResCount(rs.getLong("res_count"));
+				vo.setResDate(rs.getString("res_date"));
+				vo.setResTime(rs.getString("res_time"));
+				vo.setResType(rs.getString("res_type"));
+				vo.setResStatus(rs.getLong("res_status"));
+				vo.setResPhone(rs.getString("res_phone"));
+				vo.setResCreatedAt(rs.getString("res_created_at")); // 날짜 표시를 위해 추가
+
+				// [중요!] totalPrice -> total_price 로 수정
+				vo.setTotalPrice(rs.getLong("total_price"));
+
+				list.add(vo);
+			}
+		}
+		DB.close(con, pstmt, rs);
+		return list;
+	}
+
+	// 2. 전체 개수 일반 사용자용
 	public Long getTotalRow(PageObject pageObject) throws Exception {
-	    Long totalRow = 0L;
-	    con = DB.getConnection();
-	    
-	    String userId = pageObject.getAccepter();
-	    
-	    // search() 앞에 명시적으로 user_id 조건을 둡니다.
-	    String sql = "select count(*) from reservation r where r.user_id = ? " + search(pageObject);
-	    
-	    pstmt = con.prepareStatement(sql);
-	    pstmt.setString(1, userId);
-	    
-	    rs = pstmt.executeQuery();
-	    if (rs != null && rs.next()) {
-	        totalRow = rs.getLong(1);
-	    }
-	    DB.close(con, pstmt, rs);
-	    return totalRow;
+		Long totalRow = 0L;
+		con = DB.getConnection();
+
+		String userId = pageObject.getAccepter();
+
+		// search() 앞에 명시적으로 user_id 조건을 둡니다.
+		String sql = "select count(*) from reservation r where r.user_id = ? " + search(pageObject);
+
+		pstmt = con.prepareStatement(sql);
+		pstmt.setString(1, userId);
+
+		rs = pstmt.executeQuery();
+		if (rs != null && rs.next()) {
+			totalRow = rs.getLong(1);
+		}
+		DB.close(con, pstmt, rs);
+		return totalRow;
 	}
 
-	// 3. 검색 조건 (기존 로직 유지)
+	// 2. 전체 개수 매장용
+	public Long getTotalRowAdmin(PageObject pageObject) throws Exception {
+		Long totalRow = 0L;
+		con = DB.getConnection();
+
+		String storeId = pageObject.getAccepter();
+
+		String sql = "select count(*) from reservation r where r.store_id = ? " + search(pageObject);
+
+		pstmt = con.prepareStatement(sql);
+		pstmt.setLong(1, Long.parseLong(storeId));
+
+		rs = pstmt.executeQuery();
+		if (rs != null && rs.next()) {
+			totalRow = rs.getLong(1);
+		}
+		DB.close(con, pstmt, rs);
+		return totalRow;
+	}
+
+	// 3. 검색 조건
 	public String search(PageObject pageObject) {
 		String sql = "";
 		String key = pageObject.getKey();
@@ -91,46 +159,79 @@ public class ReservationDAO extends DAO {
 		return sql;
 	}
 
-	// 4. 예약 상세 보기 (식당 이름 조인 유지)
+	// 4. 예약 상세 보기 일반 사용자용
 	public ReservationVO view(Long no) throws Exception {
-	    ReservationVO vo = null;
-	    con = DB.getConnection();
+		ReservationVO vo = null;
+		con = DB.getConnection();
 
-	    // SQL 수정: LEFT OUTER JOIN 사용
-	    String sql = "select s.store_name, r.user_id, r.res_phone, " 
-	            + " to_char(r.res_date, 'yyyy-mm-dd') res_date, r.res_time, "
-	            + " r.res_count, r.res_type, r.res_no, r.total_price, r.res_status, r.cancel_reason " 
-	            + " from reservation r LEFT OUTER JOIN store s ON r.store_id = s.store_id "
-	            + " where r.res_no = ?";
+		// SQL 수정: LEFT OUTER JOIN 사용
+		String sql = "select s.store_name, r.user_id, r.res_phone, "
+				+ " to_char(r.res_date, 'yyyy-mm-dd') res_date, r.res_time, "
+				+ " r.res_count, r.res_type, r.res_no, r.total_price, r.res_status, r.order_add, r.cancel_reason "
+				+ " from reservation r LEFT OUTER JOIN store s ON r.store_id = s.store_id " + " where r.res_no = ?";
 
-	    pstmt = con.prepareStatement(sql);
-	    pstmt.setLong(1, no);
-	    rs = pstmt.executeQuery();
+		pstmt = con.prepareStatement(sql);
+		pstmt.setLong(1, no);
+		rs = pstmt.executeQuery();
 
-	    if (rs != null && rs.next()) {
-	        vo = new ReservationVO();
-	        vo.setResNo(rs.getLong("res_no"));
-	        // ★ 여기서 rs.getString("store_name")이 제대로 담기는지 확인!
-	        vo.setStoreName(rs.getString("store_name"));
-	        vo.setUserId(rs.getString("user_id"));
-	        vo.setResPhone(rs.getString("res_phone"));
-	        vo.setResDate(rs.getString("res_date"));
-	        vo.setResTime(rs.getString("res_time"));
-	        vo.setResCount(rs.getLong("res_count"));
-	        vo.setResType(rs.getString("res_type"));
-	        vo.setTotalPrice(rs.getLong("total_price"));
-	        vo.setResStatus(rs.getLong("res_status"));
-	        vo.setCancelReason(rs.getString("cancel_reason"));
-	    }
-	    
-	    // 디버깅용: 콘솔에 매장명이 찍히는지 확인하세요
-	    if(vo != null) System.out.println("조회된 매장명: " + vo.getStoreName());
+		if (rs != null && rs.next()) {
+			vo = new ReservationVO();
+			vo.setResNo(rs.getLong("res_no"));
+			// ★ 여기서 rs.getString("store_name")이 제대로 담기는지 확인!
+			vo.setStoreName(rs.getString("store_name"));
+			vo.setUserId(rs.getString("user_id"));
+			vo.setResPhone(rs.getString("res_phone"));
+			vo.setResDate(rs.getString("res_date"));
+			vo.setResTime(rs.getString("res_time"));
+			vo.setResCount(rs.getLong("res_count"));
+			vo.setResType(rs.getString("res_type"));
+			vo.setTotalPrice(rs.getLong("total_price"));
+			vo.setResStatus(rs.getLong("res_status"));
+			vo.setOrderAdd(rs.getString("order_add"));
+			vo.setCancelReason(rs.getString("cancel_reason"));
+		}
 
-	    DB.close(con, pstmt, rs);
-	    return vo;
+		DB.close(con, pstmt, rs);
+		return vo;
 	}
 
-	// 5. 예약 하기
+	// 4. 예약 상세 보기 매장용
+	public ReservationVO adminView(Long no) throws Exception {
+		ReservationVO vo = null;
+		con = DB.getConnection();
+
+		// SQL 수정: LEFT OUTER JOIN 사용
+		String sql = "select s.store_name, r.user_id, r.res_phone, "
+				+ " to_char(r.res_date, 'yyyy-mm-dd') res_date, r.res_time, "
+				+ " r.res_count, r.res_type, r.res_no, r.total_price, r.res_status, r.order_add, r.cancel_reason "
+				+ " from reservation r LEFT OUTER JOIN store s ON r.store_id = s.store_id " + " where r.res_no = ?";
+
+		pstmt = con.prepareStatement(sql);
+		pstmt.setLong(1, no);
+		rs = pstmt.executeQuery();
+
+		if (rs != null && rs.next()) {
+			vo = new ReservationVO();
+			vo.setResNo(rs.getLong("res_no"));
+			// ★ 여기서 rs.getString("store_name")이 제대로 담기는지 확인!
+			vo.setStoreName(rs.getString("store_name"));
+			vo.setUserId(rs.getString("user_id"));
+			vo.setResPhone(rs.getString("res_phone"));
+			vo.setResDate(rs.getString("res_date"));
+			vo.setResTime(rs.getString("res_time"));
+			vo.setResCount(rs.getLong("res_count"));
+			vo.setResType(rs.getString("res_type"));
+			vo.setTotalPrice(rs.getLong("total_price"));
+			vo.setResStatus(rs.getLong("res_status"));
+			vo.setOrderAdd(rs.getString("order_add"));
+			vo.setCancelReason(rs.getString("cancel_reason"));
+		}
+
+		DB.close(con, pstmt, rs);
+		return vo;
+	}
+
+	// 5. 예약 하기 - 일반 사용자용
 	public Long write(ReservationVO vo) throws Exception {
 		Long resNo = 0L;
 		con = DB.getConnection();
@@ -156,13 +257,14 @@ public class ReservationDAO extends DAO {
 		pstmt = con.prepareStatement(sql);
 		rs = pstmt.executeQuery();
 
-		if (rs.next()) resNo = rs.getLong(1);
+		if (rs.next())
+			resNo = rs.getLong(1);
 
 		DB.close(con, pstmt, rs);
 		return resNo;
 	}
 
-	// 6. 예약 정보 수정
+	// 6. 예약 정보 수정 일반 사용자용
 	public int update(ReservationVO vo) throws Exception {
 		int result = 0;
 		con = DB.getConnection();
@@ -184,117 +286,59 @@ public class ReservationDAO extends DAO {
 		return result;
 	}
 
-	// 7. 예약 취소 (상태값 변경)
-	public int cancel(ReservationVO vo) throws Exception {
+	// 6- 예약 상태 변경 매장용
+	public int adminUpdate(ReservationVO vo) throws Exception {
 		int result = 0;
 		con = DB.getConnection();
-		
+
+		// 상태(2:수락, 3:거절)와 거절사유를 업데이트
 		String sql = "update reservation set res_status = ?, cancel_reason = ? where res_no = ?";
 
 		pstmt = con.prepareStatement(sql);
-		pstmt.setLong(1, vo.getResStatus()); 
-		pstmt.setString(2, vo.getCancelReason()); 
-		pstmt.setLong(3, vo.getResNo()); 
+		pstmt.setLong(1, vo.getResStatus());
+		pstmt.setString(2, vo.getCancelReason());
+		pstmt.setLong(3, vo.getResNo());
 
 		result = pstmt.executeUpdate();
-		
+
 		DB.close(con, pstmt);
 		return result;
 	}
-	
-	// [추가] 1-1. 매장 관리자용 예약 리스트 (해당 매장 번호 기준)
-	public List<ReservationVO> adminList(PageObject pageObject) throws Exception {
-	    List<ReservationVO> list = new ArrayList<>();
-	    con = DB.getConnection();
 
-	    String storeId = pageObject.getAccepter();
+	// 7. 예약 취소 일반 사용자용
+	public int cancel(ReservationVO vo) throws Exception {
+		int result = 0;
+		con = DB.getConnection();
 
-	    // 1. 내부 쿼리 (검색 및 정렬 포함)
-	    String sql = "select r.res_no, r.user_id, to_char(r.res_date, 'yyyy-mm-dd') res_date, "
-	            + " r.res_time, r.res_type, r.res_status, r.res_count, r.res_created_at, r.res_phone, r.total_price "
-	            + " from reservation r " 
-	            + " where r.store_id = ? ";
+		String sql = "update reservation set res_status = ?, cancel_reason = ? where res_no = ?";
 
-	    sql += search(pageObject); 
-	    sql += " order by r.res_date desc, r.res_time desc";
+		pstmt = con.prepareStatement(sql);
+		pstmt.setLong(1, vo.getResStatus());
+		pstmt.setString(2, vo.getCancelReason());
+		pstmt.setLong(3, vo.getResNo());
 
-	    // 2. 페이징 처리 래퍼 (res_created_at 컬럼을 중간 단계에도 넣어줘야 함!)
-	    sql = "select rownum rnum, res_no, user_id, res_date, res_time, res_type, res_status, res_count, res_phone, total_price, res_created_at " 
-	        + " from (" + sql + ")";
-	    
-	    // 3. 최종 페이징 쿼리
-	    sql = "select * from (" + sql + ") where rnum between ? and ?";
+		result = pstmt.executeUpdate();
 
-	    pstmt = con.prepareStatement(sql);
-	    
-	    // setString 혹은 setLong (DB 타입에 맞춰서)
-	    pstmt.setString(1, storeId);
-	    pstmt.setLong(2, pageObject.getStartRow());
-	    pstmt.setLong(3, pageObject.getEndRow());
-
-	    rs = pstmt.executeQuery();
-	    
-	    if (rs != null) {
-	        while (rs.next()) {
-	            ReservationVO vo = new ReservationVO();
-	            vo.setResNo(rs.getLong("res_no"));
-	            vo.setUserId(rs.getString("user_id"));
-	            vo.setResCount(rs.getLong("res_count"));
-	            vo.setResDate(rs.getString("res_date"));
-	            vo.setResTime(rs.getString("res_time"));
-	            vo.setResType(rs.getString("res_type"));
-	            vo.setResStatus(rs.getLong("res_status"));
-	            vo.setResPhone(rs.getString("res_phone"));
-	            vo.setResCreatedAt(rs.getString("res_created_at")); // 날짜 표시를 위해 추가
-	            
-	            // [중요!] totalPrice -> total_price 로 수정
-	            vo.setTotalPrice(rs.getLong("total_price")); 
-	            
-	            list.add(vo);
-	        }
-	    }
-	    DB.close(con, pstmt, rs);
-	    return list;
+		DB.close(con, pstmt);
+		return result;
 	}
 
-	// [추가] 2-1. 매장 관리자용 전체 개수
-	public Long getTotalRowAdmin(PageObject pageObject) throws Exception {
-	    Long totalRow = 0L;
-	    con = DB.getConnection();
-	    
-	    String storeId = pageObject.getAccepter();
-	    
-	    String sql = "select count(*) from reservation r where r.store_id = ? " + search(pageObject);
-	    
-	    pstmt = con.prepareStatement(sql);
-	    pstmt.setLong(1, Long.parseLong(storeId));
-	    
-	    rs = pstmt.executeQuery();
-	    if (rs != null && rs.next()) {
-	        totalRow = rs.getLong(1);
-	    }
-	    DB.close(con, pstmt, rs);
-	    return totalRow;
+	// 7. 예약 취소 매장용
+	public int adminCancel(ReservationVO vo) throws Exception {
+		int result = 0;
+		con = DB.getConnection();
+
+		String sql = "update reservation set res_status = ?, cancel_reason = ? where res_no = ?";
+
+		pstmt = con.prepareStatement(sql);
+		pstmt.setLong(1, vo.getResStatus());
+		pstmt.setString(2, vo.getCancelReason());
+		pstmt.setLong(3, vo.getResNo());
+
+		result = pstmt.executeUpdate();
+
+		DB.close(con, pstmt);
+		return result;
 	}
 
-	// [추가] 8. 예약 상태 변경 (수락/거절 처리)
-	public int adminUpdate(ReservationVO vo) throws Exception {
-	    int result = 0;
-	    con = DB.getConnection();
-	    
-	    // 상태(2:수락, 3:거절)와 거절사유를 업데이트
-	    String sql = "update reservation set res_status = ?, cancel_reason = ? where res_no = ?";
-
-	    pstmt = con.prepareStatement(sql);
-	    pstmt.setLong(1, vo.getResStatus()); 
-	    pstmt.setString(2, vo.getCancelReason()); 
-	    pstmt.setLong(3, vo.getResNo()); 
-
-	    result = pstmt.executeUpdate();
-	    
-	    DB.close(con, pstmt);
-	    return result;
-	}
-	
-	
 }

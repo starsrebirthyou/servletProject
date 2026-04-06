@@ -8,6 +8,7 @@
 <meta charset="UTF-8">
 <title>내 예약 내역</title>
 <style>
+body { background-color: #f8f9fa; }
 * {
 	box-sizing: border-box;
 	margin: 0;

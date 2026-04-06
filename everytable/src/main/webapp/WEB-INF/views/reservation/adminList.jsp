@@ -9,6 +9,10 @@
 <meta charset="UTF-8">
 <title>주문 관리</title>
 <style>
+body {
+	background-color: #f8f9fa;
+}
+
 * {
 	box-sizing: border-box;
 	margin: 0;
@@ -427,7 +431,7 @@
 					</div>
 					<div class="info-cell">
 						<div class="lbl">인원 / 유형</div>
-						<div class="val">${vo.resCount}명/ ${vo.resType}</div>
+						<div class="val">${vo.resCount}명/${vo.resType}</div>
 					</div>
 					<div class="info-cell">
 						<div class="lbl">주문 금액</div>
@@ -447,7 +451,7 @@
 
 				<%-- 액션 버튼 --%>
 				<div class="card-actions">
-					<a href="view.do?no=${vo.resNo}" class="btn btn-ghost">상세보기</a>
+					<a href="adminView.do?no=${vo.resNo}" class="btn btn-ghost">상세보기</a>
 					<c:if test="${vo.resStatus == 1}">
 						<a href="adminUpdate.do?resNo=${vo.resNo}&resStatus=2"
 							class="btn btn-success"
@@ -482,8 +486,8 @@
 					<option value="개인 사정으로 인한 임시 휴무">임시 휴무</option>
 					<option value="직접 입력">기타 (직접 입력)</option>
 				</select>
-				<textarea name="cancelReasonDirect" rows="3"
-					placeholder="기타 사유 입력 시 작성"></textarea>
+				<textarea name="cancelReasonDirect" class="form-control" rows="3"
+					placeholder="기타 사유를 입력해주세요." style="display: none;"></textarea>
 				<div class="modal-actions">
 					<button type="button" class="btn btn-ghost" id="modalClose">취소</button>
 					<button type="submit" class="btn btn-danger"
@@ -537,6 +541,23 @@
 						if (e.target === this)
 							this.classList.remove("show");
 					});
+
+			// 기타 선택 시 textarea 표시
+			document
+					.querySelector("select[name='cancelReason']")
+					.addEventListener(
+							"change",
+							function() {
+								var textarea = document
+										.querySelector("textarea[name='cancelReasonDirect']");
+								if (this.value === "직접 입력") {
+									textarea.style.display = "block";
+								} else {
+									textarea.style.display = "none";
+									textarea.value = "";
+								}
+							});
+
 		})();
 	</script>
 </body>

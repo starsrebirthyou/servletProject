@@ -8,8 +8,11 @@ import everytable.main.service.Service;
 import everytable.member.controller.MemberController;
 import everytable.member.dao.MemberDAO;
 import everytable.member.service.LoginService;
+import everytable.member.service.MemberChangeEmailService;
 import everytable.member.service.MemberChangeGradeService;
+import everytable.member.service.MemberChangePwService;
 import everytable.member.service.MemberChangeStatusService;
+import everytable.member.service.MemberChangeTelService;
 import everytable.member.service.MemberCheckEmailService;
 import everytable.member.service.MemberCheckIdService;
 import everytable.member.service.MemberCheckMemberInfoService;
@@ -18,6 +21,7 @@ import everytable.member.service.MemberListService;
 import everytable.member.service.MemberResetPwService;
 import everytable.member.service.MemberSearchIdService;
 import everytable.member.service.MemberUpdateLastLoginService;
+import everytable.member.service.MemberViewService;
 import everytable.member.service.MemberWriteService;
 import everytable.menu.controller.MenuController;
 import everytable.menu.dao.MenuDAO;
@@ -44,7 +48,10 @@ import everytable.refund.dao.RefundDAO;
 import everytable.refund.service.RefundRefundService;
 import everytable.reservation.controller.ReservationController;
 import everytable.reservation.dao.ReservationDAO;
+import everytable.reservation.service.ReservationAdminCancelService;
 import everytable.reservation.service.ReservationAdminListService;
+import everytable.reservation.service.ReservationAdminUpdateService;
+import everytable.reservation.service.ReservationAdminViewService;
 import everytable.reservation.service.ReservationCancelService;
 import everytable.reservation.service.ReservationListService;
 import everytable.reservation.service.ReservationUpdateService;
@@ -124,6 +131,7 @@ public class Init extends HttpServlet {
 		controllerMap.put("/member", new MemberController());
 		// -- Service 저장
 		serviceMap.put("/member/login.do", new LoginService());
+		serviceMap.put("/member/view.do", new MemberViewService());
 		serviceMap.put("/member/updateLastLogin.do", new MemberUpdateLastLoginService());
 		serviceMap.put("/member/write.do", new MemberWriteService());
 		serviceMap.put("/member/list.do", new MemberListService());
@@ -135,10 +143,14 @@ public class Init extends HttpServlet {
 		serviceMap.put("/member/searchId.do", new MemberSearchIdService());
 		serviceMap.put("/member/checkMemberInfo.do", new MemberCheckMemberInfoService());
 		serviceMap.put("/member/resetPw.do", new MemberResetPwService());
+		serviceMap.put("/member/changeTel.do", new MemberChangeTelService());
+		serviceMap.put("/member/changeEmail.do", new MemberChangeEmailService());
+		serviceMap.put("/member/changePw.do", new MemberChangePwService());
 		// -- DAO 저장
 		daoMap.put("memberDAO", new MemberDAO());
 		// -- service에 dao 조립
 		serviceMap.get("/member/login.do").setDAO(daoMap.get("memberDAO"));
+		serviceMap.get("/member/view.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/updateLastLogin.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/write.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/list.do").setDAO(daoMap.get("memberDAO"));
@@ -150,6 +162,9 @@ public class Init extends HttpServlet {
 		serviceMap.get("/member/searchId.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/checkMemberInfo.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/resetPw.do").setDAO(daoMap.get("memberDAO"));
+		serviceMap.get("/member/changeTel.do").setDAO(daoMap.get("memberDAO"));
+		serviceMap.get("/member/changeEmail.do").setDAO(daoMap.get("memberDAO"));
+		serviceMap.get("/member/changePw.do").setDAO(daoMap.get("memberDAO"));
 
 		// ==============================================
 		// 3. 매장관리 (Store) - 추가됨
@@ -188,6 +203,9 @@ public class Init extends HttpServlet {
 		serviceMap.put("/reservation/cancel.do", new ReservationCancelService());
 		// 관리자 
 		serviceMap.put("/reservation/adminList.do", new ReservationAdminListService());
+		serviceMap.put("/reservation/adminView.do", new ReservationAdminViewService());
+		serviceMap.put("/reservation/adminUpdate.do", new ReservationAdminUpdateService());
+		serviceMap.put("/reservation/adminCancel.do", new ReservationAdminCancelService());
 
 		serviceMap.get("/reservation/list.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/view.do").setDAO(daoMap.get("reservationDAO"));
@@ -196,6 +214,9 @@ public class Init extends HttpServlet {
 		serviceMap.get("/reservation/cancel.do").setDAO(daoMap.get("reservationDAO"));
 		// 관리자
 		serviceMap.get("/reservation/adminList.do").setDAO(daoMap.get("reservationDAO"));
+		serviceMap.get("/reservation/adminView.do").setDAO(daoMap.get("reservationDAO"));
+		serviceMap.get("/reservation/adminUpdate.do").setDAO(daoMap.get("reservationDAO"));
+		serviceMap.get("/reservation/adminCancel.do").setDAO(daoMap.get("reservationDAO"));
 
 		// ==============================================
 		// 6. 결제 (Payment)
