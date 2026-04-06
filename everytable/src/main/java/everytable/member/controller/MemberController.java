@@ -3,6 +3,7 @@ package everytable.member.controller;
 import everytable.main.controller.Controller;
 import everytable.main.controller.Init;
 import everytable.main.service.Execute;
+import everytable.member.vo.Login;
 import everytable.member.vo.LoginVO;
 import everytable.member.vo.MemberVO;
 import everytable.util.mail.Mail;
@@ -53,6 +54,19 @@ public class MemberController implements Controller {
                 session.removeAttribute("login");
                 session.setAttribute("msg", "로그아웃되었습니다.");
                 return "redirect:/notice/list.do";
+                
+            
+            // --------------------------------------------------------
+            // 내 정보 보기
+            // --------------------------------------------------------
+            case "/member/view.do":
+                // 세션에서 로그인한 사용자 id 꺼내기
+                if (loginVO == null) {
+                    session.setAttribute("msg", "로그인이 필요합니다.");
+                    return "redirect:/member/loginForm.do";
+                }
+                request.setAttribute("vo", Execute.execute(Init.getService(uri), loginVO.getId()));
+                return "member/view";
 
             // --------------------------------------------------------
             // 회원가입 - 유형 선택

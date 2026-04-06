@@ -18,6 +18,7 @@ import everytable.member.service.MemberListService;
 import everytable.member.service.MemberResetPwService;
 import everytable.member.service.MemberSearchIdService;
 import everytable.member.service.MemberUpdateLastLoginService;
+import everytable.member.service.MemberViewService;
 import everytable.member.service.MemberWriteService;
 import everytable.menu.controller.MenuController;
 import everytable.menu.dao.MenuDAO;
@@ -124,6 +125,7 @@ public class Init extends HttpServlet {
 		controllerMap.put("/member", new MemberController());
 		// -- Service 저장
 		serviceMap.put("/member/login.do", new LoginService());
+		serviceMap.put("/member/view.do", new MemberViewService());
 		serviceMap.put("/member/updateLastLogin.do", new MemberUpdateLastLoginService());
 		serviceMap.put("/member/write.do", new MemberWriteService());
 		serviceMap.put("/member/list.do", new MemberListService());
@@ -139,6 +141,7 @@ public class Init extends HttpServlet {
 		daoMap.put("memberDAO", new MemberDAO());
 		// -- service에 dao 조립
 		serviceMap.get("/member/login.do").setDAO(daoMap.get("memberDAO"));
+		serviceMap.get("/member/view.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/updateLastLogin.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/write.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/list.do").setDAO(daoMap.get("memberDAO"));

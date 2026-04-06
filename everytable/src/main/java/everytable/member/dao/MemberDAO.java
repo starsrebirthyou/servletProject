@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import everytable.main.dao.DAO;
+import everytable.member.vo.Login;
 import everytable.member.vo.LoginVO;
 import everytable.member.vo.MemberVO;
+import everytable.notice.vo.NoticeVO;
 import everytable.util.db.DB;
 import everytable.util.page.PageObject;
 
@@ -87,15 +89,15 @@ public class MemberDAO extends DAO {
     public MemberVO view(String id) throws Exception {
         MemberVO vo = null;
         con = DB.getConnection();
-        String sql = "SELECT m.id, m.name, m.gender,"
-                   + "       TO_CHAR(m.birth, 'yyyy-mm-dd') birth,"
-                   + "       m.tel, m.email, g.grade_name,"
-                   + "       TO_CHAR(m.join_date,  'yyyy-mm-dd') join_date,"
-                   + "       TO_CHAR(m.last_login, 'yyyy-mm-dd') last_login"
-                   + "  FROM member m, grade g"
+        String sql = "SELECT m.id, m.name, m.gender, TO_CHAR(m.birth, 'yyyy-mm-dd') birth, "
+                   + " m.tel, m.email, g.grade_name, TO_CHAR(m.join_date, 'yyyy-mm-dd') join_date, "
+                   + " TO_CHAR(m.last_login, 'yyyy-mm-dd') last_login "
+                   + " FROM member m, grade g "
                    + " WHERE m.id = ? AND m.grade_no = g.grade_no";
+        
         pstmt = con.prepareStatement(sql);
         pstmt.setString(1, id);
+        
         rs = pstmt.executeQuery();
         if (rs != null && rs.next()) {
             vo = new MemberVO();
@@ -109,12 +111,13 @@ public class MemberDAO extends DAO {
             vo.setJoinDate(rs.getString("join_date"));
             vo.setLastLogin(rs.getString("last_login"));
         }
+        
         DB.close(con, pstmt, rs);
         return vo;
     }
 
     // ----------------------------------------------------------------
-    // 아이디 찾기 / 비밀번호 관련
+    // 아이디 찾기
     // ----------------------------------------------------------------
 
     public String searchId(MemberVO vo) throws Exception { // 객체를 받는지 확인!
@@ -130,7 +133,13 @@ public class MemberDAO extends DAO {
         DB.close(con, pstmt, rs);
         return id;
     }
+    
+    
 
+	
+    // ----------------------------------------------------------------
+    // 비밀번호 보기
+    // ----------------------------------------------------------------
     public Integer changePw(MemberVO vo, Integer user) throws Exception {
         Integer result = 0;
         con = DB.getConnection();
