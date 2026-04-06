@@ -6,7 +6,7 @@ import everytable.main.service.Service;
 import everytable.member.dao.MemberDAO;
 import everytable.member.vo.MemberVO;
 
-public class MemberChangePwService implements Service {
+public class MemberChangeEmailService implements Service {
 
 	private MemberDAO dao = null;
 	
@@ -18,7 +18,7 @@ public class MemberChangePwService implements Service {
 	@Override
 	public Object service(Object obj) throws Exception {
 		// TODO Auto-generated method stub
-		return dao.changePw((MemberVO) obj, 1);
+		return dao.changeEmail((MemberVO) obj);
 	}
 
 	

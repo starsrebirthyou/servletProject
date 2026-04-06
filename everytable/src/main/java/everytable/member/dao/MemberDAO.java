@@ -115,6 +115,46 @@ public class MemberDAO extends DAO {
         DB.close(con, pstmt, rs);
         return vo;
     }
+    
+    
+
+    // ----------------------------------------------------------------
+    // 전화번호 변경
+    // ----------------------------------------------------------------
+    public Integer changeTel(MemberVO vo) throws Exception {
+        con = DB.getConnection();
+        String sql;
+        if (vo.getTel() == null || vo.getTel().trim().isEmpty()) {
+            // 빈 값이면 NULL로 업데이트 (삭제)
+            sql = "UPDATE member SET tel = NULL WHERE id = ?";
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, vo.getId());
+        } else {
+            sql = "UPDATE member SET tel = ? WHERE id = ?";
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, vo.getTel());
+            pstmt.setString(2, vo.getId());
+        }
+        Integer result = pstmt.executeUpdate();
+        DB.close(con, pstmt);
+        return result;
+    }
+     
+
+    // ----------------------------------------------------------------
+    // 이메일 변경
+    // ----------------------------------------------------------------
+    public Integer changeEmail(MemberVO vo) throws Exception {
+        con = DB.getConnection();
+        String sql = "UPDATE member SET email = ? WHERE id = ?";
+        pstmt = con.prepareStatement(sql);
+        pstmt.setString(1, vo.getEmail());
+        pstmt.setString(2, vo.getId());
+        Integer result = pstmt.executeUpdate();
+        DB.close(con, pstmt);
+        return result;
+    }
+    
 
     // ----------------------------------------------------------------
     // 아이디 찾기
@@ -332,7 +372,7 @@ public class MemberDAO extends DAO {
     public String checkId(String inId) throws Exception {
         String id = null;
         con = DB.getConnection();
-        String sql = "SELECT id FROM member WHERE id = ?";
+        String sql = "SELECT id FROM member WHERE id = ? AND status != '탈퇴'";
         pstmt = con.prepareStatement(sql);
         pstmt.setString(1, inId);
         rs = pstmt.executeQuery();
@@ -349,7 +389,7 @@ public class MemberDAO extends DAO {
     public String checkTel(String inTel) throws Exception {
         String tel = null;
         con = DB.getConnection();
-        String sql = "SELECT tel FROM member WHERE tel = ?";
+        String sql = "SELECT tel FROM member WHERE tel = ? AND status != '탈퇴'";
         pstmt = con.prepareStatement(sql);
         pstmt.setString(1, inTel);
         rs = pstmt.executeQuery();
@@ -365,7 +405,7 @@ public class MemberDAO extends DAO {
     public String checkEmail(String inEmail) throws Exception {
         String email = null;
         con = DB.getConnection();
-        String sql = "SELECT email FROM member WHERE email = ?";
+        String sql = "SELECT email FROM member WHERE email = ? AND status != '탈퇴'";
         pstmt = con.prepareStatement(sql);
         pstmt.setString(1, inEmail);
         rs = pstmt.executeQuery();

@@ -8,8 +8,11 @@ import everytable.main.service.Service;
 import everytable.member.controller.MemberController;
 import everytable.member.dao.MemberDAO;
 import everytable.member.service.LoginService;
+import everytable.member.service.MemberChangeEmailService;
 import everytable.member.service.MemberChangeGradeService;
+import everytable.member.service.MemberChangePwService;
 import everytable.member.service.MemberChangeStatusService;
+import everytable.member.service.MemberChangeTelService;
 import everytable.member.service.MemberCheckEmailService;
 import everytable.member.service.MemberCheckIdService;
 import everytable.member.service.MemberCheckMemberInfoService;
@@ -137,6 +140,9 @@ public class Init extends HttpServlet {
 		serviceMap.put("/member/searchId.do", new MemberSearchIdService());
 		serviceMap.put("/member/checkMemberInfo.do", new MemberCheckMemberInfoService());
 		serviceMap.put("/member/resetPw.do", new MemberResetPwService());
+		serviceMap.put("/member/changeTel.do", new MemberChangeTelService());
+		serviceMap.put("/member/changeEmail.do", new MemberChangeEmailService());
+		serviceMap.put("/member/changePw.do", new MemberChangePwService());
 		// -- DAO 저장
 		daoMap.put("memberDAO", new MemberDAO());
 		// -- service에 dao 조립
@@ -153,6 +159,9 @@ public class Init extends HttpServlet {
 		serviceMap.get("/member/searchId.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/checkMemberInfo.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/resetPw.do").setDAO(daoMap.get("memberDAO"));
+		serviceMap.get("/member/changeTel.do").setDAO(daoMap.get("memberDAO"));
+		serviceMap.get("/member/changeEmail.do").setDAO(daoMap.get("memberDAO"));
+		serviceMap.get("/member/changePw.do").setDAO(daoMap.get("memberDAO"));
 
 		// ==============================================
 		// 3. 매장관리 (Store) - 추가됨
