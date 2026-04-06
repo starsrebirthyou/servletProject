@@ -301,118 +301,117 @@ public class MemberController implements Controller {
                 return "member/checkEmail";
                 
                 
-                // --------------------------------------------------------
-                // 내 정보 보기
-                // --------------------------------------------------------
-                case "/member/view.do":
-                    if (loginVO == null) {
-                        session.setAttribute("msg", "로그인이 필요합니다.");
-                        return "redirect:/member/loginForm.do";
-                    }
-                    request.setAttribute("vo", Execute.execute(Init.getService(uri), loginVO.getId()));
-                    return "member/view";
-                 
+            // --------------------------------------------------------
+            // 내 정보 보기
+            // --------------------------------------------------------
+            case "/member/view.do":
+                if (loginVO == null) {
+                    session.setAttribute("msg", "로그인이 필요합니다.");
+                    return "redirect:/member/loginForm.do";
+                }
+                request.setAttribute("vo", Execute.execute(Init.getService(uri), loginVO.getId()));
+                return "member/view";
                     
-                // --------------------------------------------------------
-                // 비밀번호 변경 (내 정보에서)
-                // --------------------------------------------------------
-                case "/member/changePw.do": {
-                    if (loginVO == null) {
-                        request.setAttribute("result", "fail");
-                        return "member/ajaxResult";
-                    }
-                    vo = new MemberVO();
-                    vo.setId(loginVO.getId());
-                    vo.setPw(request.getParameter("curPw"));    // 현재 비밀번호
-                    vo.setNewPw(request.getParameter("newPw")); // 새 비밀번호
-                 
-                    // changePw(vo, 1) → 현재 비밀번호 검증 포함
-                    Integer res = (Integer) Execute.execute(Init.getService(uri), vo);
-                    request.setAttribute("result", res == 1 ? "ok" : "fail");
+                    
+            // --------------------------------------------------------
+            // 비밀번호 변경 (내 정보에서)
+            // --------------------------------------------------------
+            case "/member/changePw.do":
+                if (loginVO == null) {
+                    request.setAttribute("result", "fail");
                     return "member/ajaxResult";
                 }
-                 
-                // --------------------------------------------------------
-                // 전화번호 변경 (내 정보에서, 인증 없음)
-                // --------------------------------------------------------
-                case "/member/changeTel.do": {
-                    if (loginVO == null) {
-                        request.setAttribute("result", "fail");
-                        return "member/ajaxResult";
-                    }
-                    tel = request.getParameter("tel");
-                 
-                    // 중복 체크 (빈 값이면 삭제이므로 체크 안 함)
-                    if (tel != null && !tel.trim().isEmpty()) {
-                        String dupTel = (String) Execute.execute(Init.getService("/member/checkTel.do"), tel);
-                        if (dupTel != null) {
-                            request.setAttribute("result", "dup");
-                            return "member/ajaxResult";
-                        }
-                    }
-                 
-                    vo = new MemberVO();
-                    vo.setId(loginVO.getId());
-                    vo.setTel(tel);
-                    Integer res = (Integer) Execute.execute(Init.getService(uri), vo);
-                    request.setAttribute("result", res == 1 ? "ok" : "fail");
+                vo = new MemberVO();
+                vo.setId(loginVO.getId());
+                vo.setPw(request.getParameter("curPw"));    // 현재 비밀번호
+                vo.setNewPw(request.getParameter("newPw")); // 새 비밀번호
+             
+                // changePw(vo, 1) → 현재 비밀번호 검증 포함
+                Integer res = (Integer) Execute.execute(Init.getService(uri), vo);
+                request.setAttribute("result", res == 1 ? "ok" : "fail");
+                return "member/ajaxResult";
+
+                
+            // --------------------------------------------------------
+            // 전화번호 변경 (내 정보에서, 인증 없음)
+            // --------------------------------------------------------
+            case "/member/changeTel.do":
+                if (loginVO == null) {
+                    request.setAttribute("result", "fail");
                     return "member/ajaxResult";
                 }
-                 
-                // --------------------------------------------------------
-                // 이메일 변경 (내 정보에서, 인증 필요)
-                // --------------------------------------------------------
-                case "/member/changeEmail.do": {
-                    if (loginVO == null) {
-                        request.setAttribute("result", "fail");
-                        return "member/ajaxResult";
-                    }
-                    // 인증 완료 여부 확인
-                    authStatus = (Boolean) session.getAttribute("authStatus");
-                    if (authStatus == null || !authStatus) {
-                        request.setAttribute("result", "fail");
-                        return "member/ajaxResult";
-                    }
-                 
-                    email = request.getParameter("email");
-                 
-                    // 중복 체크
-                    String dupEmail = (String) Execute.execute(Init.getService("/member/checkEmail.do"), email);
-                    if (dupEmail != null) {
+                tel = request.getParameter("tel");
+             
+                // 중복 체크 (빈 값이면 삭제이므로 체크 안 함)
+                if (tel != null && !tel.trim().isEmpty()) {
+                    String dupTel = (String) Execute.execute(Init.getService("/member/checkTel.do"), tel);
+                    if (dupTel != null) {
                         request.setAttribute("result", "dup");
                         return "member/ajaxResult";
                     }
-                 
-                    vo = new MemberVO();
-                    vo.setId(loginVO.getId());
-                    vo.setEmail(email);
-                    Integer res = (Integer) Execute.execute(Init.getService(uri), vo);
-                 
-                    if (res == 1) {
-                        session.removeAttribute("authCode");
-                        session.removeAttribute("authStatus");
-                        request.setAttribute("result", "ok");
-                    } else {
-                        request.setAttribute("result", "fail");
-                    }
+                }
+             
+                vo = new MemberVO();
+                vo.setId(loginVO.getId());
+                vo.setTel(tel);
+                res = (Integer) Execute.execute(Init.getService(uri), vo);
+                request.setAttribute("result", res == 1 ? "ok" : "fail");
+                return "member/ajaxResult";
+
+                
+            // --------------------------------------------------------
+            // 이메일 변경 (내 정보에서, 인증 필요)
+            // --------------------------------------------------------
+            case "/member/changeEmail.do":
+                if (loginVO == null) {
+                    request.setAttribute("result", "fail");
                     return "member/ajaxResult";
                 }
-                 
-                // --------------------------------------------------------
-                // 회원탈퇴
-                // --------------------------------------------------------
-                case "/member/withdraw.do": {
-                    if (loginVO == null) return "redirect:/member/loginForm.do";
-                 
-                    vo = new MemberVO();
-                    vo.setId(loginVO.getId());
-                    vo.setStatus("탈퇴");
-                    Execute.execute(Init.getService("/member/changeStatus.do"), vo);
-                 
-                    session.removeAttribute("login");
-                    session.setAttribute("msg", "탈퇴가 완료되었습니다.");
-                    return "redirect:/notice/list.do";
+                // 인증 완료 여부 확인
+                authStatus = (Boolean) session.getAttribute("authStatus");
+                if (authStatus == null || !authStatus) {
+                    request.setAttribute("result", "fail");
+                    return "member/ajaxResult";
                 }
+             
+                email = request.getParameter("email");
+             
+                // 중복 체크
+                String dupEmail = (String) Execute.execute(Init.getService("/member/checkEmail.do"), email);
+                if (dupEmail != null) {
+                    request.setAttribute("result", "dup");
+                    return "member/ajaxResult";
+                }
+             
+                vo = new MemberVO();
+                vo.setId(loginVO.getId());
+                vo.setEmail(email);
+                res = (Integer) Execute.execute(Init.getService(uri), vo);
+             
+                if (res == 1) {
+                    session.removeAttribute("authCode");
+                    session.removeAttribute("authStatus");
+                    request.setAttribute("result", "ok");
+                } else {
+                    request.setAttribute("result", "fail");
+                }
+                return "member/ajaxResult";
+
+                
+            // --------------------------------------------------------
+            // 회원탈퇴
+            // --------------------------------------------------------
+            case "/member/withdraw.do":
+                if (loginVO == null) return "redirect:/member/loginForm.do";
+             
+                vo = new MemberVO();
+                vo.setId(loginVO.getId());
+                vo.setStatus("탈퇴");
+                Execute.execute(Init.getService("/member/changeStatus.do"), vo);
+             
+                session.removeAttribute("login");
+                session.setAttribute("msg", "탈퇴가 완료되었습니다.");
+                return "redirect:/notice/list.do";
                 
                 
             // --------------------------------------------------------
@@ -474,7 +473,7 @@ public class MemberController implements Controller {
                 session.setAttribute("msg", result == 1
                     ? "아이디 <" + vo.getId() + ">의 상태가 <" + vo.getStatus() + ">(으)로 변경되었습니다."
                     : "상태 변경에 실패하였습니다.");
-                return "redirect:view.do";
+                return "redirect:list.do";
 
             // --------------------------------------------------------
             // 관리자 - 등급 변경
