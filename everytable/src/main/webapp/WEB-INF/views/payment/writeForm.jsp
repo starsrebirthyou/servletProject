@@ -18,7 +18,7 @@
         <div class="card shadow-sm mx-auto" style="max-width: 500px;">
             <div class="card-body">
                 <div class="text-center mb-4">
-                    <img src="https://via.placeholder.com/50" class="rounded-circle mb-2" alt="icon">
+                <div class="display-4 mb-2">🔐</div>
                     <h4 class="fw-bold">결제하기</h4>
                     <p class="text-muted small">안전한 결제를 위해 본인 인증을 진행합니다</p>
                 </div>
