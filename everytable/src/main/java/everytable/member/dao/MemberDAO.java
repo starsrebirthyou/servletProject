@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import everytable.main.dao.DAO;
-import everytable.member.vo.Login;
 import everytable.member.vo.LoginVO;
 import everytable.member.vo.MemberVO;
-import everytable.notice.vo.NoticeVO;
 import everytable.util.db.DB;
 import everytable.util.page.PageObject;
 
@@ -117,7 +115,6 @@ public class MemberDAO extends DAO {
     }
     
     
-
     // ----------------------------------------------------------------
     // 전화번호 변경
     // ----------------------------------------------------------------
