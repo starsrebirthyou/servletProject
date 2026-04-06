@@ -11,6 +11,7 @@
 <script type="text/javascript">
 $(function(){
   let idCheck = false;
+  let emailCheck = false;
 
   $("#writeForm").submit(function(e){
 	    e.preventDefault();  // 일단 무조건 막음
@@ -25,6 +26,12 @@ $(function(){
 	    if(!idCheck){
 	        alert("아이디 중복 확인을 해주세요.");
 	        $("#id").focus();
+	        return;
+	    }
+	    
+	    if(!emailCheck){
+	        alert("이메일 인증을 완료해 주세요.");
+	        $("#email").focus();
 	        return;
 	    }
 
@@ -107,49 +114,68 @@ $(function(){
                .text(msg);
   }
   
-  $.ajax({
-      url: "/member/sendAuthCode.do",
-      method: "POST",
-      data: { id: id, email: email },
-      success: function(data){
-          // ajaxResult.jsp에서 <span id="ajax-data-result"> 안의 텍스트를 가져옴
-          let result = $(data).find("#ajax-data-result").text().trim();
-          
-          if(result === "ok"){
-              $("#authCode").fadeIn();
-          } else {
-              alert("아이디 또는 이메일이 일치하지 않습니다.");
-              $("#nextBtn").prop("disabled", false).text("인증번호 받기");
-          }
-      }
+  // ── 1단계: 아이디 + 이메일 확인 → 인증번호 발송 ──
+  $("#nextBtn").click(function(){
+    let email = $("#email").val().trim();
+    if(!email){
+        alert("이메일을 입력해 주세요.");
+        return;
+    }
+
+    $("#nextBtn").prop("disabled", true).text("전송 중...");
+
+    $.ajax({
+        url: "/member/sendAuthCode.do",
+        method: "POST",
+        data: { email: email },
+        success: function(data){
+            let result = $(data).find("#ajax-data-result").text().trim();
+            if(result === "ok"){
+                $(".emailAuthDiv").show();
+                $("#nextBtn").text("재전송");
+                $("#nextBtn").prop("disabled", false);
+            } else {
+                alert("메일 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+                $("#nextBtn").prop("disabled", false).text("인증번호 받기");
+            }
+        },
+        error: function(){
+            alert("서버 오류가 발생했습니다.");
+            $("#nextBtn").prop("disabled", false).text("인증번호 받기");
+        }
+    });
   });
-  
-  // ── 인증번호 확인 ──
+
+  // ── 2단계: 인증번호 확인 ──
   $("#verifyBtn").click(function(){
-      let code = $("#code").val().trim();
+	    let code = $("#code").val().trim();
+	    if(!code){
+	        alert("인증번호를 입력해 주세요.");
+	        return;
+	    }
 
-      if(!code){
-          alert("인증번호를 입력해 주세요.");
-          return;
-      }
-
-      $.ajax({
-          url: "/member/verifyAuthCode.do",
-          method: "POST",
-          data: { code: code },
-          dataType: "json",
-          success: function(data){
-              if(data.result !== "ok"){
-              } else {
-                  alert("인증번호가 일치하지 않습니다. 다시 확인해 주세요.");
-                  $("#code").val("").focus();
-              }
-          },
-          error: function(){
-              alert("서버 오류가 발생했습니다.");
-          }
-      });
-  });
+	    $.ajax({
+	        url: "/member/verifyAuthCode.do",
+	        method: "POST",
+	        data: { code: code },
+	        success: function(data){
+	            let result = $(data).find("#ajax-data-result").text().trim();
+	            if(result === "ok"){
+	                emailCheck = true;
+	                $("#emailMsg").show();           // 인증 완료 메시지 표시
+	                $("#code").prop("disabled", true);
+	                $("#verifyBtn").prop("disabled", true);
+	                $("#nextBtn").prop("disabled", true);
+	            } else {
+	                alert("인증번호가 일치하지 않습니다.");
+	                $("#code").val("").focus();
+	            }
+	        },
+	        error: function(){
+	            alert("서버 오류가 발생했습니다.");
+	        }
+	    });
+	});
   
 });
 </script>
@@ -223,20 +249,22 @@ $(function(){
     <label for="email" class="form-label">이메일</label>
     <input type="email" class="form-control" id="email" name="email"
            placeholder="이메일을 입력하세요." required maxlength="50">
-    <button type="button" class="btn btn-success w-100" id="nextBtn">인증번호 받기</button>
+    <button type="button" class="btn btn-success w-100 mt-2" id="nextBtn">인증번호 받기</button>
   </div>
   
-  <div clas="emailAuthDiv">
-  	<p class="text-primary text-center mb-4">
-       입력하신 이메일로 6자리 인증번호를 발송했습니다.
-   	</p>
-   	<div class="mb-4">
-       <label class="form-label fw-bold">인증번호</label>
-       <input type="text" class="form-control" id="code"
-              placeholder="6자리 숫자 입력" maxlength="6">
-   	</div>
-   	<button type="button" class="btn btn-primary w-100" id="verifyBtn">확인</button>
-    <div class="alert alert-success mt-1" id="emailMsg">이메일이 인증되었습니다.</div>
+  <div class="emailAuthDiv" style="display:none;">
+    <p class="text-primary text-center mb-4">
+        입력하신 이메일로 6자리 인증번호를 발송했습니다.
+    </p>
+    <div class="mb-4">
+        <label class="form-label fw-bold">인증번호</label>
+        <input type="text" class="form-control" id="code"
+               placeholder="6자리 숫자 입력" maxlength="6">
+    </div>
+    <button type="button" class="btn btn-primary w-100 mt-2" id="verifyBtn">확인</button>
+    <div class="alert alert-success mt-1" id="emailMsg" style="display:none;">
+        이메일이 인증되었습니다.
+    </div>
   </div>
 
   <button type="submit" class="btn btn-primary">가입</button>

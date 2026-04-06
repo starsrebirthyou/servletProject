@@ -91,7 +91,7 @@ public class MemberController implements Controller {
                 loginVO.setGradeName(gradeNo == 2 ? "매장점주" : "일반회원");
                 session.setAttribute("login", loginVO);
                 Execute.execute(Init.getService("/member/updateLastLogin.do"), loginVO.getId());
-
+                
                 session.setAttribute("msg", "회원가입을 축하드립니다. 자동 로그인 되었습니다.");
                 return "redirect:/notice/list.do";
 
@@ -143,38 +143,37 @@ public class MemberController implements Controller {
 	             
 	          // ── 1단계: 아이디/이메일 확인 및 인증번호 발송 ──
 	         case "/member/sendAuthCode.do":
-	             findId = request.getParameter("id");
-	             String findEmail = request.getParameter("email");
-	             
-	             vo = new MemberVO();
-	             vo.setId(findId);
-	             vo.setEmail(findEmail);
-	             
-	             // DB에서 해당 정보가 있는지 확인 (기존 checkMemberInfo 사용)
-	             String checkId = (String) Execute.execute(Init.getService("/member/checkMemberInfo.do"), vo);
-	             
-	             if (checkId != null) {
-	                 // 1. 랜덤 인증번호 생성 (6자리)
-	                 int authCode = (int)(Math.random() * 899999) + 100000;
-	                 
-	                 // 2. 세션에 인증번호 저장 (나중에 확인용)
-	                 session.setAttribute("authCode", String.valueOf(authCode));
-	                 session.setAttribute("resetId", checkId); // 비밀번호 바꿀 대상 아이디 저장
-	                 
-	                 // 3. 이메일 발송 (작성하신 MailUtil 활용)
-	                 try {
-	                     String subject = "[EveryTable] 비밀번호 찾기 인증번호입니다.";
-	                     String content = "인증번호: <b>" + authCode + "</b>";
-	                     Mail.sendMail(findEmail, subject, content);
-	                     request.setAttribute("result", "ok");
-	                 } catch(Exception e) {
-	            	 	 	e.printStackTrace();
-	                    request.setAttribute("result", "mail_error");
-	                 }
-	             } else {
-	                 request.setAttribute("result", "not_found");
-	             }
-	             return "member/ajaxResult";
+	        	    findId = request.getParameter("id");
+	        	    String findEmail = request.getParameter("email");
+
+	        	    // id가 없으면 회원가입용 → DB 확인 없이 바로 발송
+	        	    // id가 있으면 비밀번호 찾기용 → id + email 일치 확인
+	        	    if (findId != null && !findId.trim().isEmpty()) {
+	        	        // 비밀번호 찾기용
+	        	        vo = new MemberVO();
+	        	        vo.setId(findId);
+	        	        vo.setEmail(findEmail);
+	        	        String checkId = (String) Execute.execute(Init.getService("/member/checkMemberInfo.do"), vo);
+	        	        if (checkId == null) {
+	        	            request.setAttribute("result", "not_found");
+	        	            return "member/ajaxResult";
+	        	        }
+	        	        session.setAttribute("resetId", checkId);
+	        	    }
+	        	    // 공통: 인증번호 생성 + 세션 저장 + 메일 발송
+	        	    int authCode = (int)(Math.random() * 899999) + 100000;
+	        	    session.setAttribute("authCode", String.valueOf(authCode));
+	        	    try {
+	        	        String subject = "에브리테이블(EveryTable) 이메일 인증번호입니다.";
+	        	        String content = "안녕하세요.<br><br>인증번호: <b>" + authCode + "</b><br><br>"
+	        	                       + "해당 인증번호를 입력하여 인증을 완료해 주세요.<br><br>감사합니다.";
+	        	        Mail.sendMail(findEmail, subject, content);
+	        	        request.setAttribute("result", "ok");
+	        	    } catch(Exception e) {
+	        	        e.printStackTrace();
+	        	        request.setAttribute("result", "mail_error");
+	        	    }
+	        	    return "member/ajaxResult";
 	             
 	         // ── 2단계: 인증번호 확인 ──
 	         case "/member/verifyAuthCode.do":
