@@ -200,7 +200,8 @@ public class Init extends HttpServlet {
 		serviceMap.put("/reservation/update.do", new ReservationUpdateService());
 		serviceMap.put("/reservation/cancel.do", new ReservationCancelService());
 		serviceMap.put("/reservation/orderWrite.do", new OrderWriteService());
-		// 관리자 
+		serviceMap.put("/reservation/updateForm.do", new ReservationUpdateService());
+		// 관리자
 		serviceMap.put("/reservation/adminList.do", new ReservationAdminListService());
 		serviceMap.put("/reservation/adminView.do", new ReservationAdminViewService());
 		serviceMap.put("/reservation/adminUpdate.do", new ReservationAdminUpdateService());
@@ -212,6 +213,7 @@ public class Init extends HttpServlet {
 		serviceMap.get("/reservation/update.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/cancel.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/orderWrite.do").setDAO(daoMap.get("reservationDAO"));
+		serviceMap.get("/reservation/updateForm.do").setDAO(daoMap.get("reservationDAO"));
 		// 관리자
 		serviceMap.get("/reservation/adminList.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/adminView.do").setDAO(daoMap.get("reservationDAO"));

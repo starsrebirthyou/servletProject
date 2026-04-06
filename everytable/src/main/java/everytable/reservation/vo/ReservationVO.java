@@ -26,6 +26,7 @@ public class ReservationVO {
 	private long menuNo;
 	private long price;
 	private List<ReservationVO> orderList;
+	private List<ReservationVO> storeMenuList;
 	
 	public long getResNo() {
 		return resNo;
@@ -159,7 +160,12 @@ public class ReservationVO {
 	public void setOrderList(List<ReservationVO> orderList) {
 		this.orderList = orderList;
 	}
-	
+	public List<ReservationVO> getStoreMenuList() {
+        return storeMenuList;
+    }
+    public void setStoreMenuList(List<ReservationVO> storeMenuList) {
+        this.storeMenuList = storeMenuList;
+    }
 	
 	@Override
 	public String toString() {
@@ -169,7 +175,7 @@ public class ReservationVO {
 				+ ", cancelReason=" + cancelReason + ", resCreatedAt=" + resCreatedAt + ", resType=" + resType
 				+ ", orderAdd=" + orderAdd + ", quantity=" + quantity + ", userName=" + userName + ", createdAt="
 				+ createdAt + ", orderItemNo=" + orderItemNo + ", menuNo=" + menuNo + ", price=" + price
-				+ ", orderList=" + orderList + "]";
+				+ ", orderList=" + orderList + ", storeMenuList=" + storeMenuList + "]";
 	}
 
 	

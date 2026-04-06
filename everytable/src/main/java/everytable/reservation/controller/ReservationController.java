@@ -103,9 +103,9 @@ public class ReservationController implements Controller {
 
 			// 6. 예약 수정 폼
 			case "/reservation/updateForm.do":
-				no = Long.parseLong(request.getParameter("no"));
-				request.setAttribute("vo", Execute.execute(Init.getService("/reservation/view.do"), no));
-				return "reservation/updateForm";
+			    no = Long.parseLong(request.getParameter("no"));
+			    request.setAttribute("vo", Execute.execute(Init.getService(uri), no)); 
+			    return "reservation/updateForm";
 
 			// 7. 예약 수정 처리
 			case "/reservation/update.do":
