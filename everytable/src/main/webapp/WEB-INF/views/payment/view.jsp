@@ -6,12 +6,50 @@
 <head>
 <meta charset="UTF-8">
 <title>결제 상세 정보</title>
-
 <style type="text/css">
-    th { width: 200px; background-color: #f8f9fa; }
-    .container { margin-top: 50px; }
-</style>
+    /* 1. 기본 테이블 설정: 모서리 둥글게 */
+    .table {
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 15px;
+        overflow: hidden;
+        border: 1px solid #dee2e6;
+        width: 100%;
+        margin-top: 20px;
+    }
 
+    /* 2. 세로형 테이블 제목(th) 스타일: 왼쪽 칸을 회색으로! */
+    .table th {
+        background-color: #f8f9fa !important; /* 은은한 회색 ㅋㅋㅋ */
+        color: #333;
+        width: 200px; /* 제목 칸 너비 고정 */
+        padding: 15px;
+        vertical-align: middle;
+        border-right: 1px solid #dee2e6;
+        border-bottom: 1px solid #dee2e6;
+        text-align: center;
+    }
+
+    /* 3. 데이터 칸(td) 스타일 */
+    .table td {
+        padding: 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    /* 4. 마지막 줄 테두리 제거 (둥근 모서리 유지용) */
+    .table tr:last-child th, 
+    .table tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* 5. 상태 배지: 아주 동글동글하게 */
+    .badge {
+        padding: 0.5em 1em;
+        border-radius: 50rem !important; /* 타원형 ㅋㅋㅋ */
+        font-weight: bold;
+    }
+</style>
 </head>
 <body>
     <div class="container">
