@@ -34,9 +34,6 @@ import everytable.notice.service.NoticeListService;
 import everytable.notice.service.NoticeUpdateService;
 import everytable.notice.service.NoticeViewService;
 import everytable.notice.service.NoticeWriteService;
-import everytable.order.controller.OrderController;
-import everytable.order.dao.OrderDAO;
-import everytable.order.service.OrderWriteService;
 import everytable.payment.controller.PaymentController;
 import everytable.payment.dao.PaymentDAO;
 import everytable.payment.service.PaymentListService;
@@ -48,6 +45,7 @@ import everytable.refund.dao.RefundDAO;
 import everytable.refund.service.RefundRefundService;
 import everytable.reservation.controller.ReservationController;
 import everytable.reservation.dao.ReservationDAO;
+import everytable.reservation.service.OrderWriteService;
 import everytable.reservation.service.ReservationAdminCancelService;
 import everytable.reservation.service.ReservationAdminListService;
 import everytable.reservation.service.ReservationAdminUpdateService;
@@ -201,6 +199,7 @@ public class Init extends HttpServlet {
 		serviceMap.put("/reservation/write.do", new ReservationWriteService());
 		serviceMap.put("/reservation/update.do", new ReservationUpdateService());
 		serviceMap.put("/reservation/cancel.do", new ReservationCancelService());
+		serviceMap.put("/reservation/orderWrite.do", new OrderWriteService());
 		// 관리자 
 		serviceMap.put("/reservation/adminList.do", new ReservationAdminListService());
 		serviceMap.put("/reservation/adminView.do", new ReservationAdminViewService());
@@ -212,6 +211,7 @@ public class Init extends HttpServlet {
 		serviceMap.get("/reservation/write.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/update.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/cancel.do").setDAO(daoMap.get("reservationDAO"));
+		serviceMap.get("/reservation/orderWrite.do").setDAO(daoMap.get("reservationDAO"));
 		// 관리자
 		serviceMap.get("/reservation/adminList.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/adminView.do").setDAO(daoMap.get("reservationDAO"));
@@ -266,16 +266,6 @@ public class Init extends HttpServlet {
 		serviceMap.get("/stats/report.do").setDAO(daoMap.get("statsDAO"));
 		serviceMap.get("/stats/categorystats.do").setDAO(daoMap.get("statsDAO"));
 
-		// ==============================================
-		// 9. 주문 (Order)
-		// ==============================================
-		controllerMap.put("/order", new OrderController());
-		daoMap.put("orderDAO", new OrderDAO());
-
-		serviceMap.put("/order/write.do", new OrderWriteService());
-
-		serviceMap.get("/order/write.do").setDAO(daoMap.get("orderDAO"));
-		
 		// ==============================================
 		// 10. 환불 (Refund)
 		// ==============================================

@@ -1,5 +1,7 @@
 package everytable.reservation.vo;
 
+import java.util.List;
+
 public class ReservationVO {
 	
 	private long resNo;
@@ -19,6 +21,11 @@ public class ReservationVO {
 	private String orderAdd;
 	private long quantity;
 	private String userName;
+	private String createdAt;
+	private long orderItemNo;
+	private long menuNo;
+	private long price;
+	private List<ReservationVO> orderList;
 	
 	public long getResNo() {
 		return resNo;
@@ -68,6 +75,12 @@ public class ReservationVO {
 	public void setStoreId(long storeId) {
 		this.storeId = storeId;
 	}
+	public String getStoreName() {
+		return storeName;
+	}
+	public void setStoreName(String storeName) {
+		this.storeName = storeName;
+	}
 	public String getMenuName() {
 		return menuName;
 	}
@@ -98,12 +111,6 @@ public class ReservationVO {
 	public void setResType(String resType) {
 		this.resType = resType;
 	}
-	public String getStoreName() {
-		return storeName;
-	}
-	public void setStoreName(String storeName) {
-		this.storeName = storeName;
-	}
 	public String getOrderAdd() {
 		return orderAdd;
 	}
@@ -122,6 +129,36 @@ public class ReservationVO {
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
+	public String getCreatedAt() {
+		return createdAt;
+	}
+	public void setCreatedAt(String createdAt) {
+		this.createdAt = createdAt;
+	}
+	public long getOrderItemNo() {
+		return orderItemNo;
+	}
+	public void setOrderItemNo(long orderItemNo) {
+		this.orderItemNo = orderItemNo;
+	}
+	public long getMenuNo() {
+		return menuNo;
+	}
+	public void setMenuNo(long menuNo) {
+		this.menuNo = menuNo;
+	}
+	public long getPrice() {
+		return price;
+	}
+	public void setPrice(long price) {
+		this.price = price;
+	}
+	public List<ReservationVO> getOrderList() {
+		return orderList;
+	}
+	public void setOrderList(List<ReservationVO> orderList) {
+		this.orderList = orderList;
+	}
 	
 	
 	@Override
@@ -130,7 +167,12 @@ public class ReservationVO {
 				+ ", resCount=" + resCount + ", resPhone=" + resPhone + ", resStatus=" + resStatus + ", storeId="
 				+ storeId + ", storeName=" + storeName + ", menuName=" + menuName + ", totalPrice=" + totalPrice
 				+ ", cancelReason=" + cancelReason + ", resCreatedAt=" + resCreatedAt + ", resType=" + resType
-				+ ", orderAdd=" + orderAdd + ", quantity=" + quantity + ", userName=" + userName + "]";
+				+ ", orderAdd=" + orderAdd + ", quantity=" + quantity + ", userName=" + userName + ", createdAt="
+				+ createdAt + ", orderItemNo=" + orderItemNo + ", menuNo=" + menuNo + ", price=" + price
+				+ ", orderList=" + orderList + "]";
 	}
+
+	
+	
 
 }

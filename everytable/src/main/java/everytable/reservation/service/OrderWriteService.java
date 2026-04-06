@@ -1,4 +1,4 @@
-package everytable.order.service;
+package everytable.reservation.service;
 
 import everytable.main.dao.DAO;
 import everytable.main.service.Service;

@@ -51,12 +51,16 @@ public class ReservationController implements Controller {
 
 			// 2. 예약 상세 보기 - 일반 사용자
 			case "/reservation/view.do":
-				no = Long.parseLong(request.getParameter("no"));
-				request.setAttribute("vo", Execute.execute(Init.getService(uri), no));
-				// 주문 메뉴 리스트 추가 조회
-				request.setAttribute("view", Execute.execute(Init.getService("/reservation/view.do"), no));
-				return "reservation/view";
+			    // 1. 파라미터로 넘어온 예약 번호(no) 받기
+			    no = Long.parseLong(request.getParameter("no"));
 
+			    // 2. 서비스를 실행하여 모든 정보(예약+메뉴리스트)가 담긴 vo를 가져와서 셋팅
+			    // 실행되는 서비스(ReservationViewService) 안에서 이미 orderList를 vo에 담아줍니다.
+			    request.setAttribute("vo", Execute.execute(Init.getService(uri), no));
+
+			    // 3. JSP 경로 반환
+			    return "reservation/view";
+			    
 			// 2. 예약 상세 보기 - 매장용
 			// 관리자 예약 상세보기
 			case "/reservation/adminView.do":
@@ -138,6 +142,44 @@ public class ReservationController implements Controller {
 				Execute.execute(Init.getService(uri), vo);
 				session.setAttribute("msg", "예약 거절이 완료되었습니다.");
 				return "redirect:adminVist.do";
+
+			// 9. 메뉴 주문 폼
+			case "/reservation/orderWriteForm.do":
+				return "reservation/orderWriteForm";
+
+			// 10. 메뉴 주문
+			case "/reservation/orderWrite.do":
+				System.out.println("/reservation/orderWrite.do - 메뉴 주문 처리");
+
+				// 2. [주의] 'OrderVO vo = ...' 가 아니라 그냥 'vo = ...' 라고 써야 합니다!
+				vo = new ReservationVO();
+
+				// JSP에서 보내는 배열 데이터 받기
+				String[] menuNo = request.getParameterValues("menuNo");
+				String[] quantity = request.getParameterValues("quantity");
+				String StoreId = request.getParameter("storeId");
+				String TotalPrice = request.getParameter("totalPrice");
+
+				// 기본 정보 세팅 (null 체크)
+				vo.setStoreId((StoreId != null && !StoreId.equals("")) ? Long.parseLong(StoreId) : 0L);
+				vo.setTotalPrice((TotalPrice != null && !TotalPrice.equals("")) ? Long.parseLong(TotalPrice) : 0L);
+
+				// 수량이 0보다 큰 첫 번째 메뉴만 우선 담기 (에러 방지용)
+				if (menuNo != null && quantity != null) {
+					for (int i = 0; i < menuNo.length; i++) {
+						if (!quantity[i].equals("0")) {
+							vo.setMenuNo(Long.parseLong(menuNo[i]));
+							vo.setQuantity(Long.parseLong(quantity[i]));
+							break;
+						}
+					}
+				}
+
+				Long resNo = (Long) Execute.execute(Init.getService(uri), vo);
+
+				request.getSession().setAttribute("msg", "메뉴 주문이 완료되었습니다.");
+
+				return "redirect:/reservation/orderView.do?resNo=" + resNo;
 
 			default:
 				// 정의되지 않은 URI인 경우 404 페이지로 유도하여 NPE 방지

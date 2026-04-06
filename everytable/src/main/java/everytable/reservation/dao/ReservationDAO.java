@@ -194,6 +194,34 @@ public class ReservationDAO extends DAO {
 		DB.close(con, pstmt, rs);
 		return vo;
 	}
+	
+	// 예약 상세 보기 - 메뉴
+	// 예약 번호(resNo)에 해당하는 상세 메뉴 리스트 가져오기
+	public List<ReservationVO> orderList(Long resNo) throws Exception {
+	    List<ReservationVO> list = new ArrayList<>();
+	    con = DB.getConnection();
+
+	    // 메뉴 테이블(MENU)과 주문 아이템 테이블(ORDER_ITEM) 조인
+	    String sql = "SELECT m.menu_name, oi.quantity, oi.price "
+	               + " FROM order_item oi, menu m "
+	               + " WHERE oi.menu_no = m.menu_no AND oi.res_no = ?";
+
+	    pstmt = con.prepareStatement(sql);
+	    pstmt.setLong(1, resNo);
+	    rs = pstmt.executeQuery();
+
+	    if (rs != null) {
+	        while (rs.next()) {
+	            ReservationVO menuVO = new ReservationVO();
+	            menuVO.setMenuName(rs.getString("menu_name"));
+	            menuVO.setQuantity(rs.getInt("quantity"));
+	            menuVO.setPrice(rs.getLong("price"));
+	            list.add(menuVO);
+	        }
+	    }
+	    DB.close(con, pstmt, rs);
+	    return list;
+	}
 
 	// 4. 예약 상세 보기 매장용
 	public ReservationVO adminView(Long no) throws Exception {
@@ -341,4 +369,36 @@ public class ReservationDAO extends DAO {
 		return result;
 	}
 
+	/////////////////
+	///
+	///
+	// 메뉴 주문
+	public Long orderWrite(ReservationVO vo) throws Exception {
+
+		// 1. DB 연결 (이미 정의된 DB 클래스 사용)
+		con = DB.getConnection();
+
+		// 2. SQL 작성 (이미지 상의 ORDER_ITEM 구조 반영)
+		// ORDER_ITEM_NO는 시퀀스, 나머지는 VO에서 가져온 값
+		String sql = "INSERT INTO ORDER_ITEM (ORDER_ITEM_NO, RES_NO, MENU_NO, QUANTITY, PRICE) "
+				+ " VALUES (ORDER_ITEM_SEQ.NEXTVAL, ?, ?, ?, ?)";
+
+		// 3. 실행 객체 생성 및 데이터 세팅
+		pstmt = con.prepareStatement(sql);
+
+		// 컨트롤러에서 수집한 데이터들을 순서대로 매칭
+		pstmt.setLong(1, vo.getResNo()); // 예약 번호 (FK)
+		pstmt.setLong(2, vo.getMenuNo()); // 메뉴 번호
+		pstmt.setLong(3, vo.getQuantity()); // 주문 수량
+		pstmt.setLong(4, vo.getPrice()); // 메뉴 단가 (또는 합계)
+
+		// 4. 실행
+		pstmt.executeUpdate();
+
+		// 5. 자원 닫기 (반드시 닫아줘야 DB 연결 부족 에러가 안 납니다)
+		DB.close(con, pstmt);
+
+		// 컨트롤러에서 redirect 시 사용할 resNo 반환
+		return vo.getResNo();
+	}
 }
