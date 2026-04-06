@@ -8,67 +8,91 @@
 <title>결제 내역 리스트</title>
 
 <style type="text/css">
-.dataRow:hover {
-    cursor: pointer;
-}
+    /* 1. 테이블 전체 모서리 둥글게 */
+    .table {
+        border-collapse: separate; 
+        border-spacing: 0;
+        border-radius: 15px;
+        overflow: hidden;
+        border: 1px solid #dee2e6;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    /* 2. 제목 줄 스타일 (기존 table-dark 대신 적용됨) */
+    .table thead th {
+        background-color: #f8f9fa !important;
+        color: #333 !important;
+        padding: 15px;
+        border-bottom: 2px solid #dee2e6;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    /* 3. 데이터 줄 스타일 */
+    .table tbody td {
+        padding: 12px;
+        vertical-align: middle;
+        text-align: center;
+        border-top: 1px solid #dee2e6;
+    }
+
+    /* 4. 마우스 오버 효과 */
+    .dataRow:hover {
+        cursor: pointer;
+        background-color: #f1f3f5 !important;
+    }
+
+    /* 5. 상태 배지 동글동글 */
+    .badge {
+        padding: 0.5em 0.8em;
+        border-radius: 50rem !important; 
+        font-size: 0.85em;
+    }
 </style>
 
 <script type="text/javascript">
- $(function(){
-     $(".dataRow").click(function(){
-         // 1. 주문번호 가져오기
-         let no = $(this).find(".payment_id").text();
-         
-         // 2. [수정] 상세 보기 페이지로 이동하는 코드가 반드시 있어야 합니다!
-         // 클릭했을 때 브라우저 주소창에 ?no=번호 가 붙어서 넘어가게 해줘요.
-         location.href = "view.do?no=" + no 
-                       + "&page=${pageObject.page}&perPageNum=${pageObject.perPageNum}"
-                       + "&key=${pageObject.key}&word=${pageObject.word}";
-                       
-     }).mouseover(function(){
-         $(this).addClass("table-success");
-     }).mouseout(function(){
-         $(this).removeClass("table-success");
-     });
- });
+$(function(){
+    // 1. 행 클릭 시 상세보기 이동
+    $(".dataRow").click(function(){
+        let no = $(this).find(".payment_id").text();
+        location.href = "view.do?no=" + no 
+                      + "&page=${pageObject.page}&perPageNum=${pageObject.perPageNum}"
+                      + "&key=${pageObject.key}&word=${pageObject.word}";
+    });
+
+    // 2. 검색 데이터 자동 세팅
+    <c:if test="${!empty pageObject.key && !empty pageObject.word }">
+        $("#key").val("${pageObject.key}");
+        $("#word").val("${pageObject.word}");
+    </c:if>
+});
 </script>
-
-<%-- 검색 데이터 세팅 스크립트 --%>
-<c:if test="${!empty pageObject.key && !empty pageObject.word }">
-    <script type="text/javascript">
-        $(function(){
-            $("#key").val("${pageObject.key}");
-            $("#word").val("${pageObject.word}");
-        });
-    </script>
-</c:if>
-
 </head>
 <body>
 
-    <h2>결제 내역 리스트</h2>
+    <h2 class="mb-4">결제 내역 리스트</h2>
     
-    <div>
-        <form action="list.do" method="get">
+    <%-- 검색창 영역 --%>
+    <div class="mb-3">
+        <form action="list.do" method="get" class="d-inline-flex">
             <input type="hidden" name="perPageNum" value="${pageObject.perPageNum }">
-            
-            <div class="d-inline-flex">
-              <select class="form-select" name="key" id="key">
+            <select class="form-select me-2" name="key" id="key" style="width: auto;">
                 <option value="m">결제수단</option>
                 <option value="u">아이디</option>
                 <option value="s">결제상태</option>
                 <option value="mu">수단/아이디</option>
-              </select>
-                <div class="input-group mb-3">
-                  <input type="text" class="form-control" placeholder="검색어 입력" name="word" id="word">
-                  <button class="btn btn-success" type="submit">검색</button>
-                </div>
+            </select>
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="검색어 입력" name="word" id="word">
+                <button class="btn btn-success" type="submit">검색</button>
             </div>
         </form>
     </div>
     
+    <%-- 리스트 테이블 --%>
     <table class="table">
-        <thead class="table-dark">
+        <thead>
             <tr>
                 <th>주문번호</th>
                 <th>아이디</th>
@@ -79,47 +103,48 @@
             </tr>
         </thead>
         <tbody>
-        <c:if test="${empty list }">
-            <tr>
-                <td colspan="6" class="text-center">결제 내역이 존재하지 않습니다.</td>
-            </tr>
-        </c:if>
-        <c:if test="${!empty list }">
-            <c:forEach items="${list }" var="vo" >
-                <tr class="dataRow">
-                   <td>${vo.order_id}</td> 
-            
-		            <td class="payment_id" style="display:none;">${vo.payment_id}</td>
-		            
-		            <td>${vo.user_id}</td>
-		            <td>${vo.method}</td>
-		            <td>${vo.amount}원</td>
-		           <td>
-    <c:choose>
-        <c:when test="${vo.status == 'SUCCESS'}">
-            <span class="badge bg-success">SUCCESS</span>
-        </c:when>
-        <c:when test="${vo.status == 'REFUNDED'}">
-            <span class="badge bg-secondary">REFUNDED</span>
-        </c:when>
-        <c:otherwise>
-            <span class="badge bg-danger">${vo.status}</span>
-        </c:otherwise>
-    </c:choose>
-</td>
-		            <td>${vo.payDate}</td>
+        <c:choose>
+            <c:when test="${empty list}">
+                <tr>
+                    <td colspan="6" class="text-center">결제 내역이 존재하지 않습니다.</td>
                 </tr>
-            </c:forEach>
-        </c:if>
+            </c:when>
+            <c:otherwise>
+                <c:forEach items="${list}" var="vo">
+                    <tr class="dataRow">
+                        <td>${vo.order_id}</td> 
+                        <td class="payment_id" style="display:none;">${vo.payment_id}</td>
+                        <td>${vo.user_id}</td>
+                        <td>${vo.method}</td>
+                        <td class="fw-bold text-primary">${vo.amount}원</td>
+                        <td>
+                            <c:choose>
+                                <c:when test="${vo.status == 'SUCCESS'}">
+                                    <span class="badge bg-success">SUCCESS</span>
+                                </c:when>
+                                <c:when test="${vo.status == 'REFUNDED'}">
+                                    <span class="badge bg-secondary">REFUNDED</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="badge bg-danger">${vo.status}</span>
+                                </c:otherwise>
+                            </c:choose>
+                        </td>
+                        <td>${vo.payDate}</td>
+                    </tr>
+                </c:forEach>
+            </c:otherwise>
+        </c:choose>
         </tbody>
     </table>
     
-    <div>
-        <pageNav:pageNav listURI="list.do" pageObject="${pageObject }" />
+    <%-- 페이지네이션 --%>
+    <div class="d-flex justify-content-center">
+        <pageNav:pageNav listURI="list.do" pageObject="${pageObject}" />
     </div>
     
     <div class="mt-3">
-        <a href="list.do" class="btn btn-success">새로고침</a>
+        <a href="list.do" class="btn btn-outline-success">새로고침</a>
     </div>
 
 </body>
