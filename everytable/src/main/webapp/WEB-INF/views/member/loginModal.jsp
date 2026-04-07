@@ -104,17 +104,18 @@
     }
 
     $.ajax({
-      url: '${pageContext.request.contextPath}/member/login.do',
+      url: '${pageContext.request.contextPath}/member/loginAjax.do',
       method: 'POST',
       data: { id: id, pw: pw, redirectUrl: redirectUrl },
-      success: function(response) {
-        // login.do 가 redirect 를 반환하면 실제 응답 URL 로 이동
-        // 서버에서 redirect 처리를 하므로 responseURL 확인
-        const finalUrl = response.responseURL || (redirectUrl || '${pageContext.request.contextPath}/main/main.do');
-        location.href = (redirectUrl && redirectUrl.trim() !== '')
-                          ? redirectUrl
-                          : '${pageContext.request.contextPath}/main/main.do';
-      },
+      success: function() {
+      const modalEl = document.getElementById('loginModal');
+      const modalInstance = bootstrap.Modal.getInstance(modalEl);
+      if (modalInstance) modalInstance.hide();
+
+    	  location.href = (redirectUrl && redirectUrl.trim() !== '')
+    	                    ? redirectUrl
+    	                    : '${pageContext.request.contextPath}/store/list.do';
+    	  },
       error: function() {
         showModalMsg('아이디 또는 비밀번호가 일치하지 않거나 이용이 제한된 계정입니다.');
       }

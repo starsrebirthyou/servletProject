@@ -45,6 +45,29 @@ public class MemberController implements Controller {
                 if (redirectUrl != null && !redirectUrl.trim().isEmpty())
                     return "redirect:" + redirectUrl;
                 return "redirect:/notice/list.do";
+                
+
+            // --------------------------------------------------------
+            // 로그인 모달
+            // --------------------------------------------------------
+            case "/member/loginAjax.do":
+                LoginVO ajaxUserVO = new LoginVO();
+                ajaxUserVO.setId(request.getParameter("id"));
+                ajaxUserVO.setPw(request.getParameter("pw"));
+
+                LoginVO ajaxLoginVO = (LoginVO) Execute.execute(Init.getService("/member/login.do"), ajaxUserVO);
+
+                if (ajaxLoginVO == null) {
+                    request.setAttribute("result", "fail");
+                    return "member/ajaxResult";
+                }
+
+                session.setAttribute("login", ajaxLoginVO);
+                Execute.execute(Init.getService("/member/updateLastLogin.do"), ajaxLoginVO.getId());
+
+                request.setAttribute("result", "ok");
+            		return "member/ajaxResult";
+            		
 
             // --------------------------------------------------------
             // 로그아웃
