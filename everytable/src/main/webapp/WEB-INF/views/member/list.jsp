@@ -275,6 +275,7 @@ $(function(){
                 <th>성별</th>
                 <th>생년월일</th>
                 <th>연락처</th>
+                <th>이메일</th>
                 <th>등급</th>
                 <th>상태</th>
                 <th>가입일</th>
@@ -301,6 +302,7 @@ $(function(){
                 <td>${vo.gender}</td>
                 <td>${vo.birth}</td>
                 <td>${vo.tel}</td>
+                <td>${vo.email}</td>
 				<!-- 등급 뱃지형 드롭다운 -->
                 <td>
                     <div class="d-flex align-items-center">
