@@ -448,6 +448,8 @@ body {
 						<strong>거절 사유:</strong> ${vo.cancelReason}
 					</div>
 				</c:if>
+				
+				
 
 				<%-- 액션 버튼 --%>
 				<div class="card-actions">

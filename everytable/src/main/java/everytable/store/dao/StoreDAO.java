@@ -13,23 +13,22 @@ public class StoreDAO extends DAO {
         List<StoreVO> list = null;
         try {
             con = DB.getConnection();
-            // member 조인 제거 (store 테이블에 이미 정보가 있음)
             String sql = "select store_id, store_name, store_cate, store_addr, avg_rating, review_count, filename "
                        + " from ( "
                        + "     select rownum rnum, store_id, store_name, store_cate, store_addr, avg_rating, review_count, filename "
                        + "     from ( "
                        + "         select store_id, store_name, store_cate, store_addr, avg_rating, review_count, filename "
-                       + "         from store where 1=1 "; 
-            
+                       + "         from store where 1=1 ";
+
             sql += search(pageObject);
             sql += "         order by store_id desc ) ) where rnum between ? and ?";
-            
+
             pstmt = con.prepareStatement(sql);
             int idx = 1;
             idx = searchDataSet(pstmt, idx, pageObject);
             pstmt.setLong(idx++, pageObject.getStartRow());
             pstmt.setLong(idx++, pageObject.getEndRow());
-            
+
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 if (list == null) list = new ArrayList<>();
@@ -73,6 +72,37 @@ public class StoreDAO extends DAO {
         return vo;
     }
 
+    // ✅ 추가
+    public int update(StoreVO vo) throws Exception {
+        int result = 0;
+        try {
+            con = DB.getConnection();
+            String sql = "update store set store_name=?, store_cate=?, store_addr=?, "
+                       + "store_tel=?, open_time=?, min_order_price=?, prepare_time=?";
+            // 이미지 변경 시에만 filename 업데이트
+            if (vo.getFilename() != null && !vo.getFilename().isEmpty()) {
+                sql += ", filename=?";
+            }
+            sql += " where store_id=?";
+
+            pstmt = con.prepareStatement(sql);
+            int idx = 1;
+            pstmt.setString(idx++, vo.getStore_name());
+            pstmt.setString(idx++, vo.getStore_cate());
+            pstmt.setString(idx++, vo.getStore_addr());
+            pstmt.setString(idx++, vo.getStore_tel());
+            pstmt.setString(idx++, vo.getOpen_time());
+            pstmt.setInt(idx++,    vo.getMin_order_price());
+            pstmt.setString(idx++, vo.getPrepare_time());
+            if (vo.getFilename() != null && !vo.getFilename().isEmpty()) {
+                pstmt.setString(idx++, vo.getFilename());
+            }
+            pstmt.setLong(idx++, vo.getStore_id());
+            result = pstmt.executeUpdate();
+        } finally { DB.close(con, pstmt, rs); }
+        return result;
+    }
+
     public Long getTotalRow(PageObject pageObject) throws Exception {
         Long totalRow = 0L;
         try {
@@ -88,7 +118,7 @@ public class StoreDAO extends DAO {
 
     private String search(PageObject pageObject) {
         String sql = "";
-        String key = pageObject.getKey();
+        String key  = pageObject.getKey();
         String word = pageObject.getWord();
         if (word != null && !word.equals("")) {
             sql += " and ( 1=0 ";
