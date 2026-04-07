@@ -3,7 +3,6 @@ package everytable.member.controller;
 import everytable.main.controller.Controller;
 import everytable.main.controller.Init;
 import everytable.main.service.Execute;
-import everytable.member.vo.Login;
 import everytable.member.vo.LoginVO;
 import everytable.member.vo.MemberVO;
 import everytable.util.mail.Mail;
@@ -471,7 +470,7 @@ public class MemberController implements Controller {
                 vo.setStatus(request.getParameter("status"));
                 Integer result = (Integer) Execute.execute(Init.getService(uri), vo);
                 session.setAttribute("msg", result == 1
-                    ? "아이디 <" + vo.getId() + ">의 상태가 <" + vo.getStatus() + ">(으)로 변경되었습니다."
+                    ? "아이디 [" + vo.getId() + "]의 상태가 [" + vo.getStatus() + "](으)로 변경되었습니다."
                     : "상태 변경에 실패하였습니다.");
                 return "redirect:list.do";
 
@@ -483,7 +482,7 @@ public class MemberController implements Controller {
                 vo.setId(request.getParameter("id"));
                 if (vo.getId().equals(loginId)) {
                     session.setAttribute("msg", "로그인한 관리자의 등급은 변경할 수 없습니다.");
-                    return "redirect:view.do";
+                    return "redirect:list.do";
                 }
                 vo.setGradeNo(Integer.parseInt(request.getParameter("gradeNo")));
                 result = (Integer) Execute.execute(Init.getService(uri), vo);
@@ -495,7 +494,7 @@ public class MemberController implements Controller {
                         default: gradeName = "일반회원"; break;
                     }
                     session.setAttribute("msg",
-                        "아이디 <" + vo.getId() + ">의 등급이 <" + gradeName + ">으로 변경되었습니다.");
+                        "아이디 [" + vo.getId() + "]의 등급이 [" + gradeName + "]으로 변경되었습니다.");
                 } else {
                     session.setAttribute("msg", "등급 변경에 실패하였습니다.");
                 }

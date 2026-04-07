@@ -101,18 +101,8 @@ body { background-color: #f4f6f3; }
 .s-bad { background:#fce8e8; color:#c62828; }
 .s-etc { background:#f5f5f5; color:#757575; }
 
-/* ── 상세보기 링크 ── */
-.btn-detail {
-    color: #0f7a54; font-weight: 600; font-size: 0.85rem;
-    cursor: pointer; text-decoration: none;
-}
-.btn-detail:hover { text-decoration: underline; }
-
 /* ── 페이지네이션 영역 ── */
 .page-wrap { padding: 16px 20px; border-top: 1px solid #f3f5f2; }
-
-/* ── 상태/등급 변경 버튼 (기존 JS 로직 유지) ── */
-.changeStatusBtn, .changeGradeNoBtn { display: none; }
 
 /* ── 상태/등급 변경 버튼 (기존 JS 로직 유지) ── */
 .changeStatusBtn, .changeGradeNoBtn { display: none; }
@@ -149,39 +139,6 @@ body { background-color: #f4f6f3; }
 <script type="text/javascript">
 $(function(){
 
-    /* 상태 select 변경 → 수정 버튼 표시 */
-    $(".status").on("change", function(){
-        $(this).next(".changeStatusBtn").show();
-    });
-    /* 등급 select 변경 → 수정 버튼 표시 */
-    $(".gradeNo").on("change", function(){
-        $(this).next(".changeGradeNoBtn").show();
-    });
-
-    /* 상태 수정 버튼 클릭 */
-    $(".changeStatusBtn").on("click", function(){
-        let id     = $(this).closest(".dataRow").find(".col-id").text().trim();
-        let status = $(this).closest(".dataRow").find(".status").val();
-        location   = "changeStatus.do?id=" + id + "&status=" + status;
-    });
-    /* 등급 수정 버튼 클릭 */
-    $(".changeGradeNoBtn").on("click", function(){
-        let id      = $(this).closest(".dataRow").find(".col-id").text().trim();
-        let gradeNo = $(this).closest(".dataRow").find(".gradeNo").val();
-        location    = "changeGrade.do?id=" + id + "&gradeNo=" + gradeNo;
-    });
-
-    /* 검색 폼 제출 */
-    $("#filterForm").on("submit", function(e){
-        e.preventDefault();
-        location = "list.do?" + $(this).serialize() + "&page=1&perPageNum=${pageObject.perPageNum}";
-    });
-
-    /* 초기화 */
-    $("#btnReset").on("click", function(){
-        location = "list.do";
-    });
-    
     /* 상태 select 변경 → 색상 변경 및 수정 버튼 표시 */
     $(".status").on("change", function(){
         let val = $(this).val();
@@ -229,6 +186,7 @@ $(function(){
     $(".changeGradeNoBtn").on("click", function(){
         let id      = $(this).closest(".dataRow").find(".col-id").text().trim();
         let gradeNo = $(this).closest(".dataRow").find(".gradeNo").val();
+        console.log("id =", id);
         location    = "changeGrade.do?id=" + id + "&gradeNo=" + gradeNo;
     });
 

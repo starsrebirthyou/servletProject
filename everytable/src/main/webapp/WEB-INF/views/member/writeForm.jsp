@@ -318,6 +318,10 @@ $(function(){
                         <input type="radio" name="gender" value="남자">
                         남성
                     </label>
+                    <label class="gender-btn">
+                        <input type="radio" name="gender" value="선택안함">
+                        선택안함
+                    </label>
                 </div>
             </div>
 
@@ -366,7 +370,7 @@ $(function(){
 
             <button type="submit" class="btn-submit mt-4">가입하기</button>
             <div class="btn-row">
-                <button type="reset">리셋</button>
+                <button type="reset">초기화</button>
                 <button type="button" class="cancelBtn">취소</button>
             </div>
 
