@@ -240,6 +240,7 @@ public class MemberController implements Controller {
 	             }
 	             return "member/ajaxResult";
 	
+	             
 	         // --------------------------------------------------------
 	         // 비밀번호 찾기 - 처리
 	         // --------------------------------------------------------
@@ -280,6 +281,7 @@ public class MemberController implements Controller {
 	        	    return "member/ajaxResult"; 
 	        	}
 	         
+	        	    
 	      // --------------------------------------------------------
 	      // 아이디 찾기 - 최종 비밀번호 확인
 	      // --------------------------------------------------------
@@ -333,6 +335,18 @@ public class MemberController implements Controller {
                 }
                 request.setAttribute("vo", Execute.execute(Init.getService(uri), loginVO.getId()));
                 return "member/view";
+                
+                
+            // --------------------------------------------------------
+            // 회원 상세 정보 보기
+            // --------------------------------------------------------
+            case "/member/memberInfo.do":
+            	if (loginVO == null) {
+            		session.setAttribute("msg", "로그인이 필요합니다.");
+            		return "redirect:/member/loginForm.do";
+            	}
+            	request.setAttribute("vo", Execute.execute(Init.getService(uri), loginVO.getId()));
+            	return "member/view";
                     
                     
             // --------------------------------------------------------
