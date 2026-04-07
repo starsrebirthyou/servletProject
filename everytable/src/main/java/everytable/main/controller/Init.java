@@ -270,11 +270,11 @@ public class Init extends HttpServlet {
 		// 10. 환불 (Refund)
 		// ==============================================
 		controllerMap.put("/refund", new RefundController());
-		daoMap.put("RefundDAO", new RefundDAO());
+		daoMap.put("refundDAO", new RefundDAO());
 
 		serviceMap.put("/refund/refund.do", new RefundRefundService());
 
-		serviceMap.get("/refund/refund.do").setDAO(daoMap.get("RefundDAO"));
+		serviceMap.get("/refund/refund.do").setDAO(daoMap.get("refundDAO"));
 
 		System.out.println("Init.init() --- 모든 객체 로딩 및 조립 완료 ---");
 	}
