@@ -59,17 +59,14 @@ $(function(){
 	</div>
 
 	<!-- [수정] 부자연스러운 fixed-bottom을 제거하고 하단 배경을 깔았습니다. -->
-<footer style="background-color: #f8f9fa; border-top: 1px solid #e9ecef; padding: 40px 0; margin-top: 50px;">
+<footer style="background-color: #f8f9fa; border-top: 1px solid #e9ecef; padding: 40px 0; margin-top: 50px; padding-bottom: 120px;"> 
     <div class="container" style="text-align: center; color: #6c757d; font-size: 0.8rem; line-height: 1.8;">
-        <!-- 첫 번째 줄 -->
         <p style="margin-bottom: 5px;">
             (주)에브리테이블 | 대표: 홍윤정 | 사업자등록번호: 123-45-67890 | 통신판매업신고: 2026-한양여대-12345
         </p>
-        <!-- 두 번째 줄 -->
         <p style="margin-bottom: 5px;">
             주소: 서울특별시 성동구 살곶이길 200 pc22, 2층 | 이메일: cute@everytable.kr
         </p>
-        <!-- 세 번째 줄 -->
         <p style="margin-bottom: 0;">
             호스팅 서비스: Amazon Web Services (AWS) | <strong>Everytable.com</strong>
         </p>

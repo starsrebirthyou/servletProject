@@ -79,8 +79,6 @@ body { background-color: #f4f6f3; }
     border-bottom: 1px solid #f3f5f2;
     font-size: 0.9rem; color: #333;
 }
-.dataRow { transition: background-color 0.15s; cursor: pointer; }
-.dataRow:hover { background-color: #f0f7f4; }
 
 /* ── 아바타 ── */
 .avatar {
@@ -115,17 +113,41 @@ body { background-color: #f4f6f3; }
 
 /* ── 상태/등급 변경 버튼 (기존 JS 로직 유지) ── */
 .changeStatusBtn, .changeGradeNoBtn { display: none; }
+
+/* ── 상태/등급 변경 버튼 (기존 JS 로직 유지) ── */
+.changeStatusBtn, .changeGradeNoBtn { display: none; }
+
+/* ── 테이블 내 select 및 수정 버튼 스타일 추가 ── */
+.table-select {
+    border: 1px solid #dde0da; border-radius: 6px;
+    padding: 4px 8px; font-size: 0.85rem; color: #333;
+    background-color: #f9faf8; outline: none; cursor: pointer;
+}
+.table-select:focus { border-color: #0f7a54; }
+
+/* ── 드롭다운을 뱃지처럼 보이게 하는 공통 스타일 ── */
+.select-badge {
+    border: none;
+    padding: 3px 20px 3px 10px; /* 텍스트와 화살표 간격 조절 */
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    appearance: auto; 
+}
+
+/* ── 수정 버튼 스타일 ── */
+.btn-update {
+    background-color: #0f7a54; color: #fff; border: none;
+    border-radius: 20px; padding: 3px 10px; font-size: 0.75rem;
+    cursor: pointer; margin-left: 6px; font-weight: 600;
+}
+.btn-update:hover { background-color: #0a5e3f; }
 </style>
 
 <script type="text/javascript">
 $(function(){
-
-    /* 행 클릭 → 상세보기 (noMove 요소 제외) */
-    $(".dataRow").click(function(){
-        let id = $(this).find(".col-id").text().trim();
-        location = "view.do?id=" + id + "&inc=1";
-    });
-    $(".dataRow").on("click", ".noMove", function(){ return false; });
 
     /* 상태 select 변경 → 수정 버튼 표시 */
     $(".status").on("change", function(){
@@ -159,6 +181,65 @@ $(function(){
     $("#btnReset").on("click", function(){
         location = "list.do";
     });
+    
+    /* 상태 select 변경 → 색상 변경 및 수정 버튼 표시 */
+    $(".status").on("change", function(){
+        let val = $(this).val();
+        
+        // 기존 뱃지 색상 지우기
+        $(this).removeClass("s-ok s-bad s-etc");
+        
+        // 선택한 값에 맞춰 새 뱃지 색상 입히기
+        if(val === "정상") {
+            $(this).addClass("s-ok");
+        } else if(val === "탈퇴" || val === "정지" || val === "휴면") {
+            $(this).addClass("s-bad");
+        } else {
+            $(this).addClass("s-etc");
+        }
+
+        $(this).next(".changeStatusBtn").show();
+    });
+
+    /* 등급 select 변경 → 색상 변경 및 수정 버튼 표시 */
+    $(".gradeNo").on("change", function(){
+        let val = $(this).val();
+        
+        $(this).removeClass("g1 g2 g9");
+        
+        if(val === "9") {
+            $(this).addClass("g9");
+        } else if(val === "2") {
+            $(this).addClass("g2");
+        } else {
+            $(this).addClass("g1");
+        }
+
+        $(this).next(".changeGradeNoBtn").show();
+    });
+
+    /* 상태 수정 버튼 클릭 */
+    $(".changeStatusBtn").on("click", function(){
+        let id     = $(this).closest(".dataRow").find(".col-id").text().trim();
+        let status = $(this).closest(".dataRow").find(".status").val();
+        location   = "changeStatus.do?id=" + id + "&status=" + status;
+    });
+    
+    /* 등급 수정 버튼 클릭 */
+    $(".changeGradeNoBtn").on("click", function(){
+        let id      = $(this).closest(".dataRow").find(".col-id").text().trim();
+        let gradeNo = $(this).closest(".dataRow").find(".gradeNo").val();
+        location    = "changeGrade.do?id=" + id + "&gradeNo=" + gradeNo;
+    });
+
+    /* 검색 폼 제출 & 초기화 (기존 동일) */
+    $("#filterForm").on("submit", function(e){
+        e.preventDefault();
+        location = "list.do?" + $(this).serialize() + "&page=1&perPageNum=${pageObject.perPageNum}";
+    });
+    $("#btnReset").on("click", function(){
+        location = "list.do";
+    });
 });
 </script>
 </head>
@@ -177,11 +258,6 @@ $(function(){
     </div>
 </div>
 
-<!-- ── 세션 메시지 ── -->
-<c:if test="${not empty sessionScope.msg}">
-    <div class="alert alert-success">${sessionScope.msg}</div>
-    <c:remove var="msg" scope="session"/>
-</c:if>
 
 <!-- ── 검색/필터 카드 ── -->
 <form id="filterForm" class="filter-card">
@@ -243,8 +319,8 @@ $(function(){
                 <th>연락처</th>
                 <th>등급</th>
                 <th>상태</th>
+                <th>가입일</th>
                 <th>최근접속일</th>
-                <th>관리</th>
             </tr>
         </thead>
         <tbody>
@@ -266,30 +342,44 @@ $(function(){
                 <td>${vo.gender}</td>
                 <td>${vo.birth}</td>
                 <td>${vo.tel}</td>
+				<!-- 등급 뱃지형 드롭다운 -->
                 <td>
-                    <%-- 등급 뱃지 --%>
-                    <c:choose>
-                        <c:when test="${vo.gradeNo == 9}"><span class="badge-grade g9">관리자</span></c:when>
-                        <c:when test="${vo.gradeNo == 2}"><span class="badge-grade g2">점주</span></c:when>
-                        <c:otherwise><span class="badge-grade g1">일반</span></c:otherwise>
-                    </c:choose>
+                    <div class="d-flex align-items-center">
+                        <select class="gradeNo select-badge 
+                            <c:choose>
+                                <c:when test="${vo.gradeNo == 9}">g9</c:when>
+                                <c:when test="${vo.gradeNo == 2}">g2</c:when>
+                                <c:otherwise>g1</c:otherwise>
+                            </c:choose>
+                        ">
+                            <option value="1" ${vo.gradeNo == 1 ? 'selected' : ''}>일반</option>
+                            <option value="2" ${vo.gradeNo == 2 ? 'selected' : ''}>점주</option>
+                            <option value="9" ${vo.gradeNo == 9 ? 'selected' : ''}>관리자</option>
+                        </select>
+                        <button type="button" class="changeGradeNoBtn btn-update">수정</button>
+                    </div>
                 </td>
+
+                <!-- 상태 뱃지형 드롭다운 -->
                 <td>
-                    <%-- 상태 뱃지 --%>
-                    <c:choose>
-                        <c:when test="${vo.status == '정상'}">
-                            <span class="badge-status s-ok">활성</span></c:when>
-                        <c:when test="${vo.status == '탈퇴' || vo.status == '정지' || vo.status == '휴면'}">
-                            <span class="badge-status s-bad">${vo.status}</span></c:when>
-                        <c:otherwise>
-                            <span class="badge-status s-etc">${vo.status}</span></c:otherwise>
-                    </c:choose>
+                    <div class="d-flex align-items-center">
+                        <select class="status select-badge 
+                            <c:choose>
+                                <c:when test="${vo.status == '정상'}">s-ok</c:when>
+                                <c:when test="${vo.status == '탈퇴' || vo.status == '정지' || vo.status == '휴면'}">s-bad</c:when>
+                                <c:otherwise>s-etc</c:otherwise>
+                            </c:choose>
+                        ">
+                            <option value="정상" ${vo.status == '정상' ? 'selected' : ''}>정상</option>
+                            <option value="휴면" ${vo.status == '휴면' ? 'selected' : ''}>휴면</option>
+                            <option value="정지" ${vo.status == '정지' ? 'selected' : ''}>정지</option>
+                            <option value="탈퇴" ${vo.status == '탈퇴' ? 'selected' : ''}>탈퇴</option>
+                        </select>
+                        <button type="button" class="changeStatusBtn btn-update">수정</button>
+                    </div>
                 </td>
+                <td>${vo.joinDate}</td>
                 <td>${vo.lastLogin}</td>
-                <td>
-                    <span class="btn-detail noMove"
-                          onclick="location='view.do?id=${vo.id}&inc=1'">상세보기</span>
-                </td>
             </tr>
         </c:forEach>
         </tbody>

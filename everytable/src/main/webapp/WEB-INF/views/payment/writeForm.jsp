@@ -10,30 +10,28 @@
 <body>
 <div class="container mt-5">
     <form action="write.do" method="post">
-    <input type="hidden" name="order_id" value="${order_id }">
+	<input type="hidden" name="order_id" value="${vo.order_id}">
+	<input type="hidden" name="amount" value="${vo.amount}">
     <input type="hidden" name="user_id" value="${vo.user_id }">
-	//<input type="hidden" name="amount" value="${vo.amount }">
-	<!-- <input type="hidden" name="amount" value="${vo.totalPrice }"> -->
-	<input type="hidden" name="pickup_date" value="2026-04-12">
+	<input type="hidden" name="pickupDate" value="${vo.pickupDate}">
 
         <div class="card shadow-sm mx-auto" style="max-width: 500px;">
             <div class="card-body">
                 <div class="text-center mb-4">
-                    <img src="https://via.placeholder.com/50" class="rounded-circle mb-2" alt="icon">
+                <div class="display-4 mb-2">🔒</div>
                     <h4 class="fw-bold">결제하기</h4>
                     <p class="text-muted small">안전한 결제를 위해 본인 인증을 진행합니다</p>
                 </div>
                 
                 <div class="mb-4 border-bottom pb-3">
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">주문 금액</span>
-                        <span class="fw-bold">300,000원</span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span class="text-muted">픽업일시</span>
-                        <span class="text-dark">2026-04-12 15:30</span>
-                    </div>
-                    <input type="hidden" name="amount" value="300000">
+ 					   <span class="text-muted">주문 금액</span>
+					   <span class="fw-bold">${vo.amount}원</span> 
+					</div>
+					<div class="d-flex justify-content-between">
+					    <span class="text-muted">픽업일시</span>
+					    <span class="text-dark">${vo.pickupDate}</span>
+					</div>
                 </div>
                 
                 <div class="mb-4">
@@ -54,7 +52,7 @@
                     </div>
                 </div>
                 
-                <button type="submit" class="btn btn-warning w-100 py-3 fw-bold text-dark shadow">300,000원 결제하기</button>
+                <button type="submit" class="btn btn-warning w-100 py-3 fw-bold text-dark shadow">${vo.amount}원 결제하기</button>
                 <button type="button" onclick="history.back();" class="btn btn-light w-100 mt-2 py-2">이전으로</button>
             </div>
         </div>

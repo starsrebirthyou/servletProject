@@ -7,8 +7,6 @@ import everytable.util.page.PageObject;
 
 public class StoreController implements Controller {
 
-    private final String MODULE = "store";
-
     @Override
     public String execute(HttpServletRequest request) {
         String uri = request.getRequestURI();
@@ -16,28 +14,29 @@ public class StoreController implements Controller {
         
         try {
             switch (uri) {
-                // 1. 매장 리스트
                 case "/store/list.do":
                     PageObject pageObject = PageObject.getInstance(request);
-                    pageObject.setPerPageNum(9); 
                     request.setAttribute("list", Init.getService(uri).service(pageObject));
                     request.setAttribute("pageObject", pageObject);
-                    jsp = MODULE + "/list"; // /WEB-INF/views/store/list.jsp 로 이동
+                    jsp = "store/list";
                     break;
-
-                // 2. 매장 상세보기 (메뉴 리스트 포함)
+                    
                 case "/store/view.do":
-                    Long no = Long.parseLong(request.getParameter("no"));
-                    // 매장 정보 가져오기
-                    request.setAttribute("vo", Init.getService(uri).service(no));
-                    // ★ 중요: 매장 상세 안에서 메뉴 리스트를 함께 서빙함
-                    request.setAttribute("menuList", Init.getService("/menu/list.do").service(no));
-                    jsp = MODULE + "/view"; // /WEB-INF/views/store/view.jsp 로 이동
+                    String strStoreId = request.getParameter("store_id");
+                    // 파라미터가 없으면 리스트로 리다이렉트 (방어 코드)
+                    if (strStoreId == null || strStoreId.trim().isEmpty()) {
+                        return "redirect:list.do";
+                    }
+                    
+                    Long store_id = Long.parseLong(strStoreId);
+                    request.setAttribute("vo", Init.getService(uri).service(store_id));
+                    // 메뉴 서비스 호출 (메뉴 리스트도 함께 로드)
+                    request.setAttribute("menuList", Init.getService("/menu/list.do").service(store_id));
+                    jsp = "store/view";
                     break;
             }
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("exception", e);
             jsp = "error/500";
         }
         return jsp;
