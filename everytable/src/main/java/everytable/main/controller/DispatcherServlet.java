@@ -30,6 +30,13 @@ public class DispatcherServlet extends HttpServlet {
         super();
         // TODO Auto-generated constructor stub
 		System.out.println("DispatcherServlet() 생성자 -------------------------------------");
+		try {
+	        // Init 클래스에 static 블록으로 설정되어 있다면 아래 한 줄이면 됩니다.
+	        Class.forName("everytable.main.controller.Init");
+	        System.out.println("Init 클래스 로딩 성공!");
+	    } catch (ClassNotFoundException e) {
+	        e.printStackTrace();
+	    }
     }
 
 	/**
