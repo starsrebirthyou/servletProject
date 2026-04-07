@@ -312,7 +312,7 @@ public class MemberDAO extends DAO {
                    + " FROM member m, grade g "
                    + " WHERE m.grade_no = g.grade_no ";
         sql += searchCondition(filter);
-        sql += " ORDER BY m.id";
+        sql += " ORDER BY m.no";
 
         // 2단계: rownum 부여
         sql = "SELECT ROWNUM rnum, no, id, name, gender, birth, tel, email, "
@@ -351,6 +351,45 @@ public class MemberDAO extends DAO {
         DB.close(con, pstmt, rs);
         return list;
     }
+    
+    
+	 // ----------------------------------------------------------------
+	 // 관리자 - 회원 상세 보기
+	 // ----------------------------------------------------------------
+	 public MemberVO memberInfo(String id) throws Exception {
+	     MemberVO vo = null;
+	     con = DB.getConnection();
+	     String sql = "SELECT m.no, m.id, m.name, m.gender, "
+	                + " TO_CHAR(m.birth, 'yyyy-mm-dd') birth, "
+	                + " m.tel, m.email, m.status, g.grade_name, "
+	                + " TO_CHAR(m.join_date,  'yyyy-mm-dd') join_date, "
+	                + " TO_CHAR(m.last_login, 'yyyy-mm-dd') last_login, "
+	                + " TO_CHAR(m.withdraw_date, 'yyyy-mm-dd') withdraw_date "
+	                + " FROM member m, grade g "
+	                + " WHERE m.id = ? AND m.grade_no = g.grade_no";
+	     pstmt = con.prepareStatement(sql);
+	     pstmt.setString(1, id);
+	     rs = pstmt.executeQuery();
+	     if (rs != null && rs.next()) {
+	         vo = new MemberVO();
+	         vo.setNo(rs.getLong("no"));
+	         vo.setId(rs.getString("id"));
+	         vo.setName(rs.getString("name"));
+	         vo.setGender(rs.getString("gender"));
+	         vo.setBirth(rs.getString("birth"));
+	         vo.setTel(rs.getString("tel"));
+	         vo.setEmail(rs.getString("email"));
+	         vo.setStatus(rs.getString("status"));
+	         vo.setGradeName(rs.getString("grade_name"));
+	         vo.setJoinDate(rs.getString("join_date"));
+	         vo.setLastLogin(rs.getString("last_login"));
+	         vo.setWithdraw(rs.getString("withdraw_date"));
+	     }
+	     DB.close(con, pstmt, rs);
+	     return vo;
+	 }
+
+ 
 
     // ----------------------------------------------------------------
     // 관리자 - 상태/등급 변경

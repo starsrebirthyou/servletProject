@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -35,16 +36,20 @@
 				<h2 class="mb-4" style="font-weight: bold; color: #333;">판매 통계 대시보드</h2>
 				
 				<div class="row mb-4">
+					<!-- 1. 오늘의 매출 카드 -->
 					<div class="col-md-3">
 						<div class="card bg-primary text-white p-3" style="background: linear-gradient(45deg, #0d6efd, #0b5ed7) !important; min-height: 100px;">
 							<p class="mb-1 opacity-75" style="font-size: 0.85rem;">오늘의 매출</p>
-							<h4 class="fw-bold mb-0">₩1,250,000</h4>
+							<h4 class="fw-bold mb-0">
+								₩<fmt:formatNumber value="${today.totalSales}" pattern="#,###" />
+							</h4>
 						</div>
 					</div>
+					<!-- 2. 오늘의 주문수 카드 (인기 카테고리 대신 실시간 데이터로 변경) -->
 					<div class="col-md-3">
 						<div class="card bg-success text-white p-3" style="background: linear-gradient(45deg, #198754, #157347) !important; min-height: 100px;">
-							<p class="mb-1 opacity-75" style="font-size: 0.85rem;">인기 카테고리</p>
-							<h4 class="fw-bold mb-0">한식 / 비빔밥</h4>
+							<p class="mb-1 opacity-75" style="font-size: 0.85rem;">오늘의 주문수</p>
+							<h4 class="fw-bold mb-0">${today.orderCount} 건</h4>
 						</div>
 					</div>
 				</div>
@@ -52,14 +57,13 @@
 				<div class="row mt-4">
 					<div class="col-md-7">
 						<div class="card p-4">
-							<h5 class="mb-4 fw-bold">기간별 매출 추이 (최근 7일)</h5>
+							<h5 class="mb-4 fw-bold">과거 매출 추이</h5>
 							<div style="height: 350px;"><canvas id="salesChart"></canvas></div>
 						</div>
 					</div>
 					<div class="col-md-5">
 						<div class="card p-4">
-							<h5 class="mb-4 fw-bold">카테고리별 인기 메뉴</h5>
-							<!-- 차트를 크게 키우기 위해 height 지정 및 position relative 설정 -->
+							<h5 class="mb-4 fw-bold">카테고리별 판매 비중</h5>
 							<div style="position: relative; height: 350px; width: 100%;">
 								<canvas id="categoryChart"></canvas>
 							</div>
@@ -71,14 +75,27 @@
 	</div>
 
 	<script>
+	// --- 1. 매출 추이 차트 데이터 세팅 (최근 일별 통계 리스트 활용) ---
+	const salesLabels = [];
+	const salesData = [];
+	
+	<c:forEach items="${list}" var="vo">
+		salesLabels.push("${vo.statsDate}");
+		salesData.push(${vo.totalSales});
+	</c:forEach>
+	
+	// 차트는 보통 왼쪽에서 오른쪽으로 시간 순이므로 배열을 뒤집어줍니다.
+	salesLabels.reverse();
+	salesData.reverse();
+
     const salesCtx = document.getElementById('salesChart').getContext('2d');
     new Chart(salesCtx, {
         type: 'line',
         data: {
-            labels: ['월', '화', '수', '목', '금', '토', '일'],
+            labels: salesLabels,
             datasets: [{
-                label: '매출액 (만원)',
-                data: [65, 59, 80, 81, 56, 95, 120],
+                label: '매출액 (원)',
+                data: salesData,
                 borderColor: '#198754',
                 backgroundColor: 'rgba(25, 135, 84, 0.1)',
                 fill: true,
@@ -92,24 +109,33 @@
         }
     });
 
+    // --- 2. 카테고리별 도넛 차트 데이터 세팅 (카테고리 통계 리스트 활용) ---
+    const catLabels = [];
+    const catData = [];
+    
+    <c:forEach items="${categoryList}" var="v">
+    	catLabels.push("${v.storeId}"); // DAO에서 category_name을 storeId 필드에 담았을 경우
+    	catData.push(${v.orderCount});   // 판매 수량
+    </c:forEach>
+
     const categoryCtx = document.getElementById('categoryChart').getContext('2d');
     new Chart(categoryCtx, {
         type: 'doughnut',
         data: {
-            labels: ['한식', '일식', '양식', '분식'],
+            labels: catLabels,
             datasets: [{
-                data: [300, 50, 100, 80],
-                backgroundColor: ['#198754', '#36a2eb', '#ffce56', '#ff6384'],
+                data: catData,
+                backgroundColor: ['#198754', '#36a2eb', '#ffce56', '#ff6384', '#9966ff'],
                 borderWidth: 0
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false, // 컨테이너 크기에 꽉 맞춤
+            maintainAspectRatio: false,
             cutout: '65%', 
             plugins: {
                 legend: { 
-                    position: 'right', // 오른쪽 배치로 차트 크기 확보
+                    position: 'right',
                     labels: { padding: 20 }
                 }
             }

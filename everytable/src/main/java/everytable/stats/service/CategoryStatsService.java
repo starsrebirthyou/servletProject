@@ -17,7 +17,7 @@ public class CategoryStatsService implements Service{
 
 	@Override
 	public Object service(Object obj) throws Exception {
-		return dao.dashboard((PageObject) obj);
+		return dao.getCategorySales((String) obj);
 	}
 	
 

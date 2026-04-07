@@ -27,7 +27,7 @@ body { background-color: #f8f9fa; }
     <p class="text-muted">아래 링크를 팀원들에게 공유하세요</p>
 
     <input type="text" class="url-input" id="shareUrl"
-           value="http://10.15.21.232:8080/everytable/reservation/groupMenuForm.do?resNo=${resNo}"
+           value="http://localhost/everytable/reservation/groupMenuForm.do?resNo=${resNo}"
            readonly>
 
     <button class="btn btn-success btn-lg w-100 fw-bold mb-3" onclick="copyUrl()">

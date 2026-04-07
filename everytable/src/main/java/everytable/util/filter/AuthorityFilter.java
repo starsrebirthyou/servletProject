@@ -119,6 +119,8 @@ public class AuthorityFilter extends HttpFilter implements Filter {
 		authMap.put("/member/changePw.do", 1);
 		// 관리자 권한
 		authMap.put("/member/list.do", 9);
+		authMap.put("/reservation/groupMenuForm.do", 0); // 0은 권한 체크 안 함을 의미 (본인 코드 로직에 맞게)
+		authMap.put("/reservation/groupShare.do", 0);
 		
 		// 이미지 게시판 -----------------
 		// 일반 회원

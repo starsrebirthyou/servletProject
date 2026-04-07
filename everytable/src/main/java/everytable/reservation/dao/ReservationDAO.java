@@ -231,7 +231,7 @@ public class ReservationDAO extends DAO {
 		return result;
 	}
 
-	// 9. 예약 취소 (사용자용)
+	// 9. 예약 취소
 	public int cancel(ReservationVO vo) throws Exception {
 		int result = 0;
 		con = DB.getConnection();

@@ -9,38 +9,38 @@ import everytable.util.page.PageObject;
 
 public class ReviewDAO extends DAO {
 
-    // 1. 리뷰 리스트 (페이징 처리)
-    public List<ReviewVO> list(PageObject pageObject) throws Exception {
+    // 1. 리뷰 리스트
+    public List<ReviewVO> list(ReviewVO vo) throws Exception {
         List<ReviewVO> list = null;
         try {
             con = DB.getConnection();
             // [수정] r.no -> r.review_id as no
             String sql = "SELECT r.review_id as no, r.content, r.user_id, m.name as user_name, "
-                       + " r.store_id, r.rating, r.is_deleted, "
+                       + " r.store_id, s.store_name, r.rating, r.is_deleted, "
                        + " TO_CHAR(r.created_at, 'yyyy-mm-dd') created_at "
-                       + " FROM review r LEFT OUTER JOIN member m ON r.user_id = m.id " 
+                       + " FROM review r, member m, store s where (r.user_id = m.id) and (r.store_id = s.store_id) " 
                        + " ORDER BY r.review_id DESC "; // 정렬도 review_id로
 
             sql = "SELECT * FROM ( "
                 + "    SELECT rownum rnum, a.* FROM ( " 
                 +          sql 
                 + "    ) a "
-                + ") WHERE rnum BETWEEN ? AND ? ";
+                + ") WHERE user_id = ? ";
 
             pstmt = con.prepareStatement(sql);
-            pstmt.setLong(1, pageObject.getStartRow());
-            pstmt.setLong(2, pageObject.getEndRow());
+            pstmt.setString(1, vo.getUserId());
             rs = pstmt.executeQuery();
 
             if (rs != null) {
                 while (rs.next()) {
                     if (list == null) list = new ArrayList<>();
-                    ReviewVO vo = new ReviewVO();
+                    vo = new ReviewVO();
                     vo.setNo(rs.getLong("no")); // 위에서 as no 했으므로 "no" 가능
                     vo.setContent(rs.getString("content"));
                     vo.setUserId(rs.getString("user_id")); 
                     vo.setUserName(rs.getString("user_name") == null ? rs.getString("user_id") : rs.getString("user_name"));
                     vo.setStoreId(rs.getLong("store_id"));
+                    vo.setStoreName(rs.getString("store_name"));
                     vo.setRating(rs.getDouble("rating"));
                     vo.setIsDeleted(rs.getInt("is_deleted"));
                     vo.setCreatedAt(rs.getString("created_at"));
@@ -81,7 +81,7 @@ public class ReviewDAO extends DAO {
         ReviewVO vo = null;
         try {
             con = DB.getConnection();
-            String sql = "SELECT review_id as no, content, user_id, store_id, rating, "
+            String sql = "SELECT review_id as no, content, user_id, store_id, store_name , rating, "
                        + " TO_CHAR(created_at, 'yyyy-mm-dd') created_at "
                        + " FROM review WHERE review_id = ?"; 
             pstmt = con.prepareStatement(sql);
@@ -94,6 +94,7 @@ public class ReviewDAO extends DAO {
                 vo.setContent(rs.getString("content"));
                 vo.setUserId(rs.getString("user_id"));
                 vo.setStoreId(rs.getLong("store_id"));
+                vo.setStoreName(rs.getString("store_name"));
                 vo.setRating(rs.getDouble("rating"));
                 vo.setCreatedAt(rs.getString("created_at"));
             }
@@ -112,13 +113,14 @@ public class ReviewDAO extends DAO {
         try {
             con = DB.getConnection();
             // [수정] 테이블 컬럼명에 맞춰 no -> review_id
-            String sql = "INSERT INTO review(review_id, content, user_id, store_id, rating, is_deleted, created_at) " 
+            String sql = "INSERT INTO review(review_id, content, user_id, store_id,store_name, rating, is_deleted, created_at) " 
                        + " VALUES(review_seq.nextval, ?, ?, ?, ?, 0, SYSDATE)";
             pstmt = con.prepareStatement(sql);
             pstmt.setString(1, vo.getContent());
             pstmt.setString(2, vo.getUserId());
             pstmt.setLong(3, vo.getStoreId());
-            pstmt.setDouble(4, vo.getRating());
+            pstmt.setString(4, vo.getStoreName());
+            pstmt.setDouble(5, vo.getRating());
             result = pstmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();

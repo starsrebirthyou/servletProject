@@ -26,9 +26,8 @@ public class StoreController implements Controller {
 
                 case "/store/write.do":
                     if (request.getMethod().equals("POST")) {
-                        // ✅ 세션에서 로그인한 member_id 가져오기
                         HttpSession session = request.getSession();
-                        String memberId = (String) session.getAttribute("id"); // 세션 키명 확인 필요
+                        String memberId = (String) session.getAttribute("id");
 
                         StoreVO writeVo = new StoreVO();
                         writeVo.setMember_id(memberId);
@@ -37,10 +36,16 @@ public class StoreController implements Controller {
                         writeVo.setStore_addr(request.getParameter("store_addr"));
                         writeVo.setStore_tel(request.getParameter("store_tel"));
                         writeVo.setOpen_time(request.getParameter("open_time"));
+                        
                         String minPrice = request.getParameter("min_order_price");
                         writeVo.setMin_order_price(minPrice != null && !minPrice.isEmpty()
                                 ? Integer.parseInt(minPrice) : 0);
                         writeVo.setPrepare_time(request.getParameter("prepare_time"));
+
+                        // ✅ [추가] 등록 시 환불 정책 파라미터 수집
+                        writeVo.setRefund_policy_24(request.getParameter("refund_policy_24"));
+                        writeVo.setRefund_policy_12(request.getParameter("refund_policy_12"));
+                        writeVo.setRefund_policy_0(request.getParameter("refund_policy_0"));
 
                         String filename = request.getParameter("filename");
                         writeVo.setFilename(filename != null ? filename : "default.jpg");
@@ -48,7 +53,6 @@ public class StoreController implements Controller {
                         Init.getService(uri).service(writeVo);
                         jsp = "redirect:list.do";
                     } else {
-                        // GET: 등록 폼 표시
                         jsp = "store/write";
                     }
                     break;
@@ -59,8 +63,12 @@ public class StoreController implements Controller {
                         return "redirect:list.do";
                     }
                     Long store_id = Long.parseLong(strStoreId);
+                    
+                    // 매장 정보 가져오기 (DAO에서 환불 정책도 함께 채워짐)
                     request.setAttribute("vo", Init.getService(uri).service(store_id));
+                    // 매장의 메뉴 리스트 가져오기
                     request.setAttribute("menuList", Init.getService("/menu/list.do").service(store_id));
+                    
                     jsp = "store/view";
                     break;
 
@@ -79,19 +87,29 @@ public class StoreController implements Controller {
                         vo.setStore_addr(request.getParameter("store_addr"));
                         vo.setStore_tel(request.getParameter("store_tel"));
                         vo.setOpen_time(request.getParameter("open_time"));
+                        
                         String minPrice = request.getParameter("min_order_price");
                         vo.setMin_order_price(minPrice != null && !minPrice.isEmpty()
                                 ? Integer.parseInt(minPrice) : 0);
                         vo.setPrepare_time(request.getParameter("prepare_time"));
+                        
+                        // ✅ [추가] 수정 시 환불 정책 파라미터 수집
+                        vo.setRefund_policy_24(request.getParameter("refund_policy_24"));
+                        vo.setRefund_policy_12(request.getParameter("refund_policy_12"));
+                        vo.setRefund_policy_0(request.getParameter("refund_policy_0"));
+
                         String newFilename = request.getParameter("filename");
                         if (newFilename != null && !newFilename.isEmpty()) {
                             vo.setFilename(newFilename);
                         }
+                        
                         Init.getService(uri).service(vo);
                         jsp = "redirect:update.do?store_id=" + updateStoreId + "&result=success";
                     } else {
+                        // GET: 수정 폼 표시 (기존 데이터 로드)
                         StoreVO vo = (StoreVO) Init.getService("/store/view.do").service(updateId);
                         request.setAttribute("vo", vo);
+                        
                         String result = request.getParameter("result");
                         if ("success".equals(result)) {
                             request.setAttribute("result", "success");
@@ -102,6 +120,8 @@ public class StoreController implements Controller {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            // 에러 발생 시 로그를 남기고 에러 페이지로 이동
+            request.setAttribute("exception", e);
             jsp = "error/500";
         }
         return jsp;

@@ -17,6 +17,7 @@ import everytable.member.service.MemberCheckEmailService;
 import everytable.member.service.MemberCheckIdService;
 import everytable.member.service.MemberCheckMemberInfoService;
 import everytable.member.service.MemberCheckTelService;
+import everytable.member.service.MemberInfoService;
 import everytable.member.service.MemberListService;
 import everytable.member.service.MemberResetPwService;
 import everytable.member.service.MemberSearchIdService;
@@ -59,7 +60,6 @@ import everytable.reservation.service.ReservationAdminCancelService;
 import everytable.reservation.service.ReservationAdminListService;
 import everytable.reservation.service.ReservationAdminUpdateService;
 import everytable.reservation.service.ReservationAdminViewService;
-import everytable.reservation.service.ReservationCancelService;
 import everytable.reservation.service.ReservationListService;
 import everytable.reservation.service.ReservationUpdateService;
 import everytable.reservation.service.ReservationViewService;
@@ -74,8 +74,10 @@ import everytable.review.service.ReviewWriteService;
 import everytable.stats.controller.StatsController;
 import everytable.stats.dao.StatsDAO;
 import everytable.stats.service.CategoryStatsService;
+import everytable.stats.service.StatsCategorySalesService;
 import everytable.stats.service.StatsDashboardService;
 import everytable.stats.service.StatsReportService;
+import everytable.stats.service.StatsTodaySummaryService;
 // Store & Menu 관련 Import (패키지명 확인 필수)
 import everytable.store.controller.StoreController;
 import everytable.store.dao.StoreDAO;
@@ -156,6 +158,7 @@ public class Init extends HttpServlet {
 		serviceMap.put("/member/changeEmail.do", new MemberChangeEmailService());
 		serviceMap.put("/member/changePw.do", new MemberChangePwService());
 		serviceMap.put("/member/withdraw.do", new MemberWithdrawService());
+		serviceMap.put("/member/memberInfo.do", new MemberInfoService());
 		// -- DAO 저장
 		daoMap.put("memberDAO", new MemberDAO());
 		// -- service에 dao 조립
@@ -175,6 +178,7 @@ public class Init extends HttpServlet {
 		serviceMap.get("/member/changeTel.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/changeEmail.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/withdraw.do").setDAO(daoMap.get("memberDAO"));
+		serviceMap.get("/member/memberInfo.do").setDAO(daoMap.get("memberDAO"));
 
 		// ==============================================
 		// 3. 매장관리 (Store)
@@ -223,7 +227,6 @@ public class Init extends HttpServlet {
 		serviceMap.put("/reservation/view.do", new ReservationViewService());
 		serviceMap.put("/reservation/write.do", new ReservationWriteService());
 		serviceMap.put("/reservation/update.do", new ReservationUpdateService());
-		serviceMap.put("/reservation/cancel.do", new ReservationCancelService());
 		// 관리자
 		serviceMap.put("/reservation/adminList.do", new ReservationAdminListService());
 		serviceMap.put("/reservation/adminView.do", new ReservationAdminViewService());
@@ -241,7 +244,6 @@ public class Init extends HttpServlet {
 		serviceMap.get("/reservation/view.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/write.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/update.do").setDAO(daoMap.get("reservationDAO"));
-		serviceMap.get("/reservation/cancel.do").setDAO(daoMap.get("reservationDAO"));
 		// 관리자
 		serviceMap.get("/reservation/adminList.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/adminView.do").setDAO(daoMap.get("reservationDAO"));
@@ -296,14 +298,21 @@ public class Init extends HttpServlet {
 		controllerMap.put("/stats", new StatsController());
 		daoMap.put("statsDAO", new StatsDAO());
 
-		serviceMap.put("/stats/dashboard.do", new StatsDashboardService());
-		serviceMap.put("/stats/report.do", new StatsReportService());
-		serviceMap.put("/stats/categorystats.do", new CategoryStatsService());
+		// 서비스 등록 - 각각 고유한 URI를 부여해야 합니다.
+		serviceMap.put("/stats/list.do", new StatsDashboardService()); // 리스트용
+		serviceMap.put("/stats/report.do", new StatsReportService());  // 리포트용
+		serviceMap.put("/stats/todaySummary.do", new StatsTodaySummaryService()); // 오늘 요약용 (추가)
+		serviceMap.put("/stats/categorySales.do", new StatsCategorySalesService()); // 카테고리 차트용 (추가)
+		// 만약 기존에 쓰던 이름이 있다면 유지
+		serviceMap.put("/stats/categorystats.do", new CategoryStatsService()); 
 
-		serviceMap.get("/stats/dashboard.do").setDAO(daoMap.get("statsDAO"));
+		// DAO 조립 (프라이팬 쥐여주기)
+		serviceMap.get("/stats/list.do").setDAO(daoMap.get("statsDAO"));
 		serviceMap.get("/stats/report.do").setDAO(daoMap.get("statsDAO"));
+		serviceMap.get("/stats/todaySummary.do").setDAO(daoMap.get("statsDAO"));
+		serviceMap.get("/stats/categorySales.do").setDAO(daoMap.get("statsDAO"));
 		serviceMap.get("/stats/categorystats.do").setDAO(daoMap.get("statsDAO"));
-
+		
 		// ==============================================
 		// 10. 환불 (Refund)
 		// ==============================================
