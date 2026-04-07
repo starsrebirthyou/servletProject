@@ -118,11 +118,11 @@ public class MemberDAO extends DAO {
 	 // ----------------------------------------------------------------
 	 // 회원탈퇴
 	 // ----------------------------------------------------------------
-	 public Integer withdraw(String id) throws Exception {
+	 public Integer withdraw(MemberVO vo) throws Exception {
 	     con = DB.getConnection();
-	     String sql = "UPDATE member SET status = '탈퇴', withdraw = SYSDATE WHERE id = ?";
+	     String sql = "UPDATE member SET status = '탈퇴', withdraw_date = SYSDATE WHERE id = ?";
 	     pstmt = con.prepareStatement(sql);
-	     pstmt.setString(1, id);
+	     pstmt.setString(1, vo.getId());
 	     Integer result = pstmt.executeUpdate();
 	     DB.close(con, pstmt);
 	     return result;
@@ -304,12 +304,12 @@ public class MemberDAO extends DAO {
         con = DB.getConnection();
 
         // 1단계: 조건 + 정렬
-        String sql = "SELECT m.no, m.id, m.name, m.gender,"
-                   + "       TO_CHAR(m.birth,      'yyyy-mm-dd') birth,"
-                   + "       m.tel, m.email, m.status, m.grade_no, g.grade_name,"
-                   + "       TO_CHAR(m.join_date,  'yyyy-mm-dd') join_date,"
-                   + "       TO_CHAR(m.last_login, 'yyyy-mm-dd') last_login"
-                   + "  FROM member m, grade g"
+        String sql = "SELECT m.no, m.id, m.name, m.gender, TO_CHAR(m.birth, 'yyyy-mm-dd') birth, "
+                   + " m.tel, m.email, m.status, m.grade_no, g.grade_name, "
+                   + " TO_CHAR(m.join_date,  'yyyy-mm-dd') join_date, "
+                   + " TO_CHAR(m.last_login, 'yyyy-mm-dd') last_login, "
+                   + " TO_CHAR(m.withdraw_date, 'yyyy-mm-dd') withdraw_date, "
+                   + " FROM member m, grade g "
                    + " WHERE m.grade_no = g.grade_no";
         sql += searchCondition(filter);
         sql += " ORDER BY m.id";

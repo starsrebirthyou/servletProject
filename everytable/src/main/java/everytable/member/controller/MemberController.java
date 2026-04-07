@@ -425,14 +425,15 @@ public class MemberController implements Controller {
             // --------------------------------------------------------
             case "/member/withdraw.do":
                 if (loginVO == null) return "redirect:/member/loginForm.do";
-             
+
                 vo = new MemberVO();
                 vo.setId(loginVO.getId());
                 Execute.execute(Init.getService("/member/withdraw.do"), vo);
-             
+
                 session.removeAttribute("login");
                 session.setAttribute("msg", "탈퇴가 완료되었습니다.");
                 return "redirect:/notice/list.do";
+
                 
                 
             // --------------------------------------------------------
