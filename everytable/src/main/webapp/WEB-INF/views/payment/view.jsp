@@ -130,7 +130,7 @@
 
             <c:if test="${vo.status == 'FAIL'}">
                 <div class="alert alert-light border d-inline-block p-2 ms-2">
-                    <small class="text-muted">결제 오류 발생. 매장(010-1234-5678)으로 문의주세요.</small>
+                    <small class="text-muted">결제 오류 발생. 매장(☎️ 010-1234-5678)으로 문의주세요.</small>
                 </div>
             </c:if>
 
