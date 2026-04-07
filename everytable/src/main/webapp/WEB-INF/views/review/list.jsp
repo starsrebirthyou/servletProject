@@ -67,7 +67,7 @@ $(function() {
                 </div>
                 
                 <div class="review-content">${vo.content}</div>
-                <div><span class="store-badge">매장 번호: ${vo.storeId}</span></div>
+                <div><span class="store-badge">매장 이름: ${vo.storeName}</span></div>
             </div>
         </c:forEach>
         
