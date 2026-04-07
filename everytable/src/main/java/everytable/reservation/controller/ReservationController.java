@@ -156,17 +156,6 @@ public class ReservationController implements Controller {
 				session.setAttribute("msg", "예약 정보가 수정되었습니다.");
 				return "redirect:view.do?no=" + vo.getResNo();
 
-			// 8. 사용자 예약 취소 일반 사용자용
-			case "/reservation/cancel.do":
-				vo = new ReservationVO();
-				vo.setResNo(Long.parseLong(request.getParameter("resNo")));
-				vo.setCancelReason(request.getParameter("cancelReason"));
-				vo.setResStatus(4L);
-
-				Execute.execute(Init.getService(uri), vo);
-				session.setAttribute("msg", "예약 취소가 완료되었습니다.");
-				return "redirect:list.do";
-
 			// 8. 사용자 예약 취소 매장용
 			case "/reservation/adminCancel.do":
 				vo = new ReservationVO();
