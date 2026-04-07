@@ -200,45 +200,47 @@ $(function() {
 
             <%-- 오른쪽: 주문 메뉴 내역 섹션 --%>
             <div class="col-12 col-md-6">
-                <div class="section-title">Order Details</div>
-                <table class="menu-table">
-                    <thead>
-                        <tr>
-                            <th class="text-start">메뉴명</th>
-                            <th class="text-center">수량</th>
-                            <th class="text-end">금액</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <c:choose>
-                            <c:when test="${not empty orderList}">
-                                <c:forEach items="${orderList}" var="item">
-                                    <tr>
-                                        <td class="fw-bold">${store.menuName}</td>
-                                        <td class="text-center text-muted">${order_item.quantity}개</td>
-                                        <td class="text-end"><fmt:formatNumber value="${order_item.price}" />원</td>
-                                    </tr>
-                                </c:forEach>
-                            </c:when>
-                            <c:otherwise>
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted py-5">주문 메뉴 정보가 없습니다.</td>
-                                </tr>
-                            </c:otherwise>
-                        </c:choose>
-                    </tbody>
-                </table>
-                
-                <div class="total-row">
-                    <span>총 주문 금액</span>
-                    <span class="total-price">
-                        <c:choose>
-                            <c:when test="${not empty vo.totalPrice}"><fmt:formatNumber value="${vo.totalPrice}" />원</c:when>
-                            <c:otherwise>0원</c:otherwise>
-                        </c:choose>
-                    </span>
-                </div>
-            </div>
+					<div class="section-title">Order Menu</div>
+					<table class="menu-table">
+						<thead>
+							<tr>
+								<th class="text-start">메뉴명</th>
+								<th class="text-center">수량</th>
+								<th class="text-end">금액</th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:choose>
+								<%-- vo 객체 내부에 담긴 orderList를 참조하도록 변경 --%>
+								<c:when test="${not empty vo.orderList}">
+									<c:forEach items="${vo.orderList}" var="item">
+										<tr>
+											<td class="fw-bold">${item.menuName}</td>
+											<td class="text-center text-muted">${item.quantity}개</td>
+											<td class="text-end"><fmt:formatNumber
+													value="${item.price}" />원</td>
+										</tr>
+									</c:forEach>
+								</c:when>
+								<c:otherwise>
+									<tr>
+										<td colspan="3" class="text-center text-muted py-5">주문 메뉴
+											정보가 없습니다.</td>
+									</tr>
+								</c:otherwise>
+							</c:choose>
+						</tbody>
+					</table>
+
+					<div class="total-row">
+						<span>최종 결제 금액</span> <span class="total-price"> <c:choose>
+								<c:when test="${not empty vo.totalPrice}">
+									<fmt:formatNumber value="${vo.totalPrice}" />원</c:when>
+								<c:otherwise>-</c:otherwise>
+							</c:choose>
+						</span>
+					</div>
+				</div>
         </div>
 
         <%-- 하단 관리자 액션 바 --%>
@@ -252,6 +254,13 @@ $(function() {
                 <%-- 거절 모달 트리거 --%>
                 <button id="rejectBtn" class="btn-custom btn-danger-custom px-4">주문 거절</button>
             </c:if>
+            
+            <%-- 승인 상태일 때 이용완료 버튼 --%>
+    <c:if test="${vo.resStatus == 2}">
+        <a href="adminUpdate.do?resNo=${vo.resNo}&resStatus=3"
+           class="btn-custom btn-success-custom px-4"
+           onclick="return confirm('이용 완료 처리하시겠습니까?')">이용 완료</a>
+    </c:if>
             
             <%-- 관리자 목록으로 (adminList.do) --%>
             <a href="adminList.do?page=${param.page}&perPageNum=${param.perPageNum}"

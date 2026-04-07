@@ -52,7 +52,6 @@ import everytable.reservation.service.ReservationAdminUpdateService;
 import everytable.reservation.service.ReservationAdminViewService;
 import everytable.reservation.service.ReservationCancelService;
 import everytable.reservation.service.ReservationListService;
-import everytable.reservation.service.ReservationOrderWriteService;
 import everytable.reservation.service.ReservationUpdateService;
 import everytable.reservation.service.ReservationViewService;
 import everytable.reservation.service.ReservationWriteService;
@@ -201,7 +200,6 @@ public class Init extends HttpServlet {
 		serviceMap.put("/reservation/update.do", new ReservationUpdateService());
 		serviceMap.put("/reservation/cancel.do", new ReservationCancelService());
 		serviceMap.put("/reservation/orderWrite.do", new OrderWriteService());
-		serviceMap.put("/reservation/orderWrite.do", new ReservationOrderWriteService());
 		// 관리자
 		serviceMap.put("/reservation/adminList.do", new ReservationAdminListService());
 		serviceMap.put("/reservation/adminView.do", new ReservationAdminViewService());
@@ -213,8 +211,6 @@ public class Init extends HttpServlet {
 		serviceMap.get("/reservation/write.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/update.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/cancel.do").setDAO(daoMap.get("reservationDAO"));
-		serviceMap.get("/reservation/orderWrite.do").setDAO(daoMap.get("reservationDAO"));
-		serviceMap.get("/reservation/updateForm.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/orderWrite.do").setDAO(daoMap.get("reservationDAO"));
 		// 관리자
 		serviceMap.get("/reservation/adminList.do").setDAO(daoMap.get("reservationDAO"));

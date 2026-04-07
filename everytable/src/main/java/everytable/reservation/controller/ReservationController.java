@@ -51,16 +51,16 @@ public class ReservationController implements Controller {
 
 			// 2. 예약 상세 보기 - 일반 사용자
 			case "/reservation/view.do":
-			    // 1. 파라미터로 넘어온 예약 번호(no) 받기
-			    no = Long.parseLong(request.getParameter("no"));
+				// 1. 파라미터로 넘어온 예약 번호(no) 받기
+				no = Long.parseLong(request.getParameter("no"));
 
-			    // 2. 서비스를 실행하여 모든 정보(예약+메뉴리스트)가 담긴 vo를 가져와서 셋팅
-			    // 실행되는 서비스(ReservationViewService) 안에서 이미 orderList를 vo에 담아줍니다.
-			    request.setAttribute("vo", Execute.execute(Init.getService(uri), no));
+				// 2. 서비스를 실행하여 모든 정보(예약+메뉴리스트)가 담긴 vo를 가져와서 셋팅
+				// 실행되는 서비스(ReservationViewService) 안에서 이미 orderList를 vo에 담아줍니다.
+				request.setAttribute("vo", Execute.execute(Init.getService(uri), no));
 
-			    // 3. JSP 경로 반환
-			    return "reservation/view";
-			    
+				// 3. JSP 경로 반환
+				return "reservation/view";
+
 			// 2. 예약 상세 보기 - 매장용
 			// 관리자 예약 상세보기
 			case "/reservation/adminView.do":
@@ -97,15 +97,16 @@ public class ReservationController implements Controller {
 
 				Execute.execute(Init.getService(uri), vo);
 
-				String statusMsg = (vo.getResStatus() == 2) ? "예약을 승인하였습니다." : "예약을 거절하였습니다.";
+				String statusMsg = (vo.getResStatus() == 2) ? "예약을 승인하였습니다."
+						: (vo.getResStatus() == 3) ? "이용 완료 처리되었습니다." : "예약을 거절(취소)하였습니다.";
 				session.setAttribute("msg", statusMsg);
 				return "redirect:adminList.do";
 
 			// 6. 예약 수정 폼
 			case "/reservation/updateForm.do":
-			    no = Long.parseLong(request.getParameter("no"));
-			    request.setAttribute("vo", Execute.execute(Init.getService(uri), no)); 
-			    return "reservation/updateForm";
+				no = Long.parseLong(request.getParameter("no"));
+				request.setAttribute("vo", Execute.execute(Init.getService("/reservation/view.do"), no));
+				return "reservation/updateForm";
 
 			// 7. 예약 수정 처리
 			case "/reservation/update.do":
@@ -149,40 +150,41 @@ public class ReservationController implements Controller {
 
 			// 10. 메뉴 주문
 			case "/reservation/orderWrite.do":
-			    System.out.println("/reservation/orderWrite.do - 메뉴 주문 처리");
+				System.out.println("/reservation/orderWrite.do - 메뉴 주문 처리");
 
-			    vo = new ReservationVO();
+				vo = new ReservationVO();
 
-			    // [수정] JSP의 name="menuNos", name="quantities"와 일치시켜야 합니다!
-			    String[] menuNos = request.getParameterValues("menuNos");
-			    String[] quantities = request.getParameterValues("quantities");
-			    String storeIdStr = request.getParameter("storeId");
-			    String totalPriceStr = request.getParameter("totalPrice");
+				// [수정] JSP의 name="menuNos", name="quantities"와 일치시켜야 합니다!
+				String[] menuNos = request.getParameterValues("menuNos");
+				String[] quantities = request.getParameterValues("quantities");
+				String storeIdStr = request.getParameter("storeId");
+				String totalPriceStr = request.getParameter("totalPrice");
 
-			    // 기본 정보 세팅
-			    vo.setStoreId((storeIdStr != null && !storeIdStr.equals("")) ? Long.parseLong(storeIdStr) : 0L);
-			    vo.setTotalPrice((totalPriceStr != null && !totalPriceStr.equals("")) ? Long.parseLong(totalPriceStr) : 0L);
+				// 기본 정보 세팅
+				vo.setStoreId((storeIdStr != null && !storeIdStr.equals("")) ? Long.parseLong(storeIdStr) : 0L);
+				vo.setTotalPrice(
+						(totalPriceStr != null && !totalPriceStr.equals("")) ? Long.parseLong(totalPriceStr) : 0L);
 
-			    // 수량이 0보다 큰 데이터 처리
-			    if (menuNos != null && quantities != null) {
-			        for (int i = 0; i < menuNos.length; i++) {
-			            // 빈값이거나 "0"인 경우 제외
-			            if (quantities[i] != null && !quantities[i].equals("0") && !quantities[i].equals("")) {
-			                // VO 구조에 따라 리스트로 담거나, 일단 첫 번째 값을 세팅
-			                vo.setMenuNo(Long.parseLong(menuNos[i]));
-			                vo.setQuantity(Long.parseLong(quantities[i]));
-			                break; // 일단 로직상 한 개만 처리하게 되어있으므로 break
-			            }
-			        }
-			    }
+				// 수량이 0보다 큰 데이터 처리
+				if (menuNos != null && quantities != null) {
+					for (int i = 0; i < menuNos.length; i++) {
+						// 빈값이거나 "0"인 경우 제외
+						if (quantities[i] != null && !quantities[i].equals("0") && !quantities[i].equals("")) {
+							// VO 구조에 따라 리스트로 담거나, 일단 첫 번째 값을 세팅
+							vo.setMenuNo(Long.parseLong(menuNos[i]));
+							vo.setQuantity(Long.parseLong(quantities[i]));
+							break; // 일단 로직상 한 개만 처리하게 되어있으므로 break
+						}
+					}
+				}
 
-			    // 서비스 실행 (resNo 반환)
-			    Long resNo = (Long) Execute.execute(Init.getService(uri), vo);
+				// 서비스 실행 (resNo 반환)
+				Long resNo = (Long) Execute.execute(Init.getService(uri), vo);
 
-			    request.getSession().setAttribute("msg", "메뉴 주문이 완료되었습니다.");
+				request.getSession().setAttribute("msg", "메뉴 주문이 완료되었습니다.");
 
-			    // 상세페이지로 이동
-			    return "redirect:/reservation/orderView.do?resNo=" + resNo;
+				// 상세페이지로 이동
+				return "redirect:/reservation/orderView.do?resNo=" + resNo;
 			default:
 				// 정의되지 않은 URI인 경우 404 페이지로 유도하여 NPE 방지
 				return "error/404";
