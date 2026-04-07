@@ -76,6 +76,7 @@ import everytable.stats.service.StatsReportService;
 import everytable.store.controller.StoreController;
 import everytable.store.dao.StoreDAO;
 import everytable.store.service.StoreListService;
+import everytable.store.service.StoreUpdateService;
 import everytable.store.service.StoreViewService;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -177,12 +178,12 @@ public class Init extends HttpServlet {
 
 				serviceMap.put("/store/list.do",   new StoreListService());
 				serviceMap.put("/store/view.do",   new StoreViewService());
-				serviceMap.put("/store/update.do", new StoreUpdateService()); // ✅ 추가
+				serviceMap.put("/store/update.do", new StoreUpdateService()); 
 
 				serviceMap.get("/store/list.do").setDAO(daoMap.get("storeDAO"));
 				serviceMap.get("/store/view.do").setDAO(daoMap.get("storeDAO"));
-				serviceMap.get("/store/update.do").setDAO(daoMap.get("storeDAO")); // ✅ 추가
-
+				serviceMap.get("/store/update.do").setDAO(daoMap.get("storeDAO"));
+				
 				// ==============================================
 				// 4. 메뉴관리 (Menu)
 				// ==============================================
