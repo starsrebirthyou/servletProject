@@ -21,9 +21,15 @@ public class ReservationController implements Controller {
 			LoginVO loginVO = (LoginVO) session.getAttribute("login");
 
 			// [공통] 로그인이 안 되어 있으면 로그인 폼으로 이동 (등록 처리는 허용할 수도 있으나 리스트 등은 차단)
-			if (loginVO == null && !uri.equals("/reservation/write.do")) {
-				session.setAttribute("msg", "로그인이 필요한 서비스입니다.");
-				return "redirect:/member/loginForm.do";
+			// [공통] 로그인이 안 되어 있어도 접근 가능한 페이지들(예외 처리)
+			if (loginVO == null 
+			    && !uri.equals("/reservation/write.do")           // 예약 등록 처리
+			    && !uri.equals("/reservation/groupShare.do")      // 공유 페이지
+			    && !uri.equals("/reservation/groupMenuForm.do")   // 메뉴 선택 폼
+			    && !uri.equals("/reservation/groupOrderWrite.do") // 메뉴 저장 처리
+			) {
+			    session.setAttribute("msg", "로그인이 필요한 서비스입니다.");
+			    return "redirect:/member/loginForm.do";
 			}
 
 			ReservationVO vo;
@@ -70,29 +76,37 @@ public class ReservationController implements Controller {
 
 			// 3. 예약 등록 (작성 폼)
 			case "/reservation/writeForm.do":
+				String storeIdStr = request.getParameter("storeId"); // 파라미터 이름 확인!
+
+				// 만약 파라미터가 null이면 에러 페이지 대신 안전한 처리를 합니다.
+				if (storeIdStr == null || storeIdStr.equals("")) {
+					session.setAttribute("msg", "매장 정보가 없습니다. 다시 시도해주세요.");
+					return "redirect:/store/list.do"; // 매장 리스트로 돌려보내기
+				}
+
+				// 이제 안심하고 변환
+				Long storeId = Long.parseLong(storeIdStr);
+
+				// 매장 정보 가져오기
+				request.setAttribute("storeVO", Execute.execute(Init.getService("/store/view.do"), storeId));
+
 				return "reservation/writeForm";
 
 			// 4. 예약 등록 처리
 			case "/reservation/write.do":
-			    vo = new ReservationVO();
-			    vo.setResDate(request.getParameter("resDate"));
-			    vo.setResTime(request.getParameter("resTime"));
-			    vo.setResCount(Long.parseLong(request.getParameter("resCount")));
-			    vo.setResPhone(request.getParameter("resPhone"));
-			    vo.setResType(request.getParameter("resType"));
-			    vo.setUserId(request.getParameter("userId"));
-			    vo.setStoreId(Long.parseLong(request.getParameter("storeId")));
+				vo = new ReservationVO();
+				vo.setResDate(request.getParameter("resDate"));
+				vo.setResTime(request.getParameter("resTime"));
+				vo.setResCount(Long.parseLong(request.getParameter("resCount")));
+				vo.setResPhone(request.getParameter("resPhone"));
+				vo.setResType(request.getParameter("resType"));
+				vo.setUserId(request.getParameter("userId"));
+				vo.setStoreId(Long.parseLong(request.getParameter("storeId")));
 
-			    Long writeResNo = (Long) Execute.execute(Init.getService(uri), vo);
-			    session.setAttribute("msg", "예약이 완료되었습니다.");
+				Long writeResNo = (Long) Execute.execute(Init.getService(uri), vo);
+				session.setAttribute("msg", "예약이 완료되었습니다.");
 
-			    // 단체면 URL 공유 페이지로, 픽업이면 기존 메뉴 선택 페이지로
-			    if ("단체".equals(vo.getResType())) {
-			        return "redirect:/reservation/groupShare.do?resNo=" + writeResNo;
-			    } else {
-			        return "redirect:/order/writeForm.do?resNo=" + writeResNo;
-			    }
-
+				return "redirect:/reservation/groupShare.do?resNo=" + writeResNo;
 
 			// 5. [관리자 전용] 상태 변경 처리 (승인: 2, 거절: 4)
 			// 관리자 상태 변경 (승인: 2, 거절: 4)
@@ -164,11 +178,11 @@ public class ReservationController implements Controller {
 				// [수정] JSP의 name="menuNos", name="quantities"와 일치시켜야 합니다!
 				String[] menuNos = request.getParameterValues("menuNos");
 				String[] quantities = request.getParameterValues("quantities");
-				String storeIdStr = request.getParameter("storeId");
+				String storeIdStr1 = request.getParameter("storeId");
 				String totalPriceStr = request.getParameter("totalPrice");
 
 				// 기본 정보 세팅
-				vo.setStoreId((storeIdStr != null && !storeIdStr.equals("")) ? Long.parseLong(storeIdStr) : 0L);
+				vo.setStoreId((storeIdStr1 != null && !storeIdStr1.equals("")) ? Long.parseLong(storeIdStr1) : 0L);
 				vo.setTotalPrice(
 						(totalPriceStr != null && !totalPriceStr.equals("")) ? Long.parseLong(totalPriceStr) : 0L);
 
@@ -192,50 +206,50 @@ public class ReservationController implements Controller {
 
 				// 상세페이지로 이동
 				return "redirect:/reservation/orderView.do?resNo=" + resNo;
-				
-				// 단체 주문 - 메뉴 선택 폼 (참여자 접속)
+
+			// 단체 주문 - 메뉴 선택 폼 (참여자 접속)
 			case "/reservation/groupMenuForm.do":
-			    no = Long.parseLong(request.getParameter("resNo"));
-			    request.setAttribute("vo", Execute.execute(Init.getService("/reservation/view.do"), no));
-			    request.setAttribute("menuList", Execute.execute(Init.getService("/reservation/storeMenuList.do"), 
-			        ((ReservationVO) Execute.execute(Init.getService("/reservation/view.do"), no)).getStoreId()));
-			    return "reservation/groupMenuForm";
+				no = Long.parseLong(request.getParameter("resNo"));
+				request.setAttribute("vo", Execute.execute(Init.getService("/reservation/view.do"), no));
+				request.setAttribute("menuList", Execute.execute(Init.getService("/reservation/storeMenuList.do"),
+						((ReservationVO) Execute.execute(Init.getService("/reservation/view.do"), no)).getStoreId()));
+				return "reservation/groupMenuForm";
 
 			// 단체 주문 - 메뉴 선택 저장 (참여자가 확인 버튼 누를 때)
 			case "/reservation/groupOrderWrite.do":
-			    String[] groupMenuNos   = request.getParameterValues("menuNos");
-			    String[] groupQuantities = request.getParameterValues("quantities");
-			    String groupResNo       = request.getParameter("resNo");
+				String[] groupMenuNos = request.getParameterValues("menuNos");
+				String[] groupQuantities = request.getParameterValues("quantities");
+				String groupResNo = request.getParameter("resNo");
 
-			    if (groupMenuNos != null && groupQuantities != null) {
-			        for (int i = 0; i < groupMenuNos.length; i++) {
-			            // 수량 0이면 스킵
-			            if (groupQuantities[i] == null || groupQuantities[i].equals("0") || groupQuantities[i].equals("")) continue;
+				if (groupMenuNos != null && groupQuantities != null) {
+					for (int i = 0; i < groupMenuNos.length; i++) {
+						// 수량 0이면 스킵
+						if (groupQuantities[i] == null || groupQuantities[i].equals("0")
+								|| groupQuantities[i].equals(""))
+							continue;
 
-			            ReservationVO groupVO = new ReservationVO();
-			            groupVO.setResNo(Long.parseLong(groupResNo));
-			            groupVO.setMenuNo(Long.parseLong(groupMenuNos[i]));
-			            groupVO.setQuantity(Long.parseLong(groupQuantities[i]));
-			            Execute.execute(Init.getService("/reservation/groupOrderWrite.do"), groupVO);
-			        }
-			    }
-			    return "reservation/groupOrderComplete";
-
-
+						ReservationVO groupVO = new ReservationVO();
+						groupVO.setResNo(Long.parseLong(groupResNo));
+						groupVO.setMenuNo(Long.parseLong(groupMenuNos[i]));
+						groupVO.setQuantity(Long.parseLong(groupQuantities[i]));
+						Execute.execute(Init.getService("/reservation/groupOrderWrite.do"), groupVO);
+					}
+				}
+				return "reservation/groupOrderComplete";
 
 			// 단체 주문 - 취합 현황 (주최자 확인)
 			case "/reservation/groupOrderStatus.do":
-			    no = Long.parseLong(request.getParameter("resNo"));
-			    request.setAttribute("orderList", Execute.execute(Init.getService("/reservation/groupOrderList.do"), no));
-			    request.setAttribute("total", Execute.execute(Init.getService("/reservation/groupOrderTotal.do"), no));
-			    request.setAttribute("resNo", no);
-			    return "reservation/groupOrderStatus";
-			    
-			case "/reservation/groupShare.do":
-			    request.setAttribute("resNo", Long.parseLong(request.getParameter("resNo")));
-			    return "reservation/groupShare";
+				no = Long.parseLong(request.getParameter("resNo"));
+				request.setAttribute("orderList",
+						Execute.execute(Init.getService("/reservation/groupOrderList.do"), no));
+				request.setAttribute("total", Execute.execute(Init.getService("/reservation/groupOrderTotal.do"), no));
+				request.setAttribute("resNo", no);
+				return "reservation/groupOrderStatus";
 
-			    
+			case "/reservation/groupShare.do":
+				request.setAttribute("resNo", Long.parseLong(request.getParameter("resNo")));
+				return "reservation/groupShare";
+
 			default:
 				// 정의되지 않은 URI인 경우 404 페이지로 유도하여 NPE 방지
 				return "error/404";
