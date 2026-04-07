@@ -115,6 +115,21 @@ public class MemberDAO extends DAO {
     }
     
     
+	 // ----------------------------------------------------------------
+	 // 회원탈퇴
+	 // ----------------------------------------------------------------
+	 public Integer withdraw(String id) throws Exception {
+	     con = DB.getConnection();
+	     String sql = "UPDATE member SET status = '탈퇴', withdraw = SYSDATE WHERE id = ?";
+	     pstmt = con.prepareStatement(sql);
+	     pstmt.setString(1, id);
+	     Integer result = pstmt.executeUpdate();
+	     DB.close(con, pstmt);
+	     return result;
+	 }
+
+    
+    
     // ----------------------------------------------------------------
     // 전화번호 변경
     // ----------------------------------------------------------------

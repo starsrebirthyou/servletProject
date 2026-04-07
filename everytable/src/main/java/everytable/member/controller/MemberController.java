@@ -428,8 +428,7 @@ public class MemberController implements Controller {
              
                 vo = new MemberVO();
                 vo.setId(loginVO.getId());
-                vo.setStatus("탈퇴");
-                Execute.execute(Init.getService("/member/changeStatus.do"), vo);
+                Execute.execute(Init.getService("/member/withdraw.do"), vo);
              
                 session.removeAttribute("login");
                 session.setAttribute("msg", "탈퇴가 완료되었습니다.");
