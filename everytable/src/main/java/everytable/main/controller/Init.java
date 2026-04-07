@@ -159,6 +159,7 @@ public class Init extends HttpServlet {
 		serviceMap.put("/member/changePw.do", new MemberChangePwService());
 		serviceMap.put("/member/withdraw.do", new MemberWithdrawService());
 		serviceMap.put("/member/memberInfo.do", new MemberInfoService());
+		serviceMap.put("/member/adminResetPw.do", new MemberResetPwService());
 		// -- DAO 저장
 		daoMap.put("memberDAO", new MemberDAO());
 		// -- service에 dao 조립
@@ -179,6 +180,7 @@ public class Init extends HttpServlet {
 		serviceMap.get("/member/changeEmail.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/withdraw.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/memberInfo.do").setDAO(daoMap.get("memberDAO"));
+		serviceMap.get("/member/adminResetPw.do").setDAO(daoMap.get("memberDAO"));
 
 		// ==============================================
 		// 3. 매장관리 (Store)

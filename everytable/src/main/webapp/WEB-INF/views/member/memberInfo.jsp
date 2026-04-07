@@ -39,6 +39,46 @@
 .edit-form .btn-sm { font-size: 0.82rem; }
 </style>
 
+<script type="text/javascript">
+$(function(){
+    // 초기화 버튼 → 폼 토글
+    $(".btn-edit[data-target='pwForm']").click(function(){
+        $("#pwForm").toggleClass("active");
+    });
+
+    // 비밀번호 초기화 저장
+    $("#pwResetBtn").click(function(){
+        let newPw = $("#resetPw").val().trim();
+        if(!newPw){ alert("초기화할 비밀번호를 입력해 주세요."); return; }
+        if(newPw.length < 4 || newPw.length > 20){
+            alert("비밀번호는 4~20자로 입력해 주세요."); return;
+        }
+        if(!confirm("정말 비밀번호를 초기화하시겠습니까?")){ return; }
+
+        $.ajax({
+            url: "/member/adminResetPw.do",
+            method: "POST",
+            data: {
+                id: "${vo.id}",
+                newPw: newPw
+            },
+            success: function(data){
+                let result = $(data).find("#ajax-data-result").text().trim();
+                if(result === "ok"){
+                    alert("비밀번호가 초기화되었습니다.");
+                    $("#pwForm").removeClass("active");
+                    $("#resetPw").val("");
+                } else {
+                    alert("초기화에 실패했습니다.");
+                }
+            },
+            error: function(){ alert("서버 오류가 발생했습니다."); }
+        });
+    });
+});
+</script>
+
+
 </head>
 <body>
 
@@ -85,6 +125,15 @@
         <span class="info-value">******</span>
         <button class="btn-edit" data-target="pwForm">초기화</button>
     </div>
+    <div class="edit-form" id="pwForm">
+    <div class="mb-2">
+        <input type="password" class="form-control form-control-sm" id="resetPw"
+               placeholder="초기화할 비밀번호 입력 (4~20자)">
+    </div>
+    <button class="btn btn-danger btn-sm" id="pwResetBtn">초기화 적용</button>
+    <button class="btn btn-secondary btn-sm ms-1"
+            onclick="$('#pwForm').removeClass('active'); $('#resetPw').val('');">취소</button>
+</div>
 
     <!-- 전화번호 -->
     <div class="info-row">

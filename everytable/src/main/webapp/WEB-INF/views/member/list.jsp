@@ -145,6 +145,10 @@ body { background-color: #f4f6f3; }
 
 <script type="text/javascript">
 $(function(){
+	$(".btn-detail").on("click", function(){
+		let id = $(this).closest(".dataRow").find(".col-id").text().trim();
+	    location.href = "memberInfo.do?id=" + id;
+	});
 
     /* 상태 select 변경 → 색상 변경 및 수정 버튼 표시 */
     $(".status").on("change", function(){

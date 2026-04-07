@@ -178,10 +178,8 @@ public class MemberController implements Controller {
 	        	        vo.setId(findId);
 	        	        vo.setEmail(findEmail);
 	        	        String checkId = (String) Execute.execute(Init.getService("/member/checkMemberInfo.do"), vo);
-	        	        if (checkId == null) {
-	        	            request.setAttribute("result", "not_found");
-	        	            return "member/ajaxResult";
-	        	        }
+	        	        request.setAttribute("result", (checkId != null) ? vo.id : "no");
+	        	        return "member/ajaxResult";
 	        	        session.setAttribute("resetId", checkId);
 	        	    }
 	        	    // 공통: 인증번호 생성 + 세션 저장 + 메일 발송
@@ -346,8 +344,22 @@ public class MemberController implements Controller {
             		return "redirect:/member/loginForm.do";
             	}
             	request.setAttribute("vo", Execute.execute(Init.getService(uri), loginVO.getId()));
-            	return "member/view";
-                    
+            	return "member/memberInfo";
+            	
+            	
+            	// --------------------------------------------------------
+            	// 관리자 - 회원 비밀번호 초기화
+            	// --------------------------------------------------------
+            	case "/member/adminResetPw.do":
+            	    vo = new MemberVO();
+            	    vo.setId(request.getParameter("id"));
+            	    vo.setNewPw(request.getParameter("newPw"));
+
+            	    // user = 0 → 현재 비밀번호 검증 없이 변경
+            	    Integer res = (Integer) Execute.execute(Init.getService(uri), vo);
+            	    request.setAttribute("result", res == 1 ? "ok" : "fail");
+            	    return "member/ajaxResult";
+
                     
             // --------------------------------------------------------
             // 비밀번호 변경 (내 정보에서)
@@ -363,7 +375,7 @@ public class MemberController implements Controller {
                 vo.setNewPw(request.getParameter("newPw")); // 새 비밀번호
              
                 // changePw(vo, 1) → 현재 비밀번호 검증 포함
-                Integer res = (Integer) Execute.execute(Init.getService(uri), vo);
+                res = (Integer) Execute.execute(Init.getService(uri), vo);
                 request.setAttribute("result", res == 1 ? "ok" : "fail");
                 return "member/ajaxResult";
 
