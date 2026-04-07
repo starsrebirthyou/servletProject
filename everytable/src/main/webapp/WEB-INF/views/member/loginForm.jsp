@@ -96,7 +96,7 @@ body { background-color: #f4f6f3; }
             <div class="alert alert-danger py-2 mb-3" style="font-size:0.85rem;">${msg}</div>
         </c:if>
 
-        <form action="login.do" method="post">
+        <form action="${pageContext.request.contextPath}/member/login.do" method="post">
             <input type="hidden" name="redirectUrl" value="${redirectUrl}">
 
             <div class="mb-3">
