@@ -356,7 +356,7 @@ public class MemberDAO extends DAO {
 	 // ----------------------------------------------------------------
 	 // 관리자 - 회원 상세 보기
 	 // ----------------------------------------------------------------
-	 public MemberVO adminView(String id) throws Exception {
+	 public MemberVO memberInfo(String id) throws Exception {
 	     MemberVO vo = null;
 	     con = DB.getConnection();
 	     String sql = "SELECT m.no, m.id, m.name, m.gender, "

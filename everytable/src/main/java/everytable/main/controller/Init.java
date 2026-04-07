@@ -17,6 +17,7 @@ import everytable.member.service.MemberCheckEmailService;
 import everytable.member.service.MemberCheckIdService;
 import everytable.member.service.MemberCheckMemberInfoService;
 import everytable.member.service.MemberCheckTelService;
+import everytable.member.service.MemberInfoService;
 import everytable.member.service.MemberListService;
 import everytable.member.service.MemberResetPwService;
 import everytable.member.service.MemberSearchIdService;
