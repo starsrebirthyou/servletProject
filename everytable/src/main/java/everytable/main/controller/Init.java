@@ -79,6 +79,7 @@ import everytable.store.dao.StoreDAO;
 import everytable.store.service.StoreListService;
 import everytable.store.service.StoreUpdateService;
 import everytable.store.service.StoreViewService;
+import everytable.store.service.StoreWriteService;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -175,35 +176,38 @@ public class Init extends HttpServlet {
 		// ==============================================
 		// 3. 매장관리 (Store)
 		// ==============================================
-		controllerMap.put("store", new StoreController());
+		controllerMap.put("/store", new StoreController());
 		daoMap.put("storeDAO", new StoreDAO());
 
 		serviceMap.put("/store/list.do",   new StoreListService());
 		serviceMap.put("/store/view.do",   new StoreViewService());
-		serviceMap.put("/store/update.do", new StoreUpdateService()); 
+		serviceMap.put("/store/write.do",  new StoreWriteService()); 
+		serviceMap.put("/store/update.do", new StoreUpdateService());
 
 		serviceMap.get("/store/list.do").setDAO(daoMap.get("storeDAO"));
 		serviceMap.get("/store/view.do").setDAO(daoMap.get("storeDAO"));
+		serviceMap.get("/store/write.do").setDAO(daoMap.get("storeDAO")); 
 		serviceMap.get("/store/update.do").setDAO(daoMap.get("storeDAO"));
-		
+
+
 		// ==============================================
 		// 4. 메뉴관리 (Menu)
 		// ==============================================
-		controllerMap.put("menu", new MenuController());
+		controllerMap.put("/menu", new MenuController()); // 
 		daoMap.put("menuDAO", new MenuDAO());
 
-		serviceMap.put("/menu/list.do",          new MenuListService());
-		serviceMap.put("/menu/view.do",          new MenuViewService());    
-		serviceMap.put("/menu/write.do",         new MenuWriteService());   
-		serviceMap.put("/menu/update.do",        new MenuUpdateService());  
-		serviceMap.put("/menu/delete.do",        new MenuDeleteService());  
-		serviceMap.put("/menu/changeStatus.do",  new MenuChangeStatusService());
+		serviceMap.put("/menu/list.do",         new MenuListService());
+		serviceMap.put("/menu/view.do",         new MenuViewService());
+		serviceMap.put("/menu/write.do",        new MenuWriteService());
+		serviceMap.put("/menu/update.do",       new MenuUpdateService());
+		serviceMap.put("/menu/delete.do",       new MenuDeleteService());
+		serviceMap.put("/menu/changeStatus.do", new MenuChangeStatusService());
 
 		serviceMap.get("/menu/list.do").setDAO(daoMap.get("menuDAO"));
-		serviceMap.get("/menu/view.do").setDAO(daoMap.get("menuDAO"));          
-		serviceMap.get("/menu/write.do").setDAO(daoMap.get("menuDAO"));         
-		serviceMap.get("/menu/update.do").setDAO(daoMap.get("menuDAO"));       
-		serviceMap.get("/menu/delete.do").setDAO(daoMap.get("menuDAO"));        
+		serviceMap.get("/menu/view.do").setDAO(daoMap.get("menuDAO"));
+		serviceMap.get("/menu/write.do").setDAO(daoMap.get("menuDAO"));
+		serviceMap.get("/menu/update.do").setDAO(daoMap.get("menuDAO"));
+		serviceMap.get("/menu/delete.do").setDAO(daoMap.get("menuDAO"));
 		serviceMap.get("/menu/changeStatus.do").setDAO(daoMap.get("menuDAO"));
 
 		// ==============================================

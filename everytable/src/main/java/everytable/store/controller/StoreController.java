@@ -1,6 +1,7 @@
 package everytable.store.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import everytable.main.controller.Controller;
 import everytable.main.controller.Init;
 import everytable.store.vo.StoreVO;
@@ -15,11 +16,41 @@ public class StoreController implements Controller {
 
         try {
             switch (uri) {
+
                 case "/store/list.do":
                     PageObject pageObject = PageObject.getInstance(request);
                     request.setAttribute("list", Init.getService(uri).service(pageObject));
                     request.setAttribute("pageObject", pageObject);
                     jsp = "store/list";
+                    break;
+
+                case "/store/write.do":
+                    if (request.getMethod().equals("POST")) {
+                        // ✅ 세션에서 로그인한 member_id 가져오기
+                        HttpSession session = request.getSession();
+                        String memberId = (String) session.getAttribute("id"); // 세션 키명 확인 필요
+
+                        StoreVO writeVo = new StoreVO();
+                        writeVo.setMember_id(memberId);
+                        writeVo.setStore_name(request.getParameter("store_name"));
+                        writeVo.setStore_cate(request.getParameter("store_cate"));
+                        writeVo.setStore_addr(request.getParameter("store_addr"));
+                        writeVo.setStore_tel(request.getParameter("store_tel"));
+                        writeVo.setOpen_time(request.getParameter("open_time"));
+                        String minPrice = request.getParameter("min_order_price");
+                        writeVo.setMin_order_price(minPrice != null && !minPrice.isEmpty()
+                                ? Integer.parseInt(minPrice) : 0);
+                        writeVo.setPrepare_time(request.getParameter("prepare_time"));
+
+                        String filename = request.getParameter("filename");
+                        writeVo.setFilename(filename != null ? filename : "default.jpg");
+
+                        Init.getService(uri).service(writeVo);
+                        jsp = "redirect:list.do";
+                    } else {
+                        // GET: 등록 폼 표시
+                        jsp = "store/write";
+                    }
                     break;
 
                 case "/store/view.do":
@@ -41,7 +72,6 @@ public class StoreController implements Controller {
                     Long updateId = Long.parseLong(updateStoreId);
 
                     if (request.getMethod().equals("POST")) {
-                        // ✅ 수정 처리
                         StoreVO vo = new StoreVO();
                         vo.setStore_id(updateId);
                         vo.setStore_name(request.getParameter("store_name"));
@@ -53,7 +83,6 @@ public class StoreController implements Controller {
                         vo.setMin_order_price(minPrice != null && !minPrice.isEmpty()
                                 ? Integer.parseInt(minPrice) : 0);
                         vo.setPrepare_time(request.getParameter("prepare_time"));
-                        // 이미지 파일명 (파일 업로드 구현 시 여기서 처리)
                         String newFilename = request.getParameter("filename");
                         if (newFilename != null && !newFilename.isEmpty()) {
                             vo.setFilename(newFilename);
@@ -61,7 +90,6 @@ public class StoreController implements Controller {
                         Init.getService(uri).service(vo);
                         jsp = "redirect:update.do?store_id=" + updateStoreId + "&result=success";
                     } else {
-                        // ✅ 수정 폼 로드
                         StoreVO vo = (StoreVO) Init.getService("/store/view.do").service(updateId);
                         request.setAttribute("vo", vo);
                         String result = request.getParameter("result");
