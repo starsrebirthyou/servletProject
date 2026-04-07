@@ -2,36 +2,22 @@ package everytable.main.controller;
 
 import java.io.IOException;
 
-import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
-// import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- * Servlet implementation class DispatcherServlet
- */
-// @WebServlet() Spring lib DispatcherServlet을 수정을 못한다.
-// 모든 설정은 web.xml에서 설정해서 사용한다. - web server가 실행될 때 처리되는 설정. 아래 어노테이션은 반드시 주석 처리한다.
-// @WebServlet("/DispatcherServlet")
 public class DispatcherServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     
-	// jsp 로 forward 할 앞에 붙는 글자와 뒤에 붙는 글자를 저장해 놓은 변수.
 	String prefix = "/WEB-INF/views/"; 
 	String suffix = ".jsp"; 
 	
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
     public DispatcherServlet() {
         super();
-        // TODO Auto-generated constructor stub
 		System.out.println("DispatcherServlet() 생성자 -------------------------------------");
 		try {
-	        // Init 클래스에 static 블록으로 설정되어 있다면 아래 한 줄이면 됩니다.
 	        Class.forName("everytable.main.controller.Init");
 	        System.out.println("Init 클래스 로딩 성공!");
 	    } catch (ClassNotFoundException e) {
@@ -39,76 +25,77 @@ public class DispatcherServlet extends HttpServlet {
 	    }
     }
 
-	/**
-	 * @see Servlet#init(ServletConfig)
-	 */
-    // 서버가 시작될 때 한번 호출한다. 단, web.xml에 servlet 태그 안에 load-on-starup 이 설정되어있어야만 한다.
 	public void init(ServletConfig config) throws ServletException {
-		// TODO Auto-generated method stub
 		System.out.println("DispatcherServlet.init() -------------------------------------");
 	}
 
-	/**
-	 * @see HttpServlet#service(HttpServletRequest request, HttpServletResponse response)
-	 */
-	// Servlet에서 service()는 넘어오는 요청방식(get/post)과 상관없이 실행되는 메서드 - doGet이나 doPost 메서드 보다 우선 실행
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		// 흐름 로그 출력
-		System.out.println("DispatcherServlet.service() -------------------------------------");
-		
-		// 0. uri를 request에서 부터 가져 온다. 실제적으로는 path를 제외한 servletPath를 가져온다.
-		String uri = request.getServletPath();
-		System.out.println("DispatcherServlet.service().uri = " + uri);
-		
-		// 1. homepage 리다이렉트(변경 다시 요청) 처리  "/", "/main.do" -> "/main/main.do"
-		if(uri.equals("/") || uri.equals("/main.do")) {
-			response.sendRedirect("/main/main.do");
-			return;
-		}
-		
-		// 2. 모듈 명 꺼내기 - Controller 선택
-		// 실행 모듈(Controller)을 선택하기 위한 모듈 이름 꺼내기
-		int pos = uri.indexOf("/", 1);
-		// pos가 -1이면 모듈이 없음. 요청하신 페이지 없음.
-		if(pos == -1) {
-			System.out.println("DispatcherServlet.service() - 요청하신 페이지가 존재하지 않습니다.");
-			return;
-		}
-		String module = uri.substring(0, pos);
-		// 모듈 출력하기
-		System.out.println("DispatcherServlet.service().module = " + module);
-		
-		// 모듈을 가지고 Controller를 꺼내오자 : 선택
-		Controller controller = Init.getController(module);
-		
-		String jsp = null;
-		
-		// 3. 모듈 실행
-		if(controller != null) { 
-			System.out.println("DispatcherServlet.service().Controller 이름 출력 : " + controller.getClass().getName());
-			// 가져온 Controller를 실행해서 처리한다.
-			jsp = controller.execute(request);
-		} else {
-			System.out.println("DispatcherServlet.service() - 요청하신 페이지가 존재하지 않습니다.");
-			jsp = "error/noPage";
-		}
-		
-		// 4. JSP로 forward 또는 redirect
-		//  - JSP나 redirect의 정보는 각 Controller에서 결정이된다. 그래서 리턴 타입을 String 정의한다.
-		//  jsp 변수 값의 맨 처음에 redirect:이 붙으면 redirect를 시킨다. 아니면 forward시킨다.
-		System.out.println("DispatcherServlet.service().jsp - " + jsp);
-		//  0이면 redirect 시킨다. 0이 아니면 forward 시킨다.
-		int isRedirect = jsp.indexOf("redirect:");
-		if(isRedirect == 0) {
-			// 앞에 붙은 redirect: 은 제거하고 나머지 데이터로 리다렉트시킨다.
-			response.sendRedirect(jsp.substring("redirect:".length()));
-			return;
-		} else {
-			// jsp로 forward 시킨다.
-			// /WEB-INF/views/ + board/list + .jsp
-			request.getRequestDispatcher(prefix + jsp + suffix).forward(request, response);
-			return;
-		}
+	    System.out.println("DispatcherServlet.service() -------------------------------------");
+	    
+	    // 0. URI 정보 가져오기
+	    String uri = request.getRequestURI(); 
+	    String contextPath = request.getContextPath(); // "/everytable"
+	    
+	    System.out.println("DispatcherServlet.service().originalUri = " + uri);
+	    
+	    // [강력 수정] ContextPath가 있다면 무조건 잘라냅니다.
+	    if (contextPath != null && !contextPath.equals("") && uri.startsWith(contextPath)) {
+	        uri = uri.substring(contextPath.length());
+	    }
+	    
+	    // 결과가 "/reservation/groupMenuForm.do" 인지 확인하는 로그
+	    System.out.println("DispatcherServlet.service().cleanedUri = " + uri);
+	    
+	    // 1. 홈페이지 리다이렉트 처리
+	    if(uri.equals("/") || uri.equals("/main.do")) {
+	        response.sendRedirect(contextPath + "/main/main.do");
+	        return;
+	    }
+	    
+	    // 2. 모듈 명 꺼내기 (예: "/reservation/list.do" -> "/reservation")
+	    String module = "";
+	    int pos = uri.indexOf("/", 1); // 두 번째 슬래시 위치 찾기
+	    
+	    if (pos != -1) {
+	        module = uri.substring(0, pos);
+	    } else {
+	        // 슬래시가 하나뿐인 경우 (예: /main.do) 전체를 모듈로 시도
+	        module = uri;
+	    }
+	    
+	    System.out.println("DispatcherServlet.service().module = " + module);
+	    
+	    // [확인용] 만약 여전히 module이 /everytable 이라면 강제로 한 번 더 자름 (보험)
+	    if (module.equals("/everytable")) {
+	        uri = uri.substring(11); // "/everytable" 문자열 길이만큼 강제 커트
+	        pos = uri.indexOf("/", 1);
+	        module = (pos != -1) ? uri.substring(0, pos) : uri;
+	        System.out.println("DispatcherServlet.service().module(Re-Try) = " + module);
+	    }
+
+	    // 모듈을 가지고 Controller를 꺼내오자
+	    Controller controller = Init.getController(module);
+	    
+	    String jsp = null;
+	    
+	    // 3. 모듈 실행
+	    if(controller != null) { 
+	        System.out.println("DispatcherServlet.service().Controller : " + controller.getClass().getSimpleName());
+	        jsp = controller.execute(request);
+	    } else {
+	        System.out.println("DispatcherServlet.service() [Error] - " + module + " 컨트롤러를 찾을 수 없습니다.");
+	        jsp = "error/noPage";
+	    }
+	    
+	    // 4. JSP 이동 처리
+	    if(jsp == null) return; // jsp가 null이면 처리를 중단 (에러 방지)
+
+	    if(jsp.startsWith("redirect:")) {
+	        String moveUri = jsp.substring("redirect:".length());
+	        if(!moveUri.startsWith("http")) moveUri = contextPath + moveUri;
+	        response.sendRedirect(moveUri);
+	    } else {
+	        request.getRequestDispatcher(prefix + jsp + suffix).forward(request, response);
+	    }
 	}
 }

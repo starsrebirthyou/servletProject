@@ -236,6 +236,8 @@ public class Init extends HttpServlet {
 		serviceMap.put("/reservation/groupOrderList.do",   new GroupOrderListService());
 		serviceMap.put("/reservation/groupOrderTotal.do",  new GroupOrderTotalService());
 		serviceMap.put("/reservation/groupMenuForm.do", new GroupMenuFormService());
+		serviceMap.put("/reservation/groupShare.do", new ReservationViewService());
+
 
 		serviceMap.get("/reservation/list.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/view.do").setDAO(daoMap.get("reservationDAO"));
@@ -252,6 +254,8 @@ public class Init extends HttpServlet {
 		serviceMap.get("/reservation/groupOrderList.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/groupOrderTotal.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/groupMenuForm.do").setDAO(daoMap.get("reservationDAO"));
+		serviceMap.get("/reservation/groupShare.do").setDAO(daoMap.get("reservationDAO"));
+
 
 
 		// ==============================================

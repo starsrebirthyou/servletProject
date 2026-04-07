@@ -6,13 +6,17 @@ import everytable.reservation.dao.ReservationDAO;
 import everytable.reservation.vo.ReservationVO;
 
 public class GroupOrderWriteService implements Service {
-    private ReservationDAO dao;
-    @Override public void setDAO(DAO dao) { this.dao = (ReservationDAO) dao; }
+	private ReservationDAO dao;
 
-    @Override
-    public Object service(Object obj) throws Exception {
-        dao.orderWrite((ReservationVO) obj);
-        return null;
-    }
+	@Override
+	public void setDAO(DAO dao) {
+		this.dao = (ReservationDAO) dao;
+	}
+
+	@Override
+	public Object service(Object obj) throws Exception {
+		dao.groupOrderWrite((ReservationVO) obj); // orderWrite → groupOrderWrite
+		return null;
+	}
 
 }

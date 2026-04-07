@@ -13,8 +13,13 @@ public class StoreVO {
     private String open_time;
     private int min_order_price;
     private String prepare_time;
+    
+    // [추가] 환불 정책 필드
+    private String refund_policy_24; // 24시간 전
+    private String refund_policy_12; // 12시간 전
+    private String refund_policy_0;  // 12시간 이내
 
-    // Getter & Setter
+    // Getter & Setter (기존 유지 및 추가)
     public long getStore_id() { return store_id; }
     public void setStore_id(long store_id) { this.store_id = store_id; }
     public String getMember_id() { return member_id; }
@@ -39,4 +44,12 @@ public class StoreVO {
     public void setMin_order_price(int min_order_price) { this.min_order_price = min_order_price; }
     public String getPrepare_time() { return prepare_time; }
     public void setPrepare_time(String prepare_time) { this.prepare_time = prepare_time; }
+
+    // [추가된 Getter/Setter]
+    public String getRefund_policy_24() { return refund_policy_24; }
+    public void setRefund_policy_24(String refund_policy_24) { this.refund_policy_24 = refund_policy_24; }
+    public String getRefund_policy_12() { return refund_policy_12; }
+    public void setRefund_policy_12(String refund_policy_12) { this.refund_policy_12 = refund_policy_12; }
+    public String getRefund_policy_0() { return refund_policy_0; }
+    public void setRefund_policy_0(String refund_policy_0) { this.refund_policy_0 = refund_policy_0; }
 }
