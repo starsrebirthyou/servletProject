@@ -469,14 +469,14 @@ public class MemberController implements Controller {
                 filterVO.setLastLogin(request.getParameter("dateTo"));    // 가입일 종료
 
                 // JSP에서 필터값 유지를 위해 request attribute로도 넘김
-                request.setAttribute("keyword",  keyword);
-                request.setAttribute("status",   status);
-                request.setAttribute("gradeNo",  gradeNoParam);
+                request.setAttribute("keyword", keyword);
+                request.setAttribute("status", status);
+                request.setAttribute("gradeNo", gradeNoParam);
                 request.setAttribute("dateFrom", request.getParameter("dateFrom"));
-                request.setAttribute("dateTo",   request.getParameter("dateTo"));
+                request.setAttribute("dateTo", request.getParameter("dateTo"));
 
-                request.setAttribute("list",       Execute.execute(Init.getService(uri),
-                                                       new Object[]{pageObject, filterVO}));
+                request.setAttribute("list",Execute.execute(Init.getService(uri), 
+                							new Object[]{pageObject, filterVO}));
                 request.setAttribute("pageObject", pageObject);
                 return "member/list";
 

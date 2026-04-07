@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>🕒(👥)EveryTable</title>
+<title> EveryTable ✅</title>
 <style>
 	/* 네비게이션 바와 푸터에 적용할 연녹색 스타일 */
 	.custom-green {
@@ -14,9 +14,9 @@
 </head>
 <body>
 <!-- 상단 네비게이션 바: bg-dark를 제거하고 custom-green 추가 -->
-<nav class="navbar navbar-expand-sm navbar-dark custom-green fixed-top">
+<nav class="navbar navbar-expand-sm navbar-light custom-green fixed-top">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/">🕒(👥)EveryTable</a>
+    <a class="navbar-brand" href="/"> EveryTable ✅</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
