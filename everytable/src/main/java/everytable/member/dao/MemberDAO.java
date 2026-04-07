@@ -308,21 +308,21 @@ public class MemberDAO extends DAO {
                    + " m.tel, m.email, m.status, m.grade_no, g.grade_name, "
                    + " TO_CHAR(m.join_date,  'yyyy-mm-dd') join_date, "
                    + " TO_CHAR(m.last_login, 'yyyy-mm-dd') last_login, "
-                   + " TO_CHAR(m.withdraw_date, 'yyyy-mm-dd') withdraw_date, "
+                   + " TO_CHAR(m.withdraw_date, 'yyyy-mm-dd') withdraw_date "
                    + " FROM member m, grade g "
-                   + " WHERE m.grade_no = g.grade_no";
+                   + " WHERE m.grade_no = g.grade_no ";
         sql += searchCondition(filter);
         sql += " ORDER BY m.id";
 
         // 2단계: rownum 부여
-        sql = "SELECT ROWNUM rnum, no, id, name, gender, birth, tel, email,"
-            + "       status, grade_no, grade_name, join_date, last_login"
-            + "  FROM (" + sql + ")";
+        sql = "SELECT ROWNUM rnum, no, id, name, gender, birth, tel, email, "
+            + " status, grade_no, grade_name, join_date, last_login, withdraw_date "
+            + " FROM (" + sql + ")";
 
         // 3단계: 페이지 범위 추출
-        sql = "SELECT rnum, no, id, name, gender, birth, tel, email,"
-            + "       status, grade_no, grade_name, join_date, last_login"
-            + "  FROM (" + sql + ") WHERE rnum BETWEEN ? AND ?";
+        sql = "SELECT rnum, no, id, name, gender, birth, tel, email, "
+            + " status, grade_no, grade_name, join_date, last_login, withdraw_date "
+            + " FROM (" + sql + ") WHERE rnum BETWEEN ? AND ?";
 
         pstmt = con.prepareStatement(sql);
         pstmt.setLong(1, pageObject.getStartRow());
@@ -344,6 +344,7 @@ public class MemberDAO extends DAO {
                 vo.setGradeName(rs.getString("grade_name"));
                 vo.setJoinDate(rs.getString("join_date"));
                 vo.setLastLogin(rs.getString("last_login"));
+                vo.setWithdraw(rs.getString("withdraw_date"));
                 list.add(vo);
             }
         }
