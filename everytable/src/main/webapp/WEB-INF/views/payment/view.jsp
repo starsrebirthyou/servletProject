@@ -115,9 +115,7 @@
             <a href="list.do?page=${pageObject.page}&perPageNum=${pageObject.perPageNum}&key=${pageObject.key}&word=${pageObject.word}" 
                class="btn btn-warning">리스트</a>
 
-            <c:if test="${login.gradeNo == 9}">
-                <a href="updateForm.do?no=${vo.payment_id}" class="btn btn-primary">결제정보 수정</a> 
-            </c:if>
+            
 
             <c:if test="${vo.status == 'SUCCESS' && login.gradeNo != 9}">
                 <c:if test="${diffHours >= 12}">
