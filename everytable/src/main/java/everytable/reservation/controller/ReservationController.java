@@ -74,18 +74,25 @@ public class ReservationController implements Controller {
 
 			// 4. 예약 등록 처리
 			case "/reservation/write.do":
-				vo = new ReservationVO();
-				vo.setResDate(request.getParameter("resDate"));
-				vo.setResTime(request.getParameter("resTime"));
-				vo.setResCount(Long.parseLong(request.getParameter("resCount")));
-				vo.setResPhone(request.getParameter("resPhone"));
-				vo.setResType(request.getParameter("resType"));
-				vo.setUserId(request.getParameter("userId"));
-				vo.setStoreId(Long.parseLong(request.getParameter("storeId")));
+			    vo = new ReservationVO();
+			    vo.setResDate(request.getParameter("resDate"));
+			    vo.setResTime(request.getParameter("resTime"));
+			    vo.setResCount(Long.parseLong(request.getParameter("resCount")));
+			    vo.setResPhone(request.getParameter("resPhone"));
+			    vo.setResType(request.getParameter("resType"));
+			    vo.setUserId(request.getParameter("userId"));
+			    vo.setStoreId(Long.parseLong(request.getParameter("storeId")));
 
-				Long writeResNo = (Long) Execute.execute(Init.getService(uri), vo);
-				session.setAttribute("msg", "예약이 완료되었습니다. 메뉴를 선택해주세요.");
-				return "redirect:/order/writeForm.do?resNo=" + writeResNo;
+			    Long writeResNo = (Long) Execute.execute(Init.getService(uri), vo);
+			    session.setAttribute("msg", "예약이 완료되었습니다.");
+
+			    // 단체면 URL 공유 페이지로, 픽업이면 기존 메뉴 선택 페이지로
+			    if ("단체".equals(vo.getResType())) {
+			        return "redirect:/reservation/groupShare.do?resNo=" + writeResNo;
+			    } else {
+			        return "redirect:/order/writeForm.do?resNo=" + writeResNo;
+			    }
+
 
 			// 5. [관리자 전용] 상태 변경 처리 (승인: 2, 거절: 4)
 			// 관리자 상태 변경 (승인: 2, 거절: 4)
@@ -223,6 +230,11 @@ public class ReservationController implements Controller {
 			    request.setAttribute("total", Execute.execute(Init.getService("/reservation/groupOrderTotal.do"), no));
 			    request.setAttribute("resNo", no);
 			    return "reservation/groupOrderStatus";
+			    
+			case "/reservation/groupShare.do":
+			    request.setAttribute("resNo", Long.parseLong(request.getParameter("resNo")));
+			    return "reservation/groupShare";
+
 			    
 			default:
 				// 정의되지 않은 URI인 경우 404 페이지로 유도하여 NPE 방지

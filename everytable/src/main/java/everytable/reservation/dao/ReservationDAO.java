@@ -271,18 +271,30 @@ public class ReservationDAO extends DAO {
 		return resNo;
 	}
 
-	public void orderWrite(ReservationVO vo) throws Exception {
-		con = DB.getConnection();
-		String sql = "INSERT INTO ORDER_ITEM (ORDER_ITEM_NO, RES_NO, MENU_NO, QUANTITY, PRICE) "
-				+ " VALUES (ORDER_ITEM_SEQ.NEXTVAL, ?, ?, ?, ?)";
-		pstmt = con.prepareStatement(sql);
-		pstmt.setLong(1, vo.getResNo());
-		pstmt.setLong(2, vo.getMenuNo());
-		pstmt.setLong(3, vo.getQuantity());
-		pstmt.setLong(4, vo.getPrice());
-		pstmt.executeUpdate();
-		DB.close(con, pstmt);
+	// 단체 주문 저장 (price 자동 조회)
+	public void groupOrderWrite(ReservationVO vo) throws Exception {
+	    con = DB.getConnection();
+	    // menu 테이블에서 price 조회
+	    String priceSql = "SELECT price FROM menu WHERE menu_no = ?";
+	    pstmt = con.prepareStatement(priceSql);
+	    pstmt.setLong(1, vo.getMenuNo());
+	    rs = pstmt.executeQuery();
+	    long price = 0L;
+	    if (rs.next()) price = rs.getLong("price");
+	    rs.close(); pstmt.close();
+
+	    // order_item INSERT
+	    String sql = "INSERT INTO ORDER_ITEM (ORDER_ITEM_NO, RES_NO, MENU_NO, QUANTITY, PRICE) "
+	               + "VALUES (ORDER_ITEM_SEQ.NEXTVAL, ?, ?, ?, ?)";
+	    pstmt = con.prepareStatement(sql);
+	    pstmt.setLong(1, vo.getResNo());
+	    pstmt.setLong(2, vo.getMenuNo());
+	    pstmt.setLong(3, vo.getQuantity());
+	    pstmt.setLong(4, price);
+	    pstmt.executeUpdate();
+	    DB.close(con, pstmt);
 	}
+
 	
 	/// 가게 메뉴 목록 (resNo로 storeId 찾아서 조회)
 	public List<MenuVO> menuListByResNo(Long resNo) throws Exception {
