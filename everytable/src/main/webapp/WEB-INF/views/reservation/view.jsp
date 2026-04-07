@@ -327,39 +327,9 @@ body {
 					<a
 						href="updateForm.do?no=${vo.resNo}&page=${param.page}&perPageNum=${param.perPageNum}"
 						class="btn-custom btn-primary-custom px-4">예약 수정</a>
-					<button id="cancelBtn" class="btn-custom btn-danger-custom px-4">예약
-						취소</button>
 				</c:if>
 				<a href="list.do?page=${param.page}&perPageNum=${param.perPageNum}"
 					class="btn-custom btn-secondary-custom px-4">목록으로</a>
-			</div>
-		</div>
-	</div>
-
-	<div class="modal fade" id="cancelModal" tabindex="-1"
-		aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content"
-				style="border-radius: 20px; border: none; padding: 10px;">
-				<div class="modal-header" style="border-bottom: none;">
-					<h5 class="modal-title fw-bold">예약 취소</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-				</div>
-				<form action="/reservation/cancel.do" method="post">
-					<input type="hidden" name="resNo" id="cancelResNo">
-					<div class="modal-body">
-						<p class="text-muted small mb-3">취소 사유를 입력하시면 매장에 전달됩니다.</p>
-						<textarea class="form-control" name="cancelReason" rows="4"
-							style="border-radius: 12px; background: #fafafa; resize: none;"
-							placeholder="사유를 입력해주세요 (필수)" required></textarea>
-					</div>
-					<div class="modal-footer" style="border-top: none;">
-						<button type="button" class="btn btn-light"
-							data-bs-dismiss="modal" style="border-radius: 10px;">닫기</button>
-						<button type="submit" class="btn btn-danger px-4"
-							style="border-radius: 10px; background: #b91c1c;">취소 확정</button>
-					</div>
-				</form>
 			</div>
 		</div>
 	</div>

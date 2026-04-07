@@ -370,13 +370,6 @@ body { background-color: #f8f9fa; }
 
 				<%-- 버튼 --%>
 				<div class="card-actions">
-					<c:if test="${vo.resStatus == 1 || vo.resStatus == 2}">
-						<button class="btn btn-cancel"
-							onclick="event.stopPropagation();
-                         document.getElementById('cancelResNo').value='${vo.resNo}';
-                         $('#cancelModal').modal('show');">
-							주문 취소</button>
-					</c:if>
 					<button class="btn btn-dark"
 						onclick="event.stopPropagation();
                      location.href='view.do?no=${vo.resNo}&${pageObject.pageQuery}'">
@@ -424,31 +417,5 @@ body { background-color: #f8f9fa; }
 					});
 		})();
 	</script>
-	<!-- 취소 모달 -->
-	<div class="modal" id="cancelModal">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h4 class="modal-title">예약 취소</h4>
-					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-				</div>
-				<form action="/reservation/cancel.do" method="post">
-					<input type="hidden" name="resNo" id="cancelResNo">
-					<div class="modal-body">
-						<label class="form-label text-danger fw-bold">취소 사유를
-							입력해주세요.</label>
-						<textarea class="form-control" name="cancelReason" rows="3"
-							required></textarea>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary"
-							data-bs-dismiss="modal">닫기</button>
-						<button type="submit" class="btn btn-danger px-4">취소 확정</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-
 </body>
 </html>
