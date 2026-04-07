@@ -22,15 +22,27 @@ public class ReviewController implements Controller {
 			String storeIdStr = request.getParameter("storeId"); // 공통으로 많이 쓰임
 
 			switch (uri) {
-			// 1. 리뷰 리스트
+			// ReviewController.java 내 list.do 부분
 			case "/review/list.do":
-				PageObject pageObject = PageObject.getInstance(request);
-				if (login != null) {
-					pageObject.setAccepter(login.getId());
-				}
-				request.setAttribute("list", Execute.execute(Init.getService(uri), pageObject));
-				request.setAttribute("pageObject", pageObject);
-				return "review/list";
+			    // 세션에서 로그인 정보 가져오기 (속성명이 "login"이 맞는지 확인 필수!)
+			    LoginVO loginVO = (LoginVO) session.getAttribute("login");
+			    
+			    if (loginVO == null) {
+			        System.out.println("로그인 정보 없음: 로그인 페이지로 리다이렉트");
+			        request.setAttribute("msg", "로그인이 필요한 서비스입니다.");
+			        return "member/loginForm"; // 로그인 폼 JSP 이름
+			    }
+
+			    ReviewVO vo = new ReviewVO();
+			    
+			    // 2. DAO의 SQL문에서 id = ? 에 들어갈 값을 세팅합니다.
+			    vo.setUserId(login.getId());
+
+			    // 서비스 실행 및 데이터 전달
+			    request.setAttribute("list", Execute.execute(Init.getService(uri), vo));
+			    
+			    // 반드시 리스트 JSP를 리턴해야 합니다!
+			    return "review/list";
 
 			// 2. 리뷰 작성 폼 이동
 			case "/review/writeForm.do":

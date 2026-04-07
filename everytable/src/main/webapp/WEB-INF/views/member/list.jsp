@@ -101,6 +101,13 @@ body { background-color: #f4f6f3; }
 .s-bad { background:#fce8e8; color:#c62828; }
 .s-etc { background:#f5f5f5; color:#757575; }
 
+/* ── 상세보기 링크 ── */
+.btn-detail {
+    color: #0f7a54; font-weight: 600; font-size: 0.85rem;
+    cursor: pointer; text-decoration: none;
+}
+.btn-detail:hover { text-decoration: underline; }
+
 /* ── 페이지네이션 영역 ── */
 .page-wrap { padding: 16px 20px; border-top: 1px solid #f3f5f2; }
 
@@ -272,15 +279,11 @@ $(function(){
                 <th>번호</th>
                 <th>아이디</th>
                 <th>이름</th>
-                <th>성별</th>
-                <th>생년월일</th>
                 <th>연락처</th>
-                <th>이메일</th>
                 <th>등급</th>
                 <th>상태</th>
                 <th>가입일</th>
-                <th>최근접속일</th>
-                <th>탈퇴일</th>
+                <th>관리</th>
             </tr>
         </thead>
         <tbody>
@@ -294,15 +297,11 @@ $(function(){
                 <td>${pageObject.startRow + vs.index}</td>
                 <td>
                     <div class="d-flex align-items-center gap-2">
-                        <span class="avatar">${fn:substring(vo.name, 0, 1)}</span>
                         <span class="col-id">${vo.id}</span>
                     </div>
                 </td>
                 <td>${vo.name}</td>
-                <td>${vo.gender}</td>
-                <td>${vo.birth}</td>
                 <td>${vo.tel}</td>
-                <td>${vo.email}</td>
 				<!-- 등급 뱃지형 드롭다운 -->
                 <td>
                     <div class="d-flex align-items-center">
@@ -340,8 +339,10 @@ $(function(){
                     </div>
                 </td>
                 <td>${vo.joinDate}</td>
-                <td>${vo.lastLogin}</td>
-                <td>${vo.withdraw}</td>
+                <td>
+                    <span class="btn-detail noMove" 
+                    		onclick="location='memberInfo.do?id=${vo.id}'">상세보기</span>
+                </td>
             </tr>
         </c:forEach>
         </tbody>

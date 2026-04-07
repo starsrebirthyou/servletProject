@@ -7,11 +7,13 @@ public class ReviewVO {
     private String userId;      
     private String userName;    
     private long storeId;       
+    private String storeName;       
     private double rating;      
     private int isDeleted;      
     private String createdAt;   
     private int sameId;         
 
+    
     // no에 대한 Getter & Setter (이게 있어야 Controller의 에러가 사라집니다)
     public long getNo() { return review_id; }
     public void setNo(long no) { this.review_id = no; }
@@ -40,10 +42,22 @@ public class ReviewVO {
     public int getSameId() { return sameId; }
     public void setSameId(int sameId) { this.sameId = sameId; }
 
-    @Override
-    public String toString() {
-        return "ReviewVO [review_id=" + review_id + ", content=" + content + ", userId=" + userId + ", userName="
-                + userName + ", storeId=" + storeId + ", rating=" + rating + ", isDeleted=" + isDeleted + ", createdAt="
-                + createdAt + ", sameId=" + sameId + "]";
-    }
+    public long getReview_id() {
+		return review_id;
+	}
+	public void setReview_id(long review_id) {
+		this.review_id = review_id;
+	}
+	public String getStoreName() {
+		return storeName;
+	}
+	public void setStoreName(String storeName) {
+		this.storeName = storeName;
+	}
+	@Override
+	public String toString() {
+		return "ReviewVO [review_id=" + review_id + ", content=" + content + ", userId=" + userId + ", userName="
+				+ userName + ", storeId=" + storeId + ", storeName=" + storeName + ", rating=" + rating + ", isDeleted="
+				+ isDeleted + ", createdAt=" + createdAt + ", sameId=" + sameId + "]";
+	}
 }
