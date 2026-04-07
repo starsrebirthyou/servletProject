@@ -279,6 +279,7 @@ $(function(){
                 <th>상태</th>
                 <th>가입일</th>
                 <th>최근접속일</th>
+                <th>탈퇴일</th>
             </tr>
         </thead>
         <tbody>
@@ -338,6 +339,7 @@ $(function(){
                 </td>
                 <td>${vo.joinDate}</td>
                 <td>${vo.lastLogin}</td>
+                <td>${vo.withdraw}</td>
             </tr>
         </c:forEach>
         </tbody>

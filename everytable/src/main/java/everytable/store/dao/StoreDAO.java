@@ -9,6 +9,29 @@ import everytable.util.page.PageObject;
 
 public class StoreDAO extends DAO {
 
+    public int write(StoreVO vo) throws Exception {
+        int result = 0;
+        try {
+            con = DB.getConnection();
+            String sql = "insert into store (store_id, member_id, store_name, store_cate, store_addr, "
+                       + "store_tel, open_time, min_order_price, prepare_time, filename, avg_rating, review_count) "
+                       + "values (store_seq.nextval, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)";
+            pstmt = con.prepareStatement(sql);
+            int idx = 1;
+            pstmt.setString(idx++, vo.getMember_id());
+            pstmt.setString(idx++, vo.getStore_name());
+            pstmt.setString(idx++, vo.getStore_cate());
+            pstmt.setString(idx++, vo.getStore_addr());
+            pstmt.setString(idx++, vo.getStore_tel());
+            pstmt.setString(idx++, vo.getOpen_time());
+            pstmt.setInt(idx++,    vo.getMin_order_price());
+            pstmt.setString(idx++, vo.getPrepare_time());
+            pstmt.setString(idx++, vo.getFilename());
+            result = pstmt.executeUpdate();
+        } finally { DB.close(con, pstmt, rs); }
+        return result;
+    }
+
     public List<StoreVO> list(PageObject pageObject) throws Exception {
         List<StoreVO> list = null;
         try {
@@ -19,7 +42,6 @@ public class StoreDAO extends DAO {
                        + "     from ( "
                        + "         select store_id, store_name, store_cate, store_addr, avg_rating, review_count, filename "
                        + "         from store where 1=1 ";
-
             sql += search(pageObject);
             sql += "         order by store_id desc ) ) where rnum between ? and ?";
 
@@ -72,14 +94,12 @@ public class StoreDAO extends DAO {
         return vo;
     }
 
-    // ✅ 추가
     public int update(StoreVO vo) throws Exception {
         int result = 0;
         try {
             con = DB.getConnection();
             String sql = "update store set store_name=?, store_cate=?, store_addr=?, "
                        + "store_tel=?, open_time=?, min_order_price=?, prepare_time=?";
-            // 이미지 변경 시에만 filename 업데이트
             if (vo.getFilename() != null && !vo.getFilename().isEmpty()) {
                 sql += ", filename=?";
             }

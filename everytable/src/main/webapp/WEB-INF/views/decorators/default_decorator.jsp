@@ -55,6 +55,7 @@ $(function(){
 		<div class="container mt-3 mb-3">
 			<!-- 실제 페이지 내용이 들어가는 부분 -->
 			<decorator:body />
+			<%@ include file="/WEB-INF/views/member/loginModal.jsp" %>
 		</div>
 	</div>
 

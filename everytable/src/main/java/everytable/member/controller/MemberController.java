@@ -425,15 +425,15 @@ public class MemberController implements Controller {
             // --------------------------------------------------------
             case "/member/withdraw.do":
                 if (loginVO == null) return "redirect:/member/loginForm.do";
-             
+
                 vo = new MemberVO();
                 vo.setId(loginVO.getId());
-                vo.setStatus("탈퇴");
-                Execute.execute(Init.getService("/member/changeStatus.do"), vo);
-             
+                Execute.execute(Init.getService("/member/withdraw.do"), vo);
+
                 session.removeAttribute("login");
                 session.setAttribute("msg", "탈퇴가 완료되었습니다.");
                 return "redirect:/notice/list.do";
+
                 
                 
             // --------------------------------------------------------
@@ -469,14 +469,14 @@ public class MemberController implements Controller {
                 filterVO.setLastLogin(request.getParameter("dateTo"));    // 가입일 종료
 
                 // JSP에서 필터값 유지를 위해 request attribute로도 넘김
-                request.setAttribute("keyword",  keyword);
-                request.setAttribute("status",   status);
-                request.setAttribute("gradeNo",  gradeNoParam);
+                request.setAttribute("keyword", keyword);
+                request.setAttribute("status", status);
+                request.setAttribute("gradeNo", gradeNoParam);
                 request.setAttribute("dateFrom", request.getParameter("dateFrom"));
-                request.setAttribute("dateTo",   request.getParameter("dateTo"));
+                request.setAttribute("dateTo", request.getParameter("dateTo"));
 
-                request.setAttribute("list",       Execute.execute(Init.getService(uri),
-                                                       new Object[]{pageObject, filterVO}));
+                request.setAttribute("list",Execute.execute(Init.getService(uri), 
+                							new Object[]{pageObject, filterVO}));
                 request.setAttribute("pageObject", pageObject);
                 return "member/list";
 

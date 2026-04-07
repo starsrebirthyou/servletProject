@@ -1,6 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="pageNav" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -71,7 +74,7 @@ $(function(){
 </head>
 <body>
 
-    <h2 class="mb-4">결제 내역 리스트</h2>
+    <h2 class="mb-1 fw-normal border-bottom pb-2">💳 결제 내역 리스트</h2>
     
     <%-- 검색창 영역 --%>
     <div class="mb-3">
@@ -116,7 +119,9 @@ $(function(){
                         <td class="payment_id" style="display:none;">${vo.payment_id}</td>
                         <td>${vo.user_id}</td>
                         <td>${vo.method}</td>
-                        <td class="fw-bold text-primary">${vo.amount}원</td>
+                        <td class="fw-bold text-primary">
+    						<fmt:formatNumber value="${vo.amount}" pattern="#,###" />원
+						</td>
                         <td>
                             <c:choose>
                                 <c:when test="${vo.status == 'SUCCESS'}">

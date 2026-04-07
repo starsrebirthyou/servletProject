@@ -19,6 +19,7 @@ public class MemberVO {
 	private String gradeName;  // 등급 이름
 	private String joinDate;   // 가입일
 	private String lastLogin;  // 최근 로그인 날짜
+	private String withdraw;  // 회원탈퇴일
 	
 	public long getNo() {
 		return no;
@@ -122,13 +123,20 @@ public class MemberVO {
 	public void setLastLogin(String lastLogin) {
 		this.lastLogin = lastLogin;
 	}
+	public String getWithdraw() {
+		return withdraw;
+	}
+	public void setWithdraw(String withdraw) {
+		this.withdraw = withdraw;
+	}
 	
 	@Override
 	public String toString() {
 		return "MemberVO [no=" + no + ", id=" + id + ", pw=" + pw + ", newPw=" + newPw + ", name=" + name + ", gender="
 				+ gender + ", birth=" + birth + ", tel=" + tel + ", email=" + email + ", storeName=" + storeName
 				+ ", storeCate=" + storeCate + ", storeAddr=" + storeAddr + ", status=" + status + ", gradeNo="
-				+ gradeNo + ", gradeName=" + gradeName + ", joinDate=" + joinDate + ", lastLogin=" + lastLogin + "]";
+				+ gradeNo + ", gradeName=" + gradeName + ", joinDate=" + joinDate + ", lastLogin=" + lastLogin
+				+ ", withdraw=" + withdraw + "]";
 	}
 	
 }
