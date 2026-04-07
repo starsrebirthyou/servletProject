@@ -25,7 +25,12 @@ import everytable.member.service.MemberViewService;
 import everytable.member.service.MemberWriteService;
 import everytable.menu.controller.MenuController;
 import everytable.menu.dao.MenuDAO;
+import everytable.menu.service.MenuChangeStatusService;
+import everytable.menu.service.MenuDeleteService;
 import everytable.menu.service.MenuListService;
+import everytable.menu.service.MenuUpdateService;
+import everytable.menu.service.MenuViewService;
+import everytable.menu.service.MenuWriteService;
 import everytable.notice.controller.NoticeController;
 import everytable.notice.dao.NoticeDAO;
 import everytable.notice.service.NoticeDeleteService;
@@ -165,28 +170,38 @@ public class Init extends HttpServlet {
 		serviceMap.get("/member/changePw.do").setDAO(daoMap.get("memberDAO"));
 
 		// ==============================================
-		// 3. 매장관리 (Store) - 추가됨
-		// ==============================================
-		controllerMap.put("/store", new StoreController());
-		daoMap.put("storeDAO", new StoreDAO());
+				// 3. 매장관리 (Store)
+				// ==============================================
+				controllerMap.put("store", new StoreController());
+				daoMap.put("storeDAO", new StoreDAO());
 
-		serviceMap.put("/store/list.do", new StoreListService());
-		serviceMap.put("/store/view.do", new StoreViewService());
-		// 필요한 경우 write, update, delete 서비스 추가
+				serviceMap.put("/store/list.do",   new StoreListService());
+				serviceMap.put("/store/view.do",   new StoreViewService());
+				serviceMap.put("/store/update.do", new StoreUpdateService()); // ✅ 추가
 
-		serviceMap.get("/store/list.do").setDAO(daoMap.get("storeDAO"));
-		serviceMap.get("/store/view.do").setDAO(daoMap.get("storeDAO"));
+				serviceMap.get("/store/list.do").setDAO(daoMap.get("storeDAO"));
+				serviceMap.get("/store/view.do").setDAO(daoMap.get("storeDAO"));
+				serviceMap.get("/store/update.do").setDAO(daoMap.get("storeDAO")); // ✅ 추가
 
-		// ==============================================
-		// 4. 메뉴관리 (Menu) - 추가됨
-		// ==============================================
-		controllerMap.put("/menu", new MenuController());
-		daoMap.put("menuDAO", new MenuDAO());
+				// ==============================================
+				// 4. 메뉴관리 (Menu)
+				// ==============================================
+				controllerMap.put("menu", new MenuController());
+				daoMap.put("menuDAO", new MenuDAO());
 
-		serviceMap.put("/menu/list.do", new MenuListService());
-		// serviceMap.put("/menu/view.do", new MenuViewService());
+				serviceMap.put("/menu/list.do",          new MenuListService());
+				serviceMap.put("/menu/view.do",          new MenuViewService());    
+				serviceMap.put("/menu/write.do",         new MenuWriteService());   
+				serviceMap.put("/menu/update.do",        new MenuUpdateService());  
+				serviceMap.put("/menu/delete.do",        new MenuDeleteService());  
+				serviceMap.put("/menu/changeStatus.do",  new MenuChangeStatusService());
 
-		serviceMap.get("/menu/list.do").setDAO(daoMap.get("menuDAO"));
+				serviceMap.get("/menu/list.do").setDAO(daoMap.get("menuDAO"));
+				serviceMap.get("/menu/view.do").setDAO(daoMap.get("menuDAO"));          
+				serviceMap.get("/menu/write.do").setDAO(daoMap.get("menuDAO"));         
+				serviceMap.get("/menu/update.do").setDAO(daoMap.get("menuDAO"));       
+				serviceMap.get("/menu/delete.do").setDAO(daoMap.get("menuDAO"));        
+				serviceMap.get("/menu/changeStatus.do").setDAO(daoMap.get("menuDAO"));
 
 		// ==============================================
 		// 5. 예약 (Reservation)
