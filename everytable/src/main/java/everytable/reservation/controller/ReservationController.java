@@ -196,20 +196,25 @@ public class ReservationController implements Controller {
 
 			// 단체 주문 - 메뉴 선택 저장 (참여자가 확인 버튼 누를 때)
 			case "/reservation/groupOrderWrite.do":
-			    String[] groupMenuNos = request.getParameterValues("menuNo");
-			    String groupResNo = request.getParameter("resNo");
+			    String[] groupMenuNos   = request.getParameterValues("menuNos");
+			    String[] groupQuantities = request.getParameterValues("quantities");
+			    String groupResNo       = request.getParameter("resNo");
 
-			    if (groupMenuNos != null) {
-			        for (String menuNo : groupMenuNos) {
-			            ReservationVO menuVO = new ReservationVO();
-			            menuVO.setResNo(Long.parseLong(groupResNo));
-			            menuVO.setMenuNo(Long.parseLong(menuNo));
-			            menuVO.setQuantity(1L);
-			            // 가격은 DAO에서 조회
-			            Execute.execute(Init.getService("/reservation/groupOrderWrite.do"), menuVO);
+			    if (groupMenuNos != null && groupQuantities != null) {
+			        for (int i = 0; i < groupMenuNos.length; i++) {
+			            // 수량 0이면 스킵
+			            if (groupQuantities[i] == null || groupQuantities[i].equals("0") || groupQuantities[i].equals("")) continue;
+
+			            ReservationVO groupVO = new ReservationVO();
+			            groupVO.setResNo(Long.parseLong(groupResNo));
+			            groupVO.setMenuNo(Long.parseLong(groupMenuNos[i]));
+			            groupVO.setQuantity(Long.parseLong(groupQuantities[i]));
+			            Execute.execute(Init.getService("/reservation/groupOrderWrite.do"), groupVO);
 			        }
 			    }
 			    return "reservation/groupOrderComplete";
+
+
 
 			// 단체 주문 - 취합 현황 (주최자 확인)
 			case "/reservation/groupOrderStatus.do":
