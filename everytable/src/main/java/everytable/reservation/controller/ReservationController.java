@@ -185,6 +185,40 @@ public class ReservationController implements Controller {
 
 				// 상세페이지로 이동
 				return "redirect:/reservation/orderView.do?resNo=" + resNo;
+				
+				// 단체 주문 - 메뉴 선택 폼 (참여자 접속)
+			case "/reservation/groupMenuForm.do":
+			    no = Long.parseLong(request.getParameter("resNo"));
+			    request.setAttribute("vo", Execute.execute(Init.getService("/reservation/view.do"), no));
+			    request.setAttribute("menuList", Execute.execute(Init.getService("/reservation/storeMenuList.do"), 
+			        ((ReservationVO) Execute.execute(Init.getService("/reservation/view.do"), no)).getStoreId()));
+			    return "reservation/groupMenuForm";
+
+			// 단체 주문 - 메뉴 선택 저장 (참여자가 확인 버튼 누를 때)
+			case "/reservation/groupOrderWrite.do":
+			    String[] groupMenuNos = request.getParameterValues("menuNo");
+			    String groupResNo = request.getParameter("resNo");
+
+			    if (groupMenuNos != null) {
+			        for (String menuNo : groupMenuNos) {
+			            ReservationVO menuVO = new ReservationVO();
+			            menuVO.setResNo(Long.parseLong(groupResNo));
+			            menuVO.setMenuNo(Long.parseLong(menuNo));
+			            menuVO.setQuantity(1L);
+			            // 가격은 DAO에서 조회
+			            Execute.execute(Init.getService("/reservation/groupOrderWrite.do"), menuVO);
+			        }
+			    }
+			    return "reservation/groupOrderComplete";
+
+			// 단체 주문 - 취합 현황 (주최자 확인)
+			case "/reservation/groupOrderStatus.do":
+			    no = Long.parseLong(request.getParameter("resNo"));
+			    request.setAttribute("orderList", Execute.execute(Init.getService("/reservation/groupOrderList.do"), no));
+			    request.setAttribute("total", Execute.execute(Init.getService("/reservation/groupOrderTotal.do"), no));
+			    request.setAttribute("resNo", no);
+			    return "reservation/groupOrderStatus";
+			    
 			default:
 				// 정의되지 않은 URI인 경우 404 페이지로 유도하여 NPE 방지
 				return "error/404";

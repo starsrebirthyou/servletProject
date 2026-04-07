@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import everytable.main.dao.DAO;
+import everytable.menu.vo.MenuVO;
 import everytable.reservation.vo.ReservationVO;
 import everytable.util.db.DB;
 import everytable.util.page.PageObject;
@@ -282,4 +283,64 @@ public class ReservationDAO extends DAO {
 		pstmt.executeUpdate();
 		DB.close(con, pstmt);
 	}
+	
+	/// 가게 메뉴 목록 (resNo로 storeId 찾아서 조회)
+	public List<MenuVO> menuListByResNo(Long resNo) throws Exception {
+	    List<MenuVO> list = new ArrayList<>();
+	    con = DB.getConnection();
+	    String sql = "SELECT m.menu_no, m.menu_name, m.price, m.description, m.image_url "
+	               + "FROM menu m "
+	               + "JOIN reservation r ON m.store_id = r.store_id "
+	               + "WHERE r.res_no = ? AND m.is_active = 1";
+	    pstmt = con.prepareStatement(sql);
+	    pstmt.setLong(1, resNo);
+	    rs = pstmt.executeQuery();
+	    while (rs.next()) {
+	        MenuVO vo = new MenuVO();
+	        vo.setMenu_no(rs.getLong("menu_no"));
+	        vo.setMenu_name(rs.getString("menu_name"));
+	        vo.setPrice(rs.getInt("price"));
+	        vo.setDescription(rs.getString("description"));
+	        vo.setImage_url(rs.getString("image_url"));
+	        list.add(vo);
+	    }
+	    DB.close(con, pstmt, rs);
+	    return list;
+	}
+
+	// 단체 주문 취합 조회
+	public List<MenuVO> groupOrderList(Long resNo) throws Exception {
+	    List<MenuVO> list = new ArrayList<>();
+	    con = DB.getConnection();
+	    String sql = "SELECT m.menu_name, SUM(oi.quantity) AS quantity, oi.price "
+	               + "FROM order_item oi JOIN menu m ON oi.menu_no = m.menu_no "
+	               + "WHERE oi.res_no = ? "
+	               + "GROUP BY m.menu_name, oi.price ORDER BY m.menu_name";
+	    pstmt = con.prepareStatement(sql);
+	    pstmt.setLong(1, resNo);
+	    rs = pstmt.executeQuery();
+	    while (rs.next()) {
+	        MenuVO vo = new MenuVO();
+	        vo.setMenu_name(rs.getString("menu_name"));
+	        vo.setQuantity(rs.getInt("quantity"));
+	        vo.setPrice(rs.getInt("price"));
+	        list.add(vo);
+	    }
+	    DB.close(con, pstmt, rs);
+	    return list;
+	}
+
+	// 단체 주문 총합계
+	public Long groupOrderTotal(Long resNo) throws Exception {
+	    Long total = 0L;
+	    con = DB.getConnection();
+	    String sql = "SELECT NVL(SUM(price * quantity), 0) FROM order_item WHERE res_no = ?";
+	    pstmt = con.prepareStatement(sql);
+	    pstmt.setLong(1, resNo);
+	    rs = pstmt.executeQuery();
+	    if (rs.next()) total = rs.getLong(1);
+	    DB.close(con, pstmt, rs);
+	    return total;
+	}
+
 }
