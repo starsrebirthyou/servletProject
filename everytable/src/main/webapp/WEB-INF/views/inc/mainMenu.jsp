@@ -29,28 +29,28 @@
 
         <c:if test="${empty login}">
           <li class="nav-item">
-            <a class="nav-link" href="/shop/list.do">매장</a>
+            <a class="nav-link" href="/store/list.do">매장</a>
           </li>
         </c:if>
 
         <c:if test="${!empty login}">
           
           <c:if test="${login.gradeNo == 1}">
-            <li class="nav-item"><a class="nav-link" href="/shop/list.do">매장둘러보기</a></li>
+            <li class="nav-item"><a class="nav-link" href="/store/list.do">매장둘러보기</a></li>
             <li class="nav-item"><a class="nav-link" href="/reservation/list.do">내주문보기</a></li>
             <li class="nav-item"><a class="nav-link" href="/review/list.do">내 리뷰보기</a></li>
           </c:if>
 
           <c:if test="${login.gradeNo == 2}">
-            <li class="nav-item"><a class="nav-link" href="/shop/manage.do">매장관리</a></li>
+            <li class="nav-item"><a class="nav-link" href="/store/update.do">매장관리</a></li>
             <li class="nav-item"><a class="nav-link" href="/reservation/adminList.do">주문관리</a></li>
-            <li class="nav-item"><a class="nav-link" href="/menu/manage.do">메뉴관리</a></li>
+            <li class="nav-item"><a class="nav-link" href="/menu/write.do">메뉴관리</a></li>
           </c:if>
 
           <c:if test="${login.gradeNo == 9}">
             <li class="nav-item"><a class="nav-link" href="/member/list.do">회원관리</a></li>
             <li class="nav-item"><a class="nav-link" href="/stats/dashboard.do">대시보드</a></li>
-            <li class="nav-item"><a class="nav-link" href="/shop/list.do">매장관리</a></li>
+            <li class="nav-item"><a class="nav-link" href="/store/list.do">매장관리</a></li>
           </c:if>
 
         </c:if>

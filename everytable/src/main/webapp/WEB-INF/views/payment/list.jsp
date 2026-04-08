@@ -8,7 +8,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>결제 내역 리스트</title>
+<title>결제 내역</title>
 
 <style type="text/css">
     /* 1. 테이블 전체 모서리 둥글게 */
@@ -56,7 +56,7 @@
 
 <script type="text/javascript">
 $(function(){
-    // 1. 행 클릭 시 상세보기 이동
+    // 1. 행 클릭 시 상세보기
     $(".dataRow").click(function(){
         let no = $(this).find(".payment_id").text();
         location.href = "view.do?no=" + no 
@@ -64,7 +64,7 @@ $(function(){
                       + "&key=${pageObject.key}&word=${pageObject.word}";
     });
 
-    // 2. 검색 데이터 자동 세팅
+    // 2. 검색 데이터
     <c:if test="${!empty pageObject.key && !empty pageObject.word }">
         $("#key").val("${pageObject.key}");
         $("#word").val("${pageObject.word}");
@@ -74,7 +74,7 @@ $(function(){
 </head>
 <body>
 
-    <h2 class="mb-1 fw-normal border-bottom pb-2">결제 내역 리스트</h2>
+    <h2 class="mb-1 fw-normal border-bottom pb-2">결제 내역</h2>
     
     <%-- 검색창 영역 --%>
     <div class="mb-3">

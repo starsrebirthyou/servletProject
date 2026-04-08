@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -27,7 +28,9 @@
                 <div class="mb-4 border-bottom pb-3">
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">주문 금액</span>
-                        <span class="fw-bold text-success">${vo.amount}원</span> 
+                       <span class="fw-bold text-success">
+  						 	<fmt:formatNumber value="${param.totalPrice}" />원
+						</span>
                     </div>
                     <div class="d-flex justify-content-between">
                         <span class="text-muted">픽업일시</span>
@@ -54,7 +57,7 @@
                 </div>
                 
                 <button type="submit" class="btn btn-dark w-100 py-3 fw-bold shadow-sm" style="border-radius: 15px;">
-                    ${vo.amount}원 결제하기
+                    ${param.totalPrice}원 결제하기
                 </button>
                 <button type="button" onclick="history.back();" class="btn btn-link text-muted w-100 mt-2 text-decoration-none">이전으로</button>
             </div>
@@ -64,12 +67,9 @@
 
 <script type="text/javascript">
 $(function() {
-    // 결제 폼 전송 이벤트 잡아내기! ㅋㅋㅋ
     $("#paymentForm").on("submit", function(event) {
-        // 1. 피그마 메시지 그대로 띄우기 ✨
         alert("주문이 완료되었습니다! 매장에서 승인하면 알림을 보내드립니다.");
-        
-        // 2. 확인 누르면 자연스럽게 submit 진행됨! (preventDefault 안 써도 됨)
+    
     });
 });
 </script>

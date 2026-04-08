@@ -11,126 +11,86 @@ import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- * Servlet Filter implementation class AutorityFilter
- */
-// @WebFilter("/AutorityFilter") -> web.xml에 설정. 여기는 반드시 주석처리한다.
 public class AuthorityFilter extends HttpFilter implements Filter {
-       
+
 	private static final long serialVersionUID = 1L;
-
 	private Map<String, Integer> authMap = new HashMap<>();
-	
-	/**
-     * @see HttpFilter#HttpFilter()
-     */
-    public AuthorityFilter() { // 생성자
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
-	/**
-	 * @see Filter#destroy()
-	 */
-	public void destroy() { // 소멸자
-		// TODO Auto-generated method stub
+	public AuthorityFilter() {
+		super();
 	}
 
-	/**
-	 * @see Filter#doFilter(ServletRequest, ServletResponse, FilterChain)
-	 * 
-	 * 필터 처리 메서드 - request, response 타입이 다르다.
-	 */
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-		// TODO Auto-generated method stub
-		// place your code here - 실행 전 필터 처리 : 권한 처리
+	public void destroy() {
+	}
+
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 		HttpServletRequest req = (HttpServletRequest) request;
 		HttpServletResponse res = (HttpServletResponse) response;
-		
-		String uri = req.getServletPath();
-		
-		System.out.println("AutorityFilter.doFilter().uri : " + uri);
-		
-		System.out.println("AutorityFilter.doFilter() 실행전 처리 : 권한 처리 ----------------------");
 
-		Integer pageGradeNo = authMap.get(uri);
-		
-		if(pageGradeNo != null) {
-			// 사용자가 로그인 처리가 되어 있어야만 한다.
-			// 1. 로그인 정보를 가져온다.
+		String uri = req.getServletPath();
+
+		System.out.println("AuthorityFilter.doFilter().uri : " + uri);
+
+		Integer pageGradeNo = authMap.get(uri); // 여기서 0을 가져옴
+
+		if (pageGradeNo != null && pageGradeNo > 0) {
 			HttpSession session = req.getSession();
 			LoginVO login = (LoginVO) session.getAttribute("login");
-			// 2. 로그인이 안되었을 때 로그인 하라고 시킨다.
-			if(login == null) {
-				// 메시지 처리
+
+			// 1. 로그인이 안되었을 때 처리
+			if (login == null) {
 				session.setAttribute("msg", "로그인이 필요한 페이지입니다.");
 				res.sendRedirect("/member/loginForm.do");
 				return;
-			} // 로그인이 안되었을 때의 처리 끝
-			
-			// 로그인이 되었을 때의 관리자 처리
-			if(pageGradeNo == 9) {
-				// 관리자 권한이 아닌 경우의 처리 - 일반 회원인 경우(1)
-				if(login.getGradeNo() < pageGradeNo) {
+			}
+
+			// 2. 로그인은 되었으나 권한이 부족한 경우 (관리자 페이지 등)
+			if (pageGradeNo == 9) {
+				if (login.getGradeNo() < pageGradeNo) {
 					req.setAttribute("url", req.getRequestURL());
 					req.getRequestDispatcher("/WEB-INF/views/error/auth.jsp").forward(req, res);
 					return;
-				} // 관리자 권한 if의 끝
-			} // 페이지의 권한이 관리자인 경우 끝
-			
-		} // if(pageGradeNo != null) 의 끝
-		
-		// pass the request along the filter chain
-		chain.doFilter(request, response); // 요청에 따른 실제적인 실행
-		
-		// 실행 후 필터 처리
+				}
+			}
+		}
+
+		// 권한이 없거나(null), 권한이 0인 경우 바로 실행
+		chain.doFilter(request, response);
 	}
 
-	/**
-	 * @see Filter#init(FilterConfig)
-	 * 모든 페이지에 대한 권한 저장
-	 */
+	@Override
 	public void init(FilterConfig fConfig) throws ServletException {
-		// TODO Auto-generated method stub
-		System.out.println("AutorityFilter.init()-------------------");
-		
-		// 공지사항
-		// 1. 리스트. 2. 보기 - 일반 사용자. : 저장하지 않음.
-		// 3. 글등록, 4. 수정, 5.삭제 - 관리자. : 저장함.
-		// 모든 기능을 개발하고 권한 처리는 마지막에 하는 것이 편리하다.
-		//authMap.put("/notice/writeForm.do", 9);
-		//authMap.put("/notice/write.do", 9);
-		//authMap.put("/notice/updateForm.do", 9);
-		//authMap.put("/notice/update.do", 9);
-		//authMap.put("/notice/delete.do", 9);
-		
-		// 회원관리 --------------------
-		// 1.로그인, 2. 아이디 찾기, 3. 비밀번호 찾기, 4. 회원가입 - 일반 사용. : 저장하지 않음.
-		// 5.로그아웃, 6. 내 정보보기, 7. 비밀번호 변경 - 회원 : 저장함 - 1
-		// 회원 권한
-		// authMap.put("/member/logout.do", 1);
+		System.out.println("AuthorityFilter.init() -------------------");
+
+		// 회원관리 권한 설정
 		authMap.put("/member/view.do", 1);
 		authMap.put("/member/changePw.do", 1);
-		// 관리자 권한
-		authMap.put("/member/list.do", 9);
-		authMap.put("/reservation/groupMenuForm.do", 0); // 0은 권한 체크 안 함을 의미 (본인 코드 로직에 맞게)
+		authMap.put("/member/list.do", 9); // 관리자 전용
+
+		// [단체 주문 관련] 비로그인 허용 (권한 0으로 명시적 설정)
 		authMap.put("/reservation/groupShare.do", 0);
-		
-		// 이미지 게시판 -----------------
-		// 일반 회원
+		authMap.put("/reservation/groupMenuForm.do", 0);
+		authMap.put("/reservation/groupOrderWrite.do", 0);
+		authMap.put("/reservation/groupOrderComplete.do", 0);
+
+		// 이미지 게시판 권한 설정
 		authMap.put("/image/writeForm.do", 1);
 		authMap.put("/image/write.do", 1);
 		authMap.put("/image/updateForm.do", 1);
 		authMap.put("/image/update.do", 1);
 		authMap.put("/image/delete.do", 1);
 		authMap.put("/image/changeImage.do", 1);
-		
-	}
 
+		// 예약 관리자 기능
+		authMap.put("/reservation/adminList.do", 1); // 매장용
+		authMap.put("/reservation/adminView.do", 1);
+		authMap.put("/reservation/adminUpdate.do", 1);
+	}
 }

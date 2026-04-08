@@ -46,7 +46,7 @@
     /* 5. 상태 배지: 아주 동글동글하게 */
     .badge {
         padding: 0.5em 1em;
-        border-radius: 50rem !important; /* 타원형 ㅋㅋㅋ */
+        border-radius: 50rem !important; 
         font-weight: bold;
     }
 </style>
@@ -117,15 +117,23 @@
 
             
 
-            <c:if test="${vo.status == 'SUCCESS' && login.gradeNo != 9}">
-                <c:if test="${diffHours >= 12}">
-                    <a href="/refund/refundForm.do?no=${vo.payment_id}" class="btn btn-danger">주문 취소 (환불신청)</a>
-                </c:if>
-                <c:if test="${diffHours < 12}">
-                    <span class="text-muted ms-2">※ 픽업 12시간 이내이므로 취소가 불가합니다.</span>
-                </c:if>
-            </c:if>
-
+			
+			<c:if test="${vo.status == 'SUCCESS' && login.gradeNo != 9}">
+			    <c:if test="${diffHours >= 12}">
+			        <a href="/refund/refundForm.do?no=${vo.payment_id}" class="btn btn-danger">주문 취소 (환불신청)</a>
+			    </c:if>
+			    <c:if test="${diffHours < 12}">
+			        <span class="text-muted ms-2">※ 픽업 12시간 이내이므로 취소가 불가합니다.</span>
+			    </c:if>
+			</c:if>
+			
+			<c:if test="${vo.status == 'REJECTED'}">
+			    <div class="alert alert-warning border-0 d-inline-block p-2 ms-2 mb-0 shadow-sm" style="background-color: #fffbeb;">
+			        <small class="text-warning-emphasis fw-bold">
+			            📢 매장 사정으로 주문이 거절되었습니다. 결제 금액은 <span class="text-danger">전액 환불</span> 처리됩니다.
+			        </small>
+			    </div>
+			</c:if>
             <c:if test="${vo.status == 'FAIL'}">
                 <div class="alert alert-light border d-inline-block p-2 ms-2">
                     <small class="text-muted">결제 오류 발생. 매장(☎️ 010-1234-5678)으로 문의주세요.</small>
