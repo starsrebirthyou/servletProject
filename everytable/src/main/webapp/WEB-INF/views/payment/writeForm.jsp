@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -27,7 +28,9 @@
                 <div class="mb-4 border-bottom pb-3">
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">주문 금액</span>
-                        <span class="fw-bold text-success">${vo.amount}원</span> 
+                       <span class="fw-bold text-success">
+  						 	<fmt:formatNumber value="${param.totalPrice}" />원
+						</span>
                     </div>
                     <div class="d-flex justify-content-between">
                         <span class="text-muted">픽업일시</span>
