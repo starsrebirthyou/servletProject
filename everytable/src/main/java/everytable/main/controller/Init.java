@@ -291,13 +291,18 @@ public class Init extends HttpServlet {
 		serviceMap.put("/review/update.do", new ReviewUpdateService());
 		serviceMap.put("/review/delete.do", new ReviewDeleteService());
 		serviceMap.put("/review/view.do", new ReviewViewService());
+		// 매장별 리스트 서비스 등록
+		serviceMap.put("/review/storeList.do", new ReviewListService()); 
 
+		// DAO 주입 (DI)
 		serviceMap.get("/review/list.do").setDAO(daoMap.get("reviewDAO"));
 		serviceMap.get("/review/write.do").setDAO(daoMap.get("reviewDAO"));
 		serviceMap.get("/review/update.do").setDAO(daoMap.get("reviewDAO"));
 		serviceMap.get("/review/delete.do").setDAO(daoMap.get("reviewDAO"));
 		serviceMap.get("/review/view.do").setDAO(daoMap.get("reviewDAO"));
-
+		// ★ 아래 줄을 반드시 추가해야 합니다!
+		serviceMap.get("/review/storeList.do").setDAO(daoMap.get("reviewDAO"));
+		
 		// ==============================================
 		// 8. 통계 (Stats)
 		// ==============================================
