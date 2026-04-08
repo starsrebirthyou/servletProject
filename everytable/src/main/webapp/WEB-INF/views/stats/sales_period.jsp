@@ -26,7 +26,8 @@
                 <tr>
                     <th style="padding: 10px; border-bottom: 2px solid #dee2e6;">순번</th>
                     <th style="padding: 10px; border-bottom: 2px solid #dee2e6;">날짜</th>
-                    <th style="padding: 10px; border-bottom: 2px solid #dee2e6;">매장번호</th>
+                    <!-- [수정] '매장번호'를 '매장명'으로 변경 -->
+                    <th style="padding: 10px; border-bottom: 2px solid #dee2e6;">매장명</th>
                     <th style="padding: 10px; border-bottom: 2px solid #dee2e6;">판매건수</th>
                     <th style="padding: 10px; border-bottom: 2px solid #dee2e6;">총 매출액</th>
                 </tr>
@@ -36,7 +37,10 @@
                 <c:forEach items="${list}" var="vo" varStatus="status">
                     <tr>
                         <td style="padding: 10px; border-bottom: 1px solid #eee;">${status.count}</td>
-                        <td style="padding: 10px; border-bottom: 1px solid #eee;">${vo.statsDate}</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <!-- [추가] 날짜 뒤의 00:00:00을 제거하고 깔끔하게 출력 -->
+                            ${vo.statsDate.substring(0, 10)}
+                        </td>
                         <td style="padding: 10px; border-bottom: 1px solid #eee;">${vo.storeName}</td>
                         <td style="padding: 10px; border-bottom: 1px solid #eee;">${vo.orderCount} 건</td>
                         <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold; color: #228be6;">
