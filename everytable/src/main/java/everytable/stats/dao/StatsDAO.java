@@ -120,13 +120,12 @@ public class StatsDAO extends DAO {
         List<StatsVO> list = new ArrayList<>();
         try {
             con = DB.getConnection();
-            // 카테고리별로 그룹화하여 판매 수량(quantity) 합산
+            // 수정된 SQL: menu_category와 menu를 category_no로 연결
             String sql = "SELECT mc.category_name, SUM(oi.quantity) as qty "
-                       + "FROM order_item oi "
-                       + "JOIN menu m ON oi.menu_no = m.menu_no "
-                       + "JOIN menu_category mc ON m.category_no = mc.category_no "
-                       + "JOIN orders o ON oi.order_id = o.order_id "
-                       + "WHERE o.store_id = ? "
+                       + "FROM menu_category mc "
+                       + "JOIN menu m ON mc.category_no = m.category_no "
+                       + "JOIN order_item oi ON m.menu_no = oi.menu_no "
+                       + "WHERE m.store_id = ? "
                        + "GROUP BY mc.category_name "
                        + "ORDER BY qty DESC";
             
@@ -136,7 +135,7 @@ public class StatsDAO extends DAO {
             
             while (rs.next()) {
                 StatsVO vo = new StatsVO();
-                // VO의 storeId 필드에 임시로 카테고리명을 담거나, VO에 별도 필드를 추가하세요.
+                // JSP script에서 쓸 수 있도록 storeId 필드에 카테고리명을 담음
                 vo.setStoreId(rs.getString("category_name")); 
                 vo.setOrderCount(rs.getInt("qty"));
                 list.add(vo);
