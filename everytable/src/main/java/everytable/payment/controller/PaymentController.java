@@ -40,86 +40,55 @@ public class PaymentController implements Controller {
                     return "payment/view";
 
                 case "/payment/writeForm.do":
-                    // 1. 주소창(이전화면)에서 넘어온 데이터 싹 다 낚아채기
-                    String rNo = request.getParameter("resNo");
-                    String sId = request.getParameter("store_id");
-                    String tPrice = request.getParameter("totalPrice"); // 👈 돈 여기있음!
-                    String pDate = request.getParameter("pickupDate");
+                    // 🌟 이전 화면에서 보낸 파라미터 낚아채기
+                    String strNo = request.getParameter("no"); // resNo
+                    String totalPrice = request.getParameter("totalPrice");
+                    String pickupDate = request.getParameter("pickupDate");
 
-                    // 2. 예약 번호가 있으면 실행
-                    if (rNo != null && !rNo.equals("")) {
-                        no = Long.parseLong(rNo);
-                        
-                        // DB에서 기본 정보를 가져옴 (필요없으면 이 줄은 빼도 됨)
+                    if (strNo != null && !strNo.equals("")) {
+                        no = Long.parseLong(strNo);
+                        // DB에서 정보를 가져오거나 새로 만듦
                         vo = (PaymentVO) Execute.execute(Init.getService("/payment/view.do"), no);
+                        if (vo == null) vo = new PaymentVO();
                         
-                        // DB에 정보가 없더라도 새로 만들어서 데이터 세팅
-                        if(vo == null) vo = new PaymentVO();
-                        
-                        // 🌟 이전 화면에서 받아온 소중한 데이터들 vo에 쏙쏙 담기
+                        // 🌟 받아온 데이터 vo에 쏙쏙 담기 (그래야 JSP에서 ${vo.amount}로 나옴!)
                         vo.setOrder_id(no);
-                        
-                        // 금액(totalPrice) 담기 - 숫자로 변환해서!
-                        if(tPrice != null && !tPrice.isEmpty()) {
-                            vo.setAmount(Long.parseLong(tPrice)); 
+                        if(totalPrice != null) vo.setAmount(Long.parseLong(totalPrice));
+                        if(pickupDate != null && !pickupDate.isEmpty()) {
+                            try { vo.setPickupDate(java.sql.Date.valueOf(pickupDate)); } catch(Exception e) {}
                         }
                         
-                        // 날짜 담기
-                        if(pDate != null && !pDate.isEmpty()) {
-                            try {
-                                vo.setPickupDate(java.sql.Date.valueOf(pDate));
-                            } catch(Exception e) { /* 날짜에러방지 */ }
-                        }
-                        
-                        // 3. JSP로 바구니(vo) 던지기
                         request.setAttribute("vo", vo);
-                        
-                        // 4. store_id는 vo에 자리가 없으면 따로라도 던지기!
-                        request.setAttribute("store_id", sId); 
                     }
                     return "payment/writeForm";
 
                 case "/payment/write.do":
                     vo = new PaymentVO();
                     
-                    // 1. 이전 화면(JSP)에서 보낸 데이터들 낚아채기
-                    String orderIdStr = request.getParameter("order_id"); 
-                    String amountStr = request.getParameter("amount");
-                    String pickupDateStr = request.getParameter("pickupDate");
-                    String userId = request.getParameter("user_id");
-                    String method = request.getParameter("method");
-                    String storeId = request.getParameter("store_id"); // 시은님이 꼭 필요하다던 그거!
-
-                    // 2. 글자(String)를 숫자(Long)로 바꿔서 VO에 넣기 (안전장치 포함)
-                    if (orderIdStr != null && !orderIdStr.isEmpty()) {
-                        vo.setOrder_id(Long.parseLong(orderIdStr)); 
-                    }
-                    if (amountStr != null && !amountStr.isEmpty()) {
-                        vo.setAmount(Long.parseLong(amountStr)); 
-                    }
+                    // 1. JSP에서는 resNo(order_id)만 확실히 받습니다.
+                    long orderId = Long.parseLong(request.getParameter("order_id"));
+                    vo.setOrder_id(orderId);
                     
-                    // 3. 나머지 정보들도 VO에 담기
-                    vo.setUser_id(userId);
-                    vo.setMethod(method);
-                    vo.setStore_id(storeId); // VO에 필드 있다면 이것도 쏙!
-                    vo.setStatus("SUCCESS"); // 결제 성공 상태로 강제 세팅
+                    // 2. 🌟 여기서 마법! 예약 서비스(또는 DAO)를 호출해서 매장 아이디를 직접 가져옵니다.
+                    // (이미 만들어진 예약 상세조회 서비스가 있다면 활용하세요!)
+                    // 예시: ReservationVO resVO = (ReservationVO) Execute.execute(Init.getService("/reservation/view.do"), orderId);
+                    // String storeIdFromDB = resVO.getStore_id(); 
+                    
+                    // 3. 만약 위 서비스 호출이 복잡하다면, 지금은 단순하게 파라미터로 처리하거나
+                    // 결제 DAO의 write 메서드 안에서 subquery를 써도 됩니다. (아래 DAO 설명 참고)
+                    
+                    vo.setAmount(Long.parseLong(request.getParameter("amount")));
+                    vo.setUser_id(request.getParameter("user_id"));
+                    vo.setMethod(request.getParameter("method"));
+                    vo.setStatus("SUCCESS");
+                    
+                    // 4. 나머지 날짜 세팅
+                    String pDate = request.getParameter("pickupDate");
+                    if(pDate != null) vo.setPickupDate(java.sql.Date.valueOf(pDate));
 
-                    // 4. 날짜 변환 처리
-                    try {
-                        if(pickupDateStr != null && !pickupDateStr.isEmpty()) {
-                            vo.setPickupDate(java.sql.Date.valueOf(pickupDateStr));
-                        }
-                    } catch (Exception e) {
-                        System.out.println("날짜 변환 에러 발생!");
-                    }
-
-                    // 5. DB에 저장하러 가기!
                     Execute.execute(Init.getService(uri), vo);
-                    
-                    request.getSession().setAttribute("msg", "결제가 완료되었습니다! 히히히");
                     return "redirect:list.do";
-                    
-                    
+
                 case "/payment/updateForm.do":
                     LoginVO login = (LoginVO) request.getSession().getAttribute("login");
                     if (login == null || login.getGradeNo() != 9) {

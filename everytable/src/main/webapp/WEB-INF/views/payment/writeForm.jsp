@@ -16,7 +16,6 @@
         <input type="hidden" name="amount" value="${param.totalPrice}">
         <input type="hidden" name="user_id" value="${login.id}">
         <input type="hidden" name="pickupDate" value="${param.pickupDate}">
-        <input type="hidden" name="store_id" value="${param.store_id}">
         <div class="card shadow-sm mx-auto" style="max-width: 500px; border-radius: 20px; border: none;">
             <div class="card-body p-4">
                 <div class="text-center mb-4">

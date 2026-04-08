@@ -132,28 +132,33 @@ public class PaymentDAO extends DAO {
    
     public Integer write(PaymentVO vo) throws Exception {
         con = DB.getConnection();
-        String sql = "insert into payment(payment_id, order_id, user_id, method, amount, status, pickup_date) "
-                   + " values(payment_seq.nextval, ?, ?, ?, ?, ?, ?)";
-        pstmt = con.prepareStatement(sql);
         
-        pstmt.setLong(1, vo.getOrder_id()); 
+        // 🌟 핵심: insert 문 안에 select(서브쿼리)를 넣어서 
+        // RESERVATION 테이블에서 직접 store_id를 낚아채 옵니다!
+        String sql = "insert into payment(payment_id, order_id, user_id, method, amount, status, pickup_date, store_id) "
+                   + " values(payment_seq.nextval, ?, ?, ?, ?, ?, ?, "
+                   + " (select store_id from reservation where res_no = ?))"; // 👈 여기서 직접 찾아옴!
+        
+        pstmt = con.prepareStatement(sql);
+        pstmt.setLong(1, vo.getOrder_id());
         pstmt.setString(2, vo.getUser_id());
         pstmt.setString(3, vo.getMethod());
         pstmt.setLong(4, vo.getAmount());
         pstmt.setString(5, vo.getStatus());
         
-        // Null 체크 로직 추가
         if (vo.getPickupDate() != null) {
             pstmt.setTimestamp(6, new java.sql.Timestamp(vo.getPickupDate().getTime()));
         } else {
             pstmt.setNull(6, java.sql.Types.TIMESTAMP);
         }
         
+        // 🌟 7번째 물음표는 이제 vo에서 꺼내는 게 아니라, 서브쿼리용 order_id를 다시 넣어줍니다!
+        pstmt.setLong(7, vo.getOrder_id()); 
+        
         int result = pstmt.executeUpdate();
         DB.close(con, pstmt);
         return result;
     }
-
     
     public int cancel(Long payment_id) throws Exception {
     	int result=0;
