@@ -47,7 +47,8 @@
         <div class="col-4"><small>준비시간</small><br><strong>${vo.prepare_time}</strong></div>
     </div>
 
-    <button class="btn w-100 py-3 mb-5 fw-bold text-white" style="background-color: #c48a45; border-radius:15px;">주문하기</button>
+    <a href="/reservation/writeForm.do?stordId=${storeId}"
+    class="btn w-100 py-3 mb-5 fw-bold text-white" style="background-color: #c48a45; border-radius:15px;">주문하기</a>
 
     <ul class="nav nav-tabs mb-4">
         <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#menu">메뉴</a></li>

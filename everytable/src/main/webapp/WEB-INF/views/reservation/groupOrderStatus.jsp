@@ -70,10 +70,24 @@ body { background-color: #f8f9fa; }
 <script>
 function confirmFinalOrder() {
     if(confirm("정말로 주문을 확정하시겠습니까?\n취합된 메뉴와 금액으로 최종 결제가 진행됩니다.")) {
-        // 자동 갱신 중단 (새로고침 방지)
+        
+        const form = document.getElementById("finalOrderForm");
+        
+        // 1. 현재 접속한 환경(IP/Port)과 프로젝트 경로 가져오기
+        const baseUrl = window.location.origin + "${pageContext.request.contextPath}";
+        
+        // 2. URL 뒤에 파라미터를 직접 붙여서 action 경로 재설정
+        // 예약번호(resNo)와 매장아이디(store_id)를 주소에 포함시킵니다.
+        const resNo = "${resNo}";
+        const store_id = "${vo.store_id}"; // 현재 페이지에 있는 매장 아이디 변수명에 맞춰 수정하세요.
+        
+        form.action = baseUrl + "/payment/writeForm.do?resNo=" + resNo + "&store_id=" + store_id;
+        
+        // 자동 갱신 중단
         window.stop(); 
-        // 폼 전송
-        document.getElementById("finalOrderForm").submit();
+        
+        // 3. 최종 전송
+        form.submit();
     }
 }
 </script>
