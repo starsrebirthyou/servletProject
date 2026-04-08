@@ -228,42 +228,53 @@ public class Init extends HttpServlet {
 		// ==============================================
 		// 5. 예약 (Reservation)
 		// ==============================================
+		// 1. 컨트롤러 및 DAO 등록
 		controllerMap.put("/reservation", new ReservationController());
 		daoMap.put("reservationDAO", new ReservationDAO());
 
+		// 2. 서비스 등록 (생성)
 		serviceMap.put("/reservation/list.do", new ReservationListService());
 		serviceMap.put("/reservation/view.do", new ReservationViewService());
 		serviceMap.put("/reservation/write.do", new ReservationWriteService());
 		serviceMap.put("/reservation/update.do", new ReservationUpdateService());
-		// 관리자
+
+		// --- 관리자 서비스 ---
 		serviceMap.put("/reservation/adminList.do", new ReservationAdminListService());
 		serviceMap.put("/reservation/adminView.do", new ReservationAdminViewService());
 		serviceMap.put("/reservation/adminUpdate.do", new ReservationAdminUpdateService());
 		serviceMap.put("/reservation/adminCancel.do", new ReservationAdminCancelService());
-		// url
+
+		// --- 단체 주문 관련 서비스 ---
 		serviceMap.put("/reservation/groupOrderWrite.do",  new GroupOrderWriteService());
 		serviceMap.put("/reservation/groupOrderList.do",   new GroupOrderListService());
 		serviceMap.put("/reservation/groupOrderTotal.do",  new GroupOrderTotalService());
-		serviceMap.put("/reservation/groupMenuForm.do", new GroupMenuFormService());
-		serviceMap.put("/reservation/finalOrder.do", new ReservationFinalOrderService());
+		serviceMap.put("/reservation/groupMenuForm.do",    new GroupMenuFormService());
+		// [추가] 최종 주문 확정 서비스
+		serviceMap.put("/reservation/finalOrder.do",       new ReservationFinalOrderService());
 
 
+		// 3. DAO 주입 (주입 대상이 반드시 위에서 put 되어 있어야 함)
 		serviceMap.get("/reservation/list.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/view.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/write.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/update.do").setDAO(daoMap.get("reservationDAO"));
-		// 관리자
+
+		// --- 관리자 주입 ---
 		serviceMap.get("/reservation/adminList.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/adminView.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/adminUpdate.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/adminCancel.do").setDAO(daoMap.get("reservationDAO"));
-		// url
+
+		// --- 단체 주문 주입 ---
 		serviceMap.get("/reservation/groupOrderWrite.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/groupOrderList.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/groupOrderTotal.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/groupMenuForm.do").setDAO(daoMap.get("reservationDAO"));
-		serviceMap.get("/reservation/groupShare.do").setDAO(daoMap.get("reservationDAO"));
+		// [중요] finalOrder.do에 DAO 주입
 		serviceMap.get("/reservation/finalOrder.do").setDAO(daoMap.get("reservationDAO"));
+
+		// ※ 주의: groupShare.do는 JSP로 바로 연결되는 단순 페이지이므로 
+		// 별도의 Service 클래스가 없다면 여기서 setDAO를 호출
 
 
 		// ==============================================
