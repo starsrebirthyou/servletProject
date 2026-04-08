@@ -8,7 +8,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>결제 내역 리스트</title>
+<title>결제 내역</title>
 
 <style type="text/css">
     /* 1. 테이블 전체 모서리 둥글게 */
@@ -74,7 +74,7 @@ $(function(){
 </head>
 <body>
 
-    <h2 class="mb-1 fw-normal border-bottom pb-2">결제 내역 리스트</h2>
+    <h2 class="mb-1 fw-normal border-bottom pb-2">결제 내역</h2>
     
     <%-- 검색창 영역 --%>
     <div class="mb-3">

@@ -64,12 +64,9 @@
 
 <script type="text/javascript">
 $(function() {
-    // 결제 폼 전송 이벤트 잡아내기! ㅋㅋㅋ
     $("#paymentForm").on("submit", function(event) {
-        // 1. 피그마 메시지 그대로 띄우기 ✨
         alert("주문이 완료되었습니다! 매장에서 승인하면 알림을 보내드립니다.");
-        
-        // 2. 확인 누르면 자연스럽게 submit 진행됨! (preventDefault 안 써도 됨)
+    
     });
 });
 </script>
