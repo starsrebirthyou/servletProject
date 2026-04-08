@@ -72,7 +72,7 @@
                 <tr>
                     <th>결제금액</th>
                     <td class="text-danger fw-bold">
-                        <fmt:formatNumber value="${vo.amount}" />원
+                       <fmt:formatNumber value="${param.amount}" />원
                     </td>
                 </tr>
                 <tr>
