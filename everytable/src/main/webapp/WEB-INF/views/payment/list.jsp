@@ -56,7 +56,7 @@
 
 <script type="text/javascript">
 $(function(){
-    // 1. 행 클릭 시 상세보기 이동
+    // 1. 행 클릭 시 상세보기
     $(".dataRow").click(function(){
         let no = $(this).find(".payment_id").text();
         location.href = "view.do?no=" + no 
@@ -64,7 +64,7 @@ $(function(){
                       + "&key=${pageObject.key}&word=${pageObject.word}";
     });
 
-    // 2. 검색 데이터 자동 세팅
+    // 2. 검색 데이터
     <c:if test="${!empty pageObject.key && !empty pageObject.word }">
         $("#key").val("${pageObject.key}");
         $("#word").val("${pageObject.word}");

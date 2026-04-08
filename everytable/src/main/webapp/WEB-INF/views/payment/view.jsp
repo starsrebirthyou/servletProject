@@ -46,7 +46,7 @@
     /* 5. 상태 배지: 아주 동글동글하게 */
     .badge {
         padding: 0.5em 1em;
-        border-radius: 50rem !important; /* 타원형 ㅋㅋㅋ */
+        border-radius: 50rem !important; 
         font-weight: bold;
     }
 </style>
