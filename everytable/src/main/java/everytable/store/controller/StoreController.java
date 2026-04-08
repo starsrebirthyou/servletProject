@@ -36,19 +36,18 @@ public class StoreController implements Controller {
                         writeVo.setStore_addr(request.getParameter("store_addr"));
                         writeVo.setStore_tel(request.getParameter("store_tel"));
                         writeVo.setOpen_time(request.getParameter("open_time"));
-                        
-                        String minPrice = request.getParameter("min_order_price");
-                        writeVo.setMin_order_price(minPrice != null && !minPrice.isEmpty()
-                                ? Integer.parseInt(minPrice) : 0);
-                        writeVo.setPrepare_time(request.getParameter("prepare_time"));
 
-                        // ✅ [추가] 등록 시 환불 정책 파라미터 수집
+                        String minPrice = request.getParameter("min_order_price");
+                        writeVo.setMin_order_price(minPrice != null && !minPrice.trim().isEmpty()
+                                ? Integer.parseInt(minPrice.trim()) : 0);
+                        writeVo.setPrepare_time(request.getParameter("prepare_time"));
                         writeVo.setRefund_policy_24(request.getParameter("refund_policy_24"));
                         writeVo.setRefund_policy_12(request.getParameter("refund_policy_12"));
                         writeVo.setRefund_policy_0(request.getParameter("refund_policy_0"));
 
                         String filename = request.getParameter("filename");
-                        writeVo.setFilename(filename != null ? filename : "default.jpg");
+                        writeVo.setFilename(filename != null && !filename.trim().isEmpty()
+                                ? filename.trim() : "default.jpg");
 
                         Init.getService(uri).service(writeVo);
                         jsp = "redirect:list.do";
@@ -62,13 +61,9 @@ public class StoreController implements Controller {
                     if (strStoreId == null || strStoreId.trim().isEmpty()) {
                         return "redirect:list.do";
                     }
-                    Long store_id = Long.parseLong(strStoreId);
-                    
-                    // 매장 정보 가져오기 (DAO에서 환불 정책도 함께 채워짐)
+                    Long store_id = Long.parseLong(strStoreId.trim()); // ✅ trim()
                     request.setAttribute("vo", Init.getService(uri).service(store_id));
-                    // 매장의 메뉴 리스트 가져오기
                     request.setAttribute("menuList", Init.getService("/menu/list.do").service(store_id));
-                    
                     jsp = "store/view";
                     break;
 
@@ -77,7 +72,7 @@ public class StoreController implements Controller {
                     if (updateStoreId == null || updateStoreId.trim().isEmpty()) {
                         return "redirect:list.do";
                     }
-                    Long updateId = Long.parseLong(updateStoreId);
+                    Long updateId = Long.parseLong(updateStoreId.trim()); // ✅ trim() - 핵심 수정
 
                     if (request.getMethod().equals("POST")) {
                         StoreVO vo = new StoreVO();
@@ -87,31 +82,26 @@ public class StoreController implements Controller {
                         vo.setStore_addr(request.getParameter("store_addr"));
                         vo.setStore_tel(request.getParameter("store_tel"));
                         vo.setOpen_time(request.getParameter("open_time"));
-                        
+
                         String minPrice = request.getParameter("min_order_price");
-                        vo.setMin_order_price(minPrice != null && !minPrice.isEmpty()
-                                ? Integer.parseInt(minPrice) : 0);
+                        vo.setMin_order_price(minPrice != null && !minPrice.trim().isEmpty()
+                                ? Integer.parseInt(minPrice.trim()) : 0);
                         vo.setPrepare_time(request.getParameter("prepare_time"));
-                        
-                        // ✅ [추가] 수정 시 환불 정책 파라미터 수집
                         vo.setRefund_policy_24(request.getParameter("refund_policy_24"));
                         vo.setRefund_policy_12(request.getParameter("refund_policy_12"));
                         vo.setRefund_policy_0(request.getParameter("refund_policy_0"));
 
                         String newFilename = request.getParameter("filename");
-                        if (newFilename != null && !newFilename.isEmpty()) {
-                            vo.setFilename(newFilename);
+                        if (newFilename != null && !newFilename.trim().isEmpty()) {
+                            vo.setFilename(newFilename.trim());
                         }
-                        
+
                         Init.getService(uri).service(vo);
-                        jsp = "redirect:update.do?store_id=" + updateStoreId + "&result=success";
+                        jsp = "redirect:update.do?store_id=" + updateStoreId.trim() + "&result=success";
                     } else {
-                        // GET: 수정 폼 표시 (기존 데이터 로드)
                         StoreVO vo = (StoreVO) Init.getService("/store/view.do").service(updateId);
                         request.setAttribute("vo", vo);
-                        
-                        String result = request.getParameter("result");
-                        if ("success".equals(result)) {
+                        if ("success".equals(request.getParameter("result"))) {
                             request.setAttribute("result", "success");
                         }
                         jsp = "store/update";
@@ -120,7 +110,6 @@ public class StoreController implements Controller {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            // 에러 발생 시 로그를 남기고 에러 페이지로 이동
             request.setAttribute("exception", e);
             jsp = "error/500";
         }
