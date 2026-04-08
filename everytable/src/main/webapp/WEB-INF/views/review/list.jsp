@@ -76,13 +76,6 @@ $(function() {
         </c:if>
     </div>
 
-    <div class="text-center mt-5 mb-5">
-        <button class="btn btn-success btn-lg px-5" 
-                onclick="location.href='writeForm.do?storeId=${param.storeId}'"
-                style="background-color: #1a9c82; border: none; border-radius: 10px;">
-            리뷰 작성하기
-        </button>
-    </div>
 </div>
 </body>
 </html>

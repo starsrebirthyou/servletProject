@@ -112,3 +112,24 @@
         </div>
     </div>
 </div>
+<script>
+$(function() {
+    // [리뷰 보러가기] 버튼 클릭 이벤트
+    // 기존 a 태그의 기본 동작(책갈피)을 막고 페이지를 이동시킵니다.
+    $("a[href='#review-section']").click(function(e) {
+        e.preventDefault(); // href="#review-section" 동작 방지
+        
+        // 컨트롤러에서 처리할 storeId 값을 가져옵니다. 
+        // vo.store_id 인지 vo.no 인지 확인 후 맞춰주세요. (일반적으로 vo.store_id)
+        let storeId = "${vo.store_id}"; 
+        
+        if(!storeId || storeId === "") {
+            alert("매장 정보를 찾을 수 없습니다.");
+            return;
+        }
+
+        // 우리가 만든 매장별 리뷰 리스트 페이지로 이동
+        location.href = "/review/storeList.do?storeId=" + storeId;
+    });
+});
+</script>
