@@ -5,6 +5,73 @@
 <head>
 <meta charset="UTF-8">
 <title>아이디 찾기</title>
+<script type="text/javascript">
+$(function(){
+	$("#nextBtn").click(function() {
+	    let name  = $("#name").val().trim();
+	    let email = $("#email").val().trim();
+	    if (!name) {
+	        alert("이름을 입력해 주세요.");
+	        $("#name").focus();
+	        return;
+	    }
+	    if (!email) {
+	        alert("이메일을 입력해 주세요.");
+	        $("#email").focus();
+	        return;
+	    }
+
+	    $.ajax({
+	        url: "/member/checkMemberInfo.do",
+	        data: { name: name, email: email },
+	        success: function(res) {
+	       			// 응답에서 #ajax-data-result 찾아옴
+	            let result = $(res).find("#ajax-data-result").text().trim();
+	      				// 없으면 자기가 맞는지 확인
+	            if(!result) result = $(res).filter("#ajax-data-result").text().trim();
+
+	            console.log("정제된 아이디: [" + result + "]"); 
+
+	            if(result !== "no" && result.length > 0) {
+	                $("#step1").hide();
+	                $("#step2").fadeIn();
+	                $("#foundId").val(result); // 이제 깨끗한 'user01'만 들어감!
+	            } else {
+	                alert("일치하는 정보가 없습니다.");
+	            }
+	        }
+	    });
+	});
+
+	// 비밀번호를 입력받아 해당 계정의 비밀번호가 맞는지 확인 후 맞으면 아이디 알려줌
+	$("#findIdBtn").click(function() {
+	    let id = $("#foundId").val();
+	    let pw = $("#pw").val();
+
+	    $.ajax({
+	        url: "/member/checkPwForId.do",
+	        data: { id: id, pw: pw },
+	        success: function(res) {
+	        		// 응답에서 #ajax-data-result 찾아옴
+	            let result = $(res).find("#ajax-data-result").text().trim();
+	       			// 없으면 자기가 맞는지 확인
+	            if(!result) result = $(res).filter("#ajax-data-result").text().trim();
+	            
+	            console.log("비밀번호 체크 결과: " + result);
+
+	            if(result === "match") {
+	                $("#step2").hide();
+	                $("#showId").text(id); 
+	                $("#resultStep").fadeIn();
+	            } else {
+	                alert("비밀번호가 일치하지 않습니다.");
+	                $("#pw").val("").focus();
+	            }
+	        }
+	    });
+	});
+});
+</script>
 </head>
 <body>
 <div class="container mt-5">
@@ -47,63 +114,6 @@
 				        <a href="/member/loginForm.do" class="btn btn-outline-primary w-100">로그인하러 가기</a>
 				    </div>
 				</div>
-				
-				<script>
-				// 이름과 이메일 입력받아 일치하는 member 정보가 있는지 확인
-				$("#nextBtn").click(function() {
-				    let name = $("#name").val();
-				    let email = $("#email").val();
-
-				    $.ajax({
-				        url: "/member/checkMemberInfo.do",
-				        data: { name: name, email: email },
-				        success: function(res) {
-			        			// 응답에서 #ajax-data-result 찾아옴
-				            let result = $(res).find("#ajax-data-result").text().trim();
-		        				// 없으면 자기가 맞는지 확인
-				            if(!result) result = $(res).filter("#ajax-data-result").text().trim();
-
-				            console.log("정제된 아이디: [" + result + "]"); 
-
-				            if(result !== "no" && result.length > 0) {
-				                $("#step1").hide();
-				                $("#step2").fadeIn();
-				                $("#foundId").val(result); // 이제 깨끗한 'user01'만 들어감!
-				            } else {
-				                alert("일치하는 정보가 없습니다.");
-				            }
-				        }
-				    });
-				});
-
-				// 비밀번호를 입력받아 해당 계정의 비밀번호가 맞는지 확인 후 맞으면 아이디 알려줌
-				$("#findIdBtn").click(function() {
-				    let id = $("#foundId").val();
-				    let pw = $("#pw").val();
-
-				    $.ajax({
-				        url: "/member/checkPwForId.do",
-				        data: { id: id, pw: pw },
-				        success: function(res) {
-				        		// 응답에서 #ajax-data-result 찾아옴
-				            let result = $(res).find("#ajax-data-result").text().trim();
-			        			// 없으면 자기가 맞는지 확인
-				            if(!result) result = $(res).filter("#ajax-data-result").text().trim();
-				            
-				            console.log("비밀번호 체크 결과: " + result);
-
-				            if(result === "match") {
-				                $("#step2").hide();
-				                $("#showId").text(id); 
-				                $("#resultStep").fadeIn();
-				            } else {
-				                alert("비밀번호가 일치하지 않습니다.");
-				                $("#pw").val("").focus();
-				            }
-				        }
-				    });
-				});
-				</script>
 			</div>
         </div>
     </div>

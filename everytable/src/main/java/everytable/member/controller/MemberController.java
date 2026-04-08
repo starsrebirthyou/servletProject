@@ -512,6 +512,7 @@ public class MemberController implements Controller {
                 request.setAttribute("pageObject", pageObject);
                 return "member/list";
 
+                
             // --------------------------------------------------------
             // 관리자 - 상태 변경
             // --------------------------------------------------------
@@ -527,8 +528,16 @@ public class MemberController implements Controller {
                 session.setAttribute("msg", result == 1
                     ? "아이디 [" + vo.getId() + "]의 상태가 [" + vo.getStatus() + "](으)로 변경되었습니다."
                     : "상태 변경에 실패하였습니다.");
-                return "redirect:list.do";
+                String queryString = "page=" + request.getParameter("page")
+                + "&perPageNum=" + request.getParameter("perPageNum")
+                + "&keyword=" + (request.getParameter("keyword") != null ? request.getParameter("keyword") : "")
+                + "&status=" + (request.getParameter("status") != null ? request.getParameter("status") : "")
+                + "&gradeNo=" + (request.getParameter("gradeNo") != null ? request.getParameter("gradeNo") : "")
+                + "&dateFrom=" + (request.getParameter("dateFrom") != null ? request.getParameter("dateFrom") : "")
+                + "&dateTo=" + (request.getParameter("dateTo") != null ? request.getParameter("dateTo") : "");
+                return "redirect:list.do?" + queryString;
 
+                
             // --------------------------------------------------------
             // 관리자 - 등급 변경
             // --------------------------------------------------------
@@ -537,7 +546,14 @@ public class MemberController implements Controller {
                 vo.setId(request.getParameter("id"));
                 if (vo.getId().equals(loginId)) {
                     session.setAttribute("msg", "로그인한 관리자의 등급은 변경할 수 없습니다.");
-                    return "redirect:list.do";
+                    queryString = "page=" + request.getParameter("page")
+                    + "&perPageNum=" + request.getParameter("perPageNum")
+                    + "&keyword=" + (request.getParameter("keyword") != null ? request.getParameter("keyword") : "")
+                    + "&status=" + (request.getParameter("status") != null ? request.getParameter("status") : "")
+                    + "&gradeNo=" + (request.getParameter("gradeNo") != null ? request.getParameter("gradeNo") : "")
+                    + "&dateFrom=" + (request.getParameter("dateFrom") != null ? request.getParameter("dateFrom") : "")
+                    + "&dateTo=" + (request.getParameter("dateTo") != null ? request.getParameter("dateTo") : "");
+                    return "redirect:list.do?" + queryString;
                 }
                 vo.setGradeNo(Integer.parseInt(request.getParameter("gradeNo")));
                 result = (Integer) Execute.execute(Init.getService(uri), vo);
@@ -553,8 +569,16 @@ public class MemberController implements Controller {
                 } else {
                     session.setAttribute("msg", "등급 변경에 실패하였습니다.");
                 }
-                return "redirect:list.do";
+                queryString = "page=" + request.getParameter("page")
+                + "&perPageNum=" + request.getParameter("perPageNum")
+                + "&keyword=" + (request.getParameter("keyword") != null ? request.getParameter("keyword") : "")
+                + "&status=" + (request.getParameter("status") != null ? request.getParameter("status") : "")
+                + "&gradeNo=" + (request.getParameter("gradeNo") != null ? request.getParameter("gradeNo") : "")
+                + "&dateFrom=" + (request.getParameter("dateFrom") != null ? request.getParameter("dateFrom") : "")
+                + "&dateTo=" + (request.getParameter("dateTo") != null ? request.getParameter("dateTo") : "");
+                return "redirect:list.do?" + queryString;
 
+                
             default:
                 return "error/noPage";
             }

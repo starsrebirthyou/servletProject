@@ -91,9 +91,6 @@ body { background-color: #f4f6f3; }
                 <i class="fa fa-lock"></i> 로그인 후 이용하실 수 있습니다.
             </div>
         </c:if>
-        <c:if test="${not empty msg}">
-            <div class="alert alert-danger py-2 mb-3" style="font-size:0.85rem;">${msg}</div>
-        </c:if>
 
         <form action="${pageContext.request.contextPath}/member/login.do" method="post">
             <input type="hidden" name="redirectUrl" value="${redirectUrl}">
