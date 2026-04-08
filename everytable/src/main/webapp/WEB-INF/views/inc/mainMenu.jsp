@@ -114,8 +114,9 @@
           
           <c:if test="${login.gradeNo == 1}">
             <li class="nav-item"><a class="nav-link" href="/store/list.do">매장둘러보기</a></li>
-            <li class="nav-item"><a class="nav-link" href="/reservation/list.do">내주문보기</a></li>
-            <li class="nav-item"><a class="nav-link" href="/review/list.do">내 리뷰보기</a></li>
+            <li class="nav-item"><a class="nav-link" href="/reservation/list.do">주문내역</a></li>
+            <li class="nav-item"><a class="nav-link" href="/payment/list.do">결제내역</a></li>
+            <li class="nav-item"><a class="nav-link" href="/review/list.do">리뷰내역</a></li>
           </c:if>
 
           <c:if test="${login.gradeNo == 2}">
