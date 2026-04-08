@@ -21,7 +21,8 @@ public class MemberController implements Controller {
             String loginId = (loginVO != null) ? loginVO.getId() : null;
 
             switch (uri) {
-
+            
+            
             // --------------------------------------------------------
             // 로그인
             // --------------------------------------------------------
@@ -34,8 +35,10 @@ public class MemberController implements Controller {
                 userVO.setPw(request.getParameter("pw"));
 
                 loginVO = (LoginVO) Execute.execute(Init.getService(uri), userVO);
-                if (loginVO == null)
-                    throw new Exception("아이디 또는 비밀번호가 일치하지 않거나 이용이 제한된 계정입니다.");
+                if (loginVO == null) {
+                    request.setAttribute("msg", "아이디 또는 비밀번호가 일치하지 않거나 이용이 제한된 계정입니다.");
+                		return "member/loginForm";
+                }
 
                 session.setAttribute("login", loginVO);
                 Execute.execute(Init.getService("/member/updateLastLogin.do"), loginVO.getId());
@@ -44,7 +47,7 @@ public class MemberController implements Controller {
                 String redirectUrl = request.getParameter("redirectUrl");
                 if (redirectUrl != null && !redirectUrl.trim().isEmpty())
                     return "redirect:" + redirectUrl;
-                return "redirect:/notice/list.do";
+                return "redirect:/main/main.do";
                 
 
             // --------------------------------------------------------
@@ -75,7 +78,7 @@ public class MemberController implements Controller {
             case "/member/logout.do":
                 session.removeAttribute("login");
                 session.setAttribute("msg", "로그아웃되었습니다.");
-                return "redirect:/notice/list.do";
+                return "main/main";
                 
             
             // --------------------------------------------------------
@@ -117,7 +120,9 @@ public class MemberController implements Controller {
                 Execute.execute(Init.getService("/member/updateLastLogin.do"), loginVO.getId());
                 
                 session.setAttribute("msg", "회원가입을 축하드립니다. 자동 로그인 되었습니다.");
-                return "redirect:/notice/list.do";
+                
+                if (loginVO.getGradeNo() == 2) return "redirect:/store/write.do";
+                else return "redirect:/main/main.do";
 
             // --------------------------------------------------------
             // 로그인 필요 처리
