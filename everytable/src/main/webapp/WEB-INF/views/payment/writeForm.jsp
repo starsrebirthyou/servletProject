@@ -54,7 +54,7 @@
                 </div>
                 
                 <button type="submit" class="btn btn-dark w-100 py-3 fw-bold shadow-sm" style="border-radius: 15px;">
-                    ${vo.amount}원 결제하기
+                    ${param.totalPrice}원 결제하기
                 </button>
                 <button type="button" onclick="history.back();" class="btn btn-link text-muted w-100 mt-2 text-decoration-none">이전으로</button>
             </div>
