@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -19,27 +20,29 @@
 <div class="container">
     <div class="write-box shadow-sm">
         <h4 class="text-center font-weight-bold mb-4">리뷰 작성하기</h4>
-        <form action="write.do" method="post">
-            <!-- ★ 수정된 부분: param.storeId -> storeId ★ -->
-            <input type="hidden" name="storeId" value="${storeId}">
-            <!-- 별점 선택 위에 추가하세요 -->
-<div class="form-group">
-    <label for="storeId" class="text-muted">리뷰를 작성할 매장을 선택해주세요</label>
-    <select name="storeId" id="storeId" class="form-control" required>
-        <option value="">-- 매장 선택 --</option>
-        <!-- 컨트롤러에서 넘겨준 storeList가 있다면 반복문 사용 -->
-        <c:forEach items="${storeList}" var="store">
-            <option value="${store.storeId}">${store.storeName}</option>
-        </c:forEach>
         
-        <!-- 테스트용 하드코딩 (리스트가 아직 없다면) -->
-        <option value="1">사근동 맛집 1호점</option>
-        <option value="2">역삼동 분식점</option>
-    </select>
-</div>
+        <form action="write.do" method="post">
+            
+            <div class="form-group">
+                <label for="storeId" class="text-muted">리뷰를 작성할 매장을 선택해주세요</label>
+                <%-- storeId가 이미 넘어왔다면 선택 고정, 없다면 선택창 노출 --%>
+                <select name="storeId" id="storeId" class="form-control" required>
+                    <c:if test="${empty storeId}">
+                        <option value="">-- 매장 선택 --</option>
+                        <%-- 매장 리스트가 있다면 반복문 실행 --%>
+                        <c:forEach items="${storeList}" var="store">
+                            <option value="${store.storeId}">${store.storeName}</option>
+                        </c:forEach>
+                        <%-- 테스트용 데이터 --%>
+                        <option value="1">사근동 맛집 1호점</option>
+                        <option value="2">역삼동 분식점</option>
+                    </c:if>
+                    <c:if test="${!empty storeId}">
+                        <option value="${storeId}" selected>선택된 매장 번호: ${storeId}</option>
+                    </c:if>
+                </select>
+            </div>
 
-<!-- 기존 hidden 태그는 삭제하거나 위 select 박스가 대체하게 합니다 -->
-<!-- <input type="hidden" name="storeId" value="${storeId}"> -->
             <div class="form-group text-center">
                 <label class="text-muted">별점을 선택해주세요</label>
                 <div class="star-radio">
