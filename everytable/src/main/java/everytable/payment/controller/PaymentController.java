@@ -50,8 +50,9 @@ public class PaymentController implements Controller {
 
                 case "/payment/write.do":
                     vo = new PaymentVO();
-                    String orderIdStr = request.getParameter("order_id");
-                    String amountStr = request.getParameter("amount");
+                    
+                    String orderIdStr = request.getParameter("resNo"); // order_id 대신 resNo
+                    String amountStr = request.getParameter("totalPrice"); // amount 대신 totalPrice
                     String pickupDateStr = request.getParameter("pickupDate");
 
                     if (orderIdStr == null || orderIdStr.trim().isEmpty() || 
@@ -75,7 +76,7 @@ public class PaymentController implements Controller {
                     Execute.execute(Init.getService(uri), vo);
                     request.getSession().setAttribute("msg", "결제가 완료되었습니다.");
                     return "redirect:list.do";
-
+                    
                 case "/payment/updateForm.do":
                     LoginVO login = (LoginVO) request.getSession().getAttribute("login");
                     if (login == null || login.getGradeNo() != 9) {
