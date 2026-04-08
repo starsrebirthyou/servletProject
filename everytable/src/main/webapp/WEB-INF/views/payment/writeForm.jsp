@@ -12,11 +12,11 @@
 <body>
 <div class="container mt-5">
     <form action="write.do" method="post" id="paymentForm">
-        <input type="hidden" name="order_id" value="${vo.order_id}">
-        <input type="hidden" name="amount" value="${vo.amount}">
-        <input type="hidden" name="user_id" value="${vo.user_id }">
-        <input type="hidden" name="pickupDate" value="${vo.pickupDate}">
-
+        <input type="hidden" name="order_id" value="${param.resNo}">
+        <input type="hidden" name="amount" value="${param.totalPrice}">
+        <input type="hidden" name="user_id" value="${login.id}">
+        <input type="hidden" name="pickupDate" value="${param.pickupDate}">
+		<input type="hidden" name="store_id" value="${store_id}">
         <div class="card shadow-sm mx-auto" style="max-width: 500px; border-radius: 20px; border: none;">
             <div class="card-body p-4">
                 <div class="text-center mb-4">
@@ -34,7 +34,7 @@
                     </div>
                     <div class="d-flex justify-content-between">
                         <span class="text-muted">픽업일시</span>
-                        <span class="text-dark fw-bold">${vo.pickupDate}</span>
+                        <span class="text-dark fw-bold">${param.pickupDate}</span>
                     </div>
                 </div>
                 
