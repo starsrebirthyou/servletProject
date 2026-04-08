@@ -5,27 +5,21 @@ import java.util.List;
 import everytable.main.dao.DAO;
 import everytable.review.vo.ReviewVO;
 import everytable.util.db.DB;
-import everytable.util.page.PageObject;
 
 public class ReviewDAO extends DAO {
 
-    // 1. 리뷰 리스트
+    // 1. 리뷰 리스트 조회
     public List<ReviewVO> list(ReviewVO vo) throws Exception {
         List<ReviewVO> list = null;
         try {
             con = DB.getConnection();
-            // [수정] r.no -> r.review_id as no
             String sql = "SELECT r.review_id as no, r.content, r.user_id, m.name as user_name, "
                        + " r.store_id, s.store_name, r.rating, r.is_deleted, "
                        + " TO_CHAR(r.created_at, 'yyyy-mm-dd') created_at "
-                       + " FROM review r, member m, store s where (r.user_id = m.id) and (r.store_id = s.store_id) " 
-                       + " ORDER BY r.review_id DESC "; // 정렬도 review_id로
-
-            sql = "SELECT * FROM ( "
-                + "    SELECT rownum rnum, a.* FROM ( " 
-                +          sql 
-                + "    ) a "
-                + ") WHERE user_id = ? ";
+                       + " FROM review r, member m, store s "
+                       + " WHERE (r.user_id = m.id) AND (r.store_id = s.store_id) "
+                       + " AND r.user_id = ? "
+                       + " ORDER BY r.review_id DESC ";
 
             pstmt = con.prepareStatement(sql);
             pstmt.setString(1, vo.getUserId());
@@ -34,17 +28,17 @@ public class ReviewDAO extends DAO {
             if (rs != null) {
                 while (rs.next()) {
                     if (list == null) list = new ArrayList<>();
-                    vo = new ReviewVO();
-                    vo.setNo(rs.getLong("no")); // 위에서 as no 했으므로 "no" 가능
-                    vo.setContent(rs.getString("content"));
-                    vo.setUserId(rs.getString("user_id")); 
-                    vo.setUserName(rs.getString("user_name") == null ? rs.getString("user_id") : rs.getString("user_name"));
-                    vo.setStoreId(rs.getLong("store_id"));
-                    vo.setStoreName(rs.getString("store_name"));
-                    vo.setRating(rs.getDouble("rating"));
-                    vo.setIsDeleted(rs.getInt("is_deleted"));
-                    vo.setCreatedAt(rs.getString("created_at"));
-                    list.add(vo);
+                    ReviewVO resultVO = new ReviewVO();
+                    resultVO.setNo(rs.getLong("no"));
+                    resultVO.setContent(rs.getString("content"));
+                    resultVO.setUserId(rs.getString("user_id")); 
+                    resultVO.setUserName(rs.getString("user_name"));
+                    resultVO.setStoreId(rs.getLong("store_id"));
+                    resultVO.setStoreName(rs.getString("store_name"));
+                    resultVO.setRating(rs.getDouble("rating"));
+                    resultVO.setIsDeleted(rs.getInt("is_deleted"));
+                    resultVO.setCreatedAt(rs.getString("created_at"));
+                    list.add(resultVO);
                 }
             }
         } catch (Exception e) {
@@ -56,32 +50,37 @@ public class ReviewDAO extends DAO {
         return list;
     }
 
-    // 1-1. 전체 데이터 개수
-    public Long getTotalRow(PageObject pageObject) throws Exception {
-        Long totalRow = 0L;
+    // 2. 리뷰 등록
+    public Integer write(ReviewVO vo) throws Exception {
+        Integer result = 0;
         try {
             con = DB.getConnection();
-            String sql = "SELECT COUNT(*) FROM review";
+            String sql = "INSERT INTO review (review_id, content, user_id, store_id, store_name, rating, is_deleted, created_at) " 
+                       + " VALUES (review_seq.nextval, ?, ?, ?, ?, ?, 0, SYSDATE)";
+            
             pstmt = con.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-            if (rs != null && rs.next()) {
-                totalRow = rs.getLong(1);
-            }
+            pstmt.setString(1, vo.getContent());  
+            pstmt.setString(2, vo.getUserId());   
+            pstmt.setLong(3, vo.getStoreId());    
+            pstmt.setString(4, vo.getStoreName()); 
+            pstmt.setDouble(5, vo.getRating()); 
+            
+            result = pstmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception("전체 리뷰 개수 조회 중 DB 오류 발생");
+            throw new Exception("리뷰 등록 중 DB 오류 발생");
         } finally {
-            DB.close(con, pstmt, rs);
+            DB.close(con, pstmt);
         }
-        return totalRow;
+        return result;
     }
 
-    // 1-2. 상세 보기 (이미 잘 고쳐진 부분)
+    // 3. 리뷰 상세보기 (수정 폼 불러올 때 사용)
     public ReviewVO view(long no) throws Exception {
         ReviewVO vo = null;
         try {
             con = DB.getConnection();
-            String sql = "SELECT review_id as no, content, user_id, store_id, store_name , rating, "
+            String sql = "SELECT review_id as no, content, user_id, store_id, rating, "
                        + " TO_CHAR(created_at, 'yyyy-mm-dd') created_at "
                        + " FROM review WHERE review_id = ?"; 
             pstmt = con.prepareStatement(sql);
@@ -94,7 +93,6 @@ public class ReviewDAO extends DAO {
                 vo.setContent(rs.getString("content"));
                 vo.setUserId(rs.getString("user_id"));
                 vo.setStoreId(rs.getLong("store_id"));
-                vo.setStoreName(rs.getString("store_name"));
                 vo.setRating(rs.getDouble("rating"));
                 vo.setCreatedAt(rs.getString("created_at"));
             }
@@ -106,42 +104,19 @@ public class ReviewDAO extends DAO {
         }
         return vo;
     }
-    
-    // 2. 리뷰 등록
-    public Integer write(ReviewVO vo) throws Exception {
-        Integer result = 0;
-        try {
-            con = DB.getConnection();
-            // [수정] 테이블 컬럼명에 맞춰 no -> review_id
-            String sql = "INSERT INTO review(review_id, content, user_id, store_id,store_name, rating, is_deleted, created_at) " 
-                       + " VALUES(review_seq.nextval, ?, ?, ?, ?, 0, SYSDATE)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, vo.getContent());
-            pstmt.setString(2, vo.getUserId());
-            pstmt.setLong(3, vo.getStoreId());
-            pstmt.setString(4, vo.getStoreName());
-            pstmt.setDouble(5, vo.getRating());
-            result = pstmt.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception("리뷰 등록 중 DB 오류 발생");
-        } finally {
-            DB.close(con, pstmt);
-        }
-        return result;
-    }
 
-    // 3. 리뷰 수정
+    // ★ 4. 리뷰 수정 (여기에 추가되었습니다!) ★
     public Integer update(ReviewVO vo) throws Exception {
         Integer result = 0;
         try {
             con = DB.getConnection();
-            // [수정] no -> review_id
+            // content와 rating을 수정하며, review_id(no)를 조건으로 삼음
             String sql = "UPDATE review SET content = ?, rating = ? WHERE review_id = ?";
             pstmt = con.prepareStatement(sql);
             pstmt.setString(1, vo.getContent());
             pstmt.setDouble(2, vo.getRating());
             pstmt.setLong(3, vo.getNo());
+            
             result = pstmt.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -152,23 +127,18 @@ public class ReviewDAO extends DAO {
         return result;
     }
 
-    // 4. 리뷰 삭제
+    // 5. 리뷰 삭제
     public Integer delete(long no) throws Exception {
         Integer result = 0;
         try {
             con = DB.getConnection();
-            // [수정] no -> review_id
             String sql = "DELETE FROM review WHERE review_id = ?"; 
-            
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, no);
             result = pstmt.executeUpdate();
-            
-            if(result == 0) throw new Exception("삭제할 리뷰 번호가 존재하지 않습니다.");
-            
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception("리뷰 삭제 중 DB 오류 발생 : " + e.getMessage());
+            throw new Exception("리뷰 삭제 중 DB 오류 발생");
         } finally {
             DB.close(con, pstmt);
         }

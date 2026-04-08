@@ -74,19 +74,19 @@
 		</div>
 	</div>
 
-	<script>
-	// --- 1. 매출 추이 차트 데이터 세팅 (최근 일별 통계 리스트 활용) ---
-	const salesLabels = [];
-	const salesData = [];
-	
-	<c:forEach items="${list}" var="vo">
-		salesLabels.push("${vo.statsDate}");
-		salesData.push(${vo.totalSales});
-	</c:forEach>
-	
-	// 차트는 보통 왼쪽에서 오른쪽으로 시간 순이므로 배열을 뒤집어줍니다.
-	salesLabels.reverse();
-	salesData.reverse();
+<script>
+    // --- 1. 매출 추이 차트 (라인 차트) ---
+    const salesLabels = [];
+    const salesData = [];
+    
+    <c:forEach items="${list}" var="vo">
+        salesLabels.push("${vo.statsDate}");
+        salesData.push(${vo.totalSales});
+    </c:forEach>
+    
+    // 시간순 정렬
+    salesLabels.reverse();
+    salesData.reverse();
 
     const salesCtx = document.getElementById('salesChart').getContext('2d');
     new Chart(salesCtx, {
@@ -97,25 +97,23 @@
                 label: '매출액 (원)',
                 data: salesData,
                 borderColor: '#198754',
-                backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                tension: 0.4,
                 fill: true,
-                tension: 0.4
+                backgroundColor: 'rgba(25, 135, 84, 0.1)'
             }]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
-        }
+        options: { responsive: true, maintainAspectRatio: false }
     });
 
-    // --- 2. 카테고리별 도넛 차트 데이터 세팅 (카테고리 통계 리스트 활용) ---
+    // --- 2. 카테고리 통계 (도넛 차트) ---
     const catLabels = [];
     const catData = [];
     
     <c:forEach items="${categoryList}" var="v">
-    	catLabels.push("${v.storeId}"); // DAO에서 category_name을 storeId 필드에 담았을 경우
-    	catData.push(${v.orderCount});   // 판매 수량
+        // DAO에서 vo.setStoreId에 담은 카테고리명을 사용
+        catLabels.push("${v.storeId}"); 
+        // DAO에서 vo.setOrderCount에 담은 수량을 사용
+        catData.push(${v.orderCount});   
     </c:forEach>
 
     const categoryCtx = document.getElementById('categoryChart').getContext('2d');
@@ -129,18 +127,12 @@
                 borderWidth: 0
             }]
         },
-        options: {
-            responsive: true,
+        options: { 
+            responsive: true, 
             maintainAspectRatio: false,
-            cutout: '65%', 
-            plugins: {
-                legend: { 
-                    position: 'right',
-                    labels: { padding: 20 }
-                }
-            }
+            plugins: { legend: { position: 'right' } }
         }
     });
-	</script>
+</script>
 </body>
 </html>
