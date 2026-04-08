@@ -12,9 +12,9 @@
 <body>
 <div class="container mt-5">
     <form action="write.do" method="post" id="paymentForm">
-        <input type="hidden" name="order_id" value="${param.order_id}">
-        <input type="hidden" name="amount" value="${param.amount}">
-        <input type="hidden" name="user_id" value="${param.user_id }">
+        <input type="hidden" name="order_id" value="${param.resNo}">
+        <input type="hidden" name="amount" value="${param.totalPrice}">
+        <input type="hidden" name="user_id" value="${login.id}">
         <input type="hidden" name="pickupDate" value="${param.pickupDate}">
 
         <div class="card shadow-sm mx-auto" style="max-width: 500px; border-radius: 20px; border: none;">
