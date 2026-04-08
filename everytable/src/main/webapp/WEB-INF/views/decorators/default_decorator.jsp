@@ -16,6 +16,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 <style type="text/css">
+body {
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+}
+
 .footer-green { background-color: #87a372 !important; }
 
 /* ── 커스텀 모달 ── */

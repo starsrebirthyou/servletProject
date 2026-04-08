@@ -1,5 +1,7 @@
 package everytable.member.controller;
 
+import java.net.URLEncoder;
+
 import everytable.main.controller.Controller;
 import everytable.main.controller.Init;
 import everytable.main.service.Execute;
@@ -530,8 +532,8 @@ public class MemberController implements Controller {
                     : "상태 변경에 실패하였습니다.");
                 String queryString = "page=" + request.getParameter("page")
                 + "&perPageNum=" + request.getParameter("perPageNum")
-                + "&keyword=" + (request.getParameter("keyword") != null ? request.getParameter("keyword") : "")
-                + "&status=" + (request.getParameter("status") != null ? request.getParameter("status") : "")
+                + "&keyword=" + URLEncoder.encode(request.getParameter("keyword") != null ? request.getParameter("keyword") : "", "UTF-8")
+                + "&status=" + URLEncoder.encode(request.getParameter("status") != null ? request.getParameter("status") : "", "UTF-8")
                 + "&gradeNo=" + (request.getParameter("gradeNo") != null ? request.getParameter("gradeNo") : "")
                 + "&dateFrom=" + (request.getParameter("dateFrom") != null ? request.getParameter("dateFrom") : "")
                 + "&dateTo=" + (request.getParameter("dateTo") != null ? request.getParameter("dateTo") : "");
@@ -548,8 +550,8 @@ public class MemberController implements Controller {
                     session.setAttribute("msg", "로그인한 관리자의 등급은 변경할 수 없습니다.");
                     queryString = "page=" + request.getParameter("page")
                     + "&perPageNum=" + request.getParameter("perPageNum")
-                    + "&keyword=" + (request.getParameter("keyword") != null ? request.getParameter("keyword") : "")
-                    + "&status=" + (request.getParameter("status") != null ? request.getParameter("status") : "")
+                    + "&keyword=" + URLEncoder.encode(request.getParameter("keyword") != null ? request.getParameter("keyword") : "", "UTF-8")
+                    + "&status=" + URLEncoder.encode(request.getParameter("status") != null ? request.getParameter("status") : "", "UTF-8")
                     + "&gradeNo=" + (request.getParameter("gradeNo") != null ? request.getParameter("gradeNo") : "")
                     + "&dateFrom=" + (request.getParameter("dateFrom") != null ? request.getParameter("dateFrom") : "")
                     + "&dateTo=" + (request.getParameter("dateTo") != null ? request.getParameter("dateTo") : "");

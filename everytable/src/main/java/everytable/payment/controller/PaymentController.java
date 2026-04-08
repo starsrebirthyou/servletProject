@@ -40,33 +40,42 @@ public class PaymentController implements Controller {
                     return "payment/view";
 
                 case "/payment/writeForm.do":
-                    // 1. 주소창에서 넘어온 데이터 낚아채기
-                    String resNo = request.getParameter("resNo");
-                    String store_id = request.getParameter("store_id");
-                    String totalPrice = request.getParameter("totalPrice");
-                    String pDate = request.getParameter("pickupDate");
-
-                    // 2. VO 객체 생성 및 데이터 세팅
-                    vo = new PaymentVO(); 
-                    
-                    if (resNo != null && !resNo.equals("")) {
-                        // 만약 DB에서 예약 정보를 더 가져와야 한다면 실행
-                        // vo = (PaymentVO) Execute.execute(Init.getService("/payment/view.do"), Long.parseLong(resNo));
-                        
-                        // 🌟 시은님이 말한 필수 데이터들 VO에 꼭꼭 담기!
-                        vo.setOrder_id(Long.parseLong(resNo)); // 예약번호를 주문번호로 사용
-                       // vo.setStore_id(store_id);              // 매장 아이디 담기
-                        request.setAttribute("store_id", store_id);
-                        if(totalPrice != null) vo.setAmount(Long.parseLong(totalPrice));
-                        if(pDate != null && !pDate.isEmpty()) {
-                            vo.setPickupDate(java.sql.Date.valueOf(pDate));
-                        }
-                        
-                        // 3. JSP에서 쓸 수 있게 보내주기!
+                    String strNo = request.getParameter("no");
+                    if (strNo != null && !strNo.equals("")) {
+                        no = Long.parseLong(strNo);
+                        vo = (PaymentVO) Execute.execute(Init.getService("/payment/view.do"), no);
                         request.setAttribute("vo", vo);
                     }
                     return "payment/writeForm";
+
+                case "/payment/write.do":
+                    vo = new PaymentVO();
+                    String orderIdStr = request.getParameter("order_id");
+                    String amountStr = request.getParameter("amount");
+                    String pickupDateStr = request.getParameter("pickupDate");
+
+                    if (orderIdStr == null || orderIdStr.trim().isEmpty() || 
+                        amountStr == null || amountStr.trim().isEmpty() ||
+                        pickupDateStr == null || pickupDateStr.trim().isEmpty()) {
+                        throw new Exception("필수 정보(주문번호, 금액, 픽업일)가 누락되었습니다.");
+                    }
+
+                    vo.setOrder_id(Long.parseLong(orderIdStr));
+                    vo.setAmount(Long.parseLong(amountStr));
+                    vo.setMethod(request.getParameter("method"));
+                    vo.setUser_id(request.getParameter("user_id"));
+                    vo.setStatus("SUCCESS");
                     
+                    try {
+                        vo.setPickupDate(java.sql.Date.valueOf(pickupDateStr));
+                    } catch (Exception e) {
+                        throw new Exception("날짜 형식이 잘못되었습니다. (YYYY-MM-DD)");
+                    }
+
+                    Execute.execute(Init.getService(uri), vo);
+                    request.getSession().setAttribute("msg", "결제가 완료되었습니다.");
+                    return "redirect:list.do";
+
                 case "/payment/updateForm.do":
                     LoginVO login = (LoginVO) request.getSession().getAttribute("login");
                     if (login == null || login.getGradeNo() != 9) {
