@@ -178,9 +178,9 @@ public class MemberController implements Controller {
 	        	        vo.setId(findId);
 	        	        vo.setEmail(findEmail);
 	        	        String checkId = (String) Execute.execute(Init.getService("/member/checkMemberInfo.do"), vo);
-	        	        request.setAttribute("result", (checkId != null) ? vo.id : "no");
-	        	        return "member/ajaxResult";
+	        	        request.setAttribute("result", (checkId != null) ? vo.getId() : "no");
 	        	        session.setAttribute("resetId", checkId);
+	        	        return "member/ajaxResult";
 	        	    }
 	        	    // 공통: 인증번호 생성 + 세션 저장 + 메일 발송
 	        	    int authCode = (int)(Math.random() * 899999) + 100000;
@@ -343,7 +343,8 @@ public class MemberController implements Controller {
             		session.setAttribute("msg", "로그인이 필요합니다.");
             		return "redirect:/member/loginForm.do";
             	}
-            	request.setAttribute("vo", Execute.execute(Init.getService(uri), loginVO.getId()));
+            	String targetId = request.getParameter("id");
+            	request.setAttribute("vo", Execute.execute(Init.getService(uri), targetId));
             	return "member/memberInfo";
             	
             	

@@ -3,6 +3,8 @@ package everytable.member.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import everytable.main.dao.DAO;
 import everytable.member.vo.LoginVO;
 import everytable.member.vo.MemberVO;
@@ -18,26 +20,26 @@ public class MemberDAO extends DAO {
     public LoginVO login(LoginVO userVO) throws Exception {
         LoginVO vo = null;
         con = DB.getConnection();
-        String sql = "SELECT m.id, m.name, m.grade_no, g.grade_name, s.store_id "
+        String sql = "SELECT m.id, m.pw, m.name, m.grade_no, g.grade_name, s.store_id "
                 + " FROM member m, grade g, store s "
-                + " WHERE m.id = ? AND m.pw = ? "
-                + "   AND m.grade_no = g.grade_no "
-                + "   AND m.id = s.member_id(+) " // 이 부분이 핵심! (데이터가 없는 쪽이 +)
-                + "   AND m.status = '정상'";
+                + " WHERE m.id = ? AND m.grade_no = g.grade_no "
+                + " AND m.id = s.member_id(+) " // 이 부분이 핵심! (데이터가 없는 쪽이 +)
+                + " AND m.status = '정상'";
         
         pstmt = con.prepareStatement(sql);
         pstmt.setString(1, userVO.getId());
-        pstmt.setString(2, userVO.getPw());
-        
         
         rs = pstmt.executeQuery();
         if (rs != null && rs.next()) {
+            String savedPw = rs.getString("pw");
+            if (!BCrypt.checkpw(userVO.getPw(), savedPw)) return null; // 비밀번호 불일치
             vo = new LoginVO();
             vo.setId(rs.getString("id"));
             vo.setName(rs.getString("name"));
             vo.setGradeNo(rs.getInt("grade_no"));
             vo.setGradeName(rs.getString("grade_name"));
             vo.setStoreId(rs.getLong("store_id"));
+
         }
         DB.close(con, pstmt, rs);
         return vo;
@@ -60,6 +62,9 @@ public class MemberDAO extends DAO {
     public Integer write(MemberVO vo) throws Exception {
         Integer result = 0;
         con = DB.getConnection();
+        
+        String hashedPw = BCrypt.hashpw(vo.getPw(), BCrypt.gensalt());
+        vo.setPw(hashedPw);
         
         // 점주/일반 구분 없이 member 테이블의 공통 컬럼만 INSERT[cite: 2]
         String sql = "INSERT INTO member(no, id, pw, name, gender, birth, tel, email, grade_no)"
@@ -187,25 +192,53 @@ public class MemberDAO extends DAO {
     }
     
     
-
-	
     // ----------------------------------------------------------------
-    // 비밀번호 보기
+    // 비밀번호 변경
     // ----------------------------------------------------------------
     public Integer changePw(MemberVO vo, Integer user) throws Exception {
         Integer result = 0;
         con = DB.getConnection();
+        
+        if (user == 1) {
+            // 현재 비밀번호 검증 먼저 (BCrypt 비교)
+            String checkSql = "SELECT pw FROM member WHERE id = ?";
+            pstmt = con.prepareStatement(checkSql);
+            pstmt.setString(1, vo.getId());
+            rs = pstmt.executeQuery();
+            
+            if (rs == null || !rs.next()) {
+                DB.close(con, pstmt, rs);
+                return 0;
+            }
+            
+            String savedPw = rs.getString("pw");
+            if (!BCrypt.checkpw(vo.getPw(), savedPw)) {
+                DB.close(con, pstmt, rs);
+                return 0; // 현재 비밀번호 불일치
+            }
+            DB.close(null, pstmt, rs); // con은 아직 유지
+        }
+        
+        // 새 비밀번호 해시화 후 저장
+        String hashedPw = BCrypt.hashpw(vo.getNewPw(), BCrypt.gensalt());
         String sql = "UPDATE member SET pw = ? WHERE id = ?";
         if (user == 1) sql += " AND pw = ?";
+        
         pstmt = con.prepareStatement(sql);
-        pstmt.setString(1, vo.getNewPw());
+        pstmt.setString(1, hashedPw);
         pstmt.setString(2, vo.getId());
+        
         if (user == 1) pstmt.setString(3, vo.getPw());
         result = pstmt.executeUpdate();
+        
         DB.close(con, pstmt);
         return result;
     }
 
+    
+    // ----------------------------------------------------------------
+    // 비밀번호 확인
+    // ----------------------------------------------------------------
     public String checkPw(MemberVO vo) throws Exception {
         String id = null;
         con = DB.getConnection();

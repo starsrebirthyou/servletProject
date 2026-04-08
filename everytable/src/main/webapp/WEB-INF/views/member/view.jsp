@@ -41,7 +41,10 @@
 
 <script type="text/javascript">
 $(function(){
-
+	$(".cancelBtn").click(function(){
+		history.back();
+	});
+	
     // ── 수정 폼 토글 ──
     $(".btn-edit").click(function(){
         let target = $(this).data("target");
@@ -236,6 +239,7 @@ $(function(){
             location.href = "/member/withdraw.do";
         }
     });
+    
 });
 </script>
 </head>
@@ -356,7 +360,7 @@ $(function(){
         <span class="info-value">${vo.joinDate}</span>
     </div>
 
-    <!-- 최근 로그인 -->
+    <!-- 최근 접속일 -->
     <div class="info-row">
         <span class="info-label">최근 접속일</span>
         <span class="info-value">${vo.lastLogin}</span>
@@ -366,6 +370,7 @@ $(function(){
 
 <div class="d-flex gap-2 mt-3" style="max-width:640px;margin:12px auto 0;">
     <button class="btn btn-danger btn-sm" id="deleteBtn">회원탈퇴</button>
+    <button type="button" class="cancelBtn btn btn-success btn-sm">이전</button>
 </div>
 
 </body>

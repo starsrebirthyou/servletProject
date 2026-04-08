@@ -345,7 +345,10 @@ $(function(){
                 <td>${vo.joinDate}</td>
                 <td>
                     <span class="btn-detail noMove" 
-                    		onclick="location='memberInfo.do?id=${vo.id}'">상세보기</span>
+                    		onclick="location='memberInfo.do?id=${vo.id}&page=${pageObject.page}
+                    		&perPageNum=${pageObject.perPageNum}&keyword=${param.keyword}
+                    		&status=${param.status}&gradeNo=${param.gradeNo}&dateFrom=${param.dateFrom}
+                    		&dateTo=${param.dateTo}'">상세보기</span>
                 </td>
             </tr>
         </c:forEach>
