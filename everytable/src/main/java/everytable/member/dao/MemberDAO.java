@@ -457,7 +457,7 @@ public class MemberDAO extends DAO {
     public String checkId(String inId) throws Exception {
         String id = null;
         con = DB.getConnection();
-        String sql = "SELECT id FROM member WHERE id = ? AND status != '탈퇴'";
+        String sql = "SELECT id FROM member WHERE id = ?";
         pstmt = con.prepareStatement(sql);
         pstmt.setString(1, inId);
         rs = pstmt.executeQuery();

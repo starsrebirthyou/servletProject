@@ -77,7 +77,6 @@ body { background-color: #f4f6f3; }
 </style>
 </head>
 <body>
-
 <div class="login-wrap">
     <div class="login-header">
         <div class="logo-box"><i class="fa fa-cutlery"></i></div>
@@ -91,9 +90,6 @@ body { background-color: #f4f6f3; }
             <div class="alert alert-warning py-2 mb-3" style="font-size:0.85rem;">
                 <i class="fa fa-lock"></i> 로그인 후 이용하실 수 있습니다.
             </div>
-        </c:if>
-        <c:if test="${not empty msg}">
-            <div class="alert alert-danger py-2 mb-3" style="font-size:0.85rem;">${msg}</div>
         </c:if>
 
         <form action="${pageContext.request.contextPath}/member/login.do" method="post">

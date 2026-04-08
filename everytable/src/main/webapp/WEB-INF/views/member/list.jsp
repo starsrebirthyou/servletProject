@@ -190,15 +190,22 @@ $(function(){
     $(".changeStatusBtn").on("click", function(){
         let id     = $(this).closest(".dataRow").find(".col-id").text().trim();
         let status = $(this).closest(".dataRow").find(".status").val();
-        location   = "changeStatus.do?id=" + id + "&status=" + status;
+        let params = "id=" + id + "&status=" + status;
+        params += "&page=${pageObject.page}&perPageNum=${pageObject.perPageNum}";
+        params += "&keyword=${param.keyword}&status=${param.status}";
+        params += "&gradeNo=${param.gradeNo}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}";
+        location = "changeStatus.do?" + params;
     });
-    
+
     /* 등급 수정 버튼 클릭 */
     $(".changeGradeNoBtn").on("click", function(){
         let id      = $(this).closest(".dataRow").find(".col-id").text().trim();
         let gradeNo = $(this).closest(".dataRow").find(".gradeNo").val();
-        console.log("id =", id);
-        location    = "changeGrade.do?id=" + id + "&gradeNo=" + gradeNo;
+        let params = "id=" + id + "&gradeNo=" + gradeNo;
+        params += "&page=${pageObject.page}&perPageNum=${pageObject.perPageNum}";
+        params += "&keyword=${param.keyword}&status=${param.status}";
+        params += "&gradeNo=${param.gradeNo}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}";
+        location = "changeGrade.do?" + params;
     });
 
     /* 검색 폼 제출 & 초기화 (기존 동일) */

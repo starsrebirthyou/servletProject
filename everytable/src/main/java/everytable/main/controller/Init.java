@@ -113,6 +113,11 @@ public class Init extends HttpServlet {
 
 	public void init(ServletConfig config) throws ServletException {
 		System.out.println("Init.init() --- 객체 생성 및 조립 시작 ---");
+		
+		// ==============================================
+		// 0. 메인화면 (Main)
+		// ==============================================
+		controllerMap.put("/main", new mainController());
 
 		// ==============================================
 		// 1. 공지사항 (Notice)
@@ -259,7 +264,6 @@ public class Init extends HttpServlet {
 		serviceMap.get("/reservation/groupMenuForm.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/groupShare.do").setDAO(daoMap.get("reservationDAO"));
 		serviceMap.get("/reservation/finalOrder.do").setDAO(daoMap.get("reservationDAO"));
-
 
 
 		// ==============================================
