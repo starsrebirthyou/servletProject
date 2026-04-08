@@ -122,7 +122,7 @@
           <c:if test="${login.gradeNo == 2}">
             <li class="nav-item"><a class="nav-link" href="/store/update.do">매장관리</a></li>
             <li class="nav-item"><a class="nav-link" href="/reservation/adminList.do">주문관리</a></li>
-            <li class="nav-item"><a class="nav-link" href="/menu/write.do">메뉴관리</a></li>
+            <li class="nav-item"><a class="nav-link" href="/menu/list.do">메뉴관리</a></li>
           </c:if>
 
           <c:if test="${login.gradeNo == 9}">
