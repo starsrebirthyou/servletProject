@@ -36,14 +36,14 @@ public class ReservationController implements Controller {
 
 			// [공통] 로그인 체크 (이미 정제된 uri를 사용하므로 정상 작동함)
 			// [공통] 로그인 체크 예외 대상 (로그인 안 해도 들어갈 수 있는 주소들)
-			boolean isExempted = uri.equals("/reservation/groupShare.do") 
-			                  || uri.equals("/reservation/groupMenuForm.do") 
-			                  || uri.equals("/reservation/groupOrderWrite.do")
-			                  || uri.equals("/reservation/groupOrderComplete"); // 완료 페이지 포함
+			boolean isExempted = uri.equals("/reservation/groupShare.do") || uri.equals("/reservation/groupMenuForm.do")
+					|| uri.equals("/reservation/groupOrderWrite.do") || uri.equals("/reservation/groupOrderComplete"); // 완료
+																														// 페이지
+																														// 포함
 
 			if (loginVO == null && !isExempted) {
-			    session.setAttribute("msg", "로그인이 필요한 서비스입니다.");
-			    return "redirect:/member/loginForm.do";
+				session.setAttribute("msg", "로그인이 필요한 서비스입니다.");
+				return "redirect:/member/loginForm.do";
 			}
 
 			ReservationVO vo;
@@ -288,15 +288,29 @@ public class ReservationController implements Controller {
 				request.setAttribute("storeId", no);
 				return "reservation/groupOrderStatus";
 
-				// 240번 라인 근처 수정
+			// 240번 라인 근처 수정
 			case "/reservation/groupShare.do":
-			    String shareNo = request.getParameter("resNo");
-			    String shareStoreId = request.getParameter("storeId"); // [추가] 파라미터 받기
-			    
-			    request.setAttribute("resNo", shareNo);
-			    request.setAttribute("storeId", shareStoreId); // [추가] JSP에서 ${storeId}로 쓸 수 있게 세팅
-			    
-			    return "reservation/groupShare";
+				String shareNo = request.getParameter("resNo");
+				String shareStoreId = request.getParameter("storeId"); // [추가] 파라미터 받기
+
+				request.setAttribute("resNo", shareNo);
+				request.setAttribute("storeId", shareStoreId); // [추가] JSP에서 ${storeId}로 쓸 수 있게 세팅
+
+				return "reservation/groupShare";
+
+			case "/reservation/finalOrder.do":
+				long resNoFinal = Long.parseLong(request.getParameter("resNo"));
+				String orderAdd = request.getParameter("orderAdd");
+
+				ReservationVO finalVO = new ReservationVO();
+				finalVO.setResNo(resNoFinal);
+				finalVO.setOrderAdd(orderAdd);
+
+				// 서비스 호출 (금액 계산 + orderAdd 업데이트)
+				Execute.execute(Init.getService(uri), finalVO);
+
+				// 완료 후 예약 상세보기로 이동
+				return "redirect:view.do?no=" + resNoFinal + "&inc=0";
 
 			default:
 				// 정의되지 않은 URI인 경우 404 페이지로 유도하여 NPE 방지

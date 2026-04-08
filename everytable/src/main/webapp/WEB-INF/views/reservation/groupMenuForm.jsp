@@ -96,6 +96,16 @@ body {
 				</div>
 			</div>
 		</c:forEach>
+		
+		<div class="card border-0 shadow-sm rounded-4 p-4 mb-5">
+            <label for="orderAdd" class="form-label fw-bold">
+                <i class="fa-solid fa-comment-dots me-2"></i>매장 요청 사항
+            </label>
+            <textarea name="orderAdd" id="orderAdd" class="form-control border-0 bg-light" 
+                      rows="3" placeholder="예) 아기가 있어요, 오이는 빼주세요 등 요청사항을 적어주세요."
+                      style="border-radius: 15px; resize: none;">${vo.orderAdd}</textarea>
+            <div class="form-text text-end mt-2">※ 매장 상황에 따라 요청 사항 반영이 어려울 수 있습니다.</div>
+        </div>
 
 		<%-- 하단 고정 바 --%>
 		<div class="total-bar">

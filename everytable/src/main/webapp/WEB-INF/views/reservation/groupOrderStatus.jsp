@@ -12,11 +12,17 @@ body { background-color: #f8f9fa; }
     padding: 40px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
-/* 버튼 영역 스타일 */
 .action-area {
     margin-top: 30px;
     padding-top: 20px;
     border-top: 1px dashed #ddd;
+}
+/* 추가 요청사항 스타일 */
+.order-add-section {
+    background: #fff9db;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
 }
 </style>
 
@@ -43,22 +49,27 @@ body { background-color: #f8f9fa; }
         </tbody>
     </table>
 
-    <div class="text-end mt-3">
+    <div class="text-end mt-3 mb-4">
         <h4 class="fw-bold">
-            총 합계: <span class="text-success">
+            총 합계: <span class="text-success" id="displayTotal">
                 <fmt:formatNumber value="${total}" pattern="#,###"/>원
             </span>
         </h4>
     </div>
 
+    <div class="order-add-section">
+        <label for="orderAdd" class="fw-bold mb-2">📢 매장 요청사항</label>
+        <textarea name="orderAdd" id="orderAdd" class="form-control" rows="3" 
+                  placeholder="예: 아기 의자 2개 부탁드립니다. 알레르기가 있어요."></textarea>
+    </div>
+
     <div class="action-area text-center">
-        <form action="/reservation/finalOrderProcess.do" method="post" id="finalOrderForm">
-            <%-- 현재 예약 번호 전송 --%>
+        <form action="/reservation/finalOrder.do" method="post" id="finalOrderForm">
             <input type="hidden" name="resNo" value="${resNo}">
-            <input type="hidden" name="totalPrice" value="${total}">
+            <input type="hidden" name="storeId" value="${storeId}">
             
             <button type="button" onclick="confirmFinalOrder()" class="btn btn-success btn-lg w-100 py-3 fw-bold shadow-sm" style="border-radius: 10px;">
-                ✅ 취합 완료 및 최종 결제하기
+                ✅ 취합 완료 및 결제하기
             </button>
         </form>
         <p class="mt-2 text-danger small">* 버튼을 누르면 더 이상 메뉴 수정이 불가능합니다.</p>
@@ -69,24 +80,24 @@ body { background-color: #f8f9fa; }
 
 <script>
 function confirmFinalOrder() {
-    if(confirm("정말로 주문을 확정하시겠습니까?\n취합된 메뉴와 금액으로 최종 결제가 진행됩니다.")) {
-        
+    const orderAdd = document.getElementById("orderAdd").value;
+    const resNo = "${resNo}";
+    const storeId = "${storeId}";
+
+    if(!storeId) {
+        alert("매장 정보가 없습니다. 다시 시도해주세요.");
+        return;
+    }
+
+    if(confirm("정말로 주문을 확정하시겠습니까?\n취합된 메뉴와 요청사항이 저장됩니다.")) {
         const form = document.getElementById("finalOrderForm");
-        
-        // 1. 현재 접속한 환경(IP/Port)과 프로젝트 경로 가져오기
-        const baseUrl = window.location.origin + "${pageContext.request.contextPath}";
-        
-        // 2. URL 뒤에 파라미터를 직접 붙여서 action 경로 재설정
-        // 예약번호(resNo)와 매장아이디(store_id)를 주소에 포함시킵니다.
-        const resNo = "${resNo}";
-        const store_id = "${vo.store_id}"; // 현재 페이지에 있는 매장 아이디 변수명에 맞춰 수정하세요.
-        
-        form.action = baseUrl + "/payment/writeForm.do?resNo=" + resNo + "&store_id=" + store_id;
         
         // 자동 갱신 중단
         window.stop(); 
         
-        // 3. 최종 전송
+        // [중요] 폼 전송 시 '결제 폼'으로 바로 가는 게 아니라, 
+        // '최종 금액/요청사항 저장 서비스'를 거쳐서 redirect 되게 해야 합니다.
+        // 만약 컨트롤러에서 redirect 처리를 해두셨다면 아래와 같이 submit만 하면 됩니다.
         form.submit();
     }
 }
