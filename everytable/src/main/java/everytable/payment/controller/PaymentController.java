@@ -51,8 +51,8 @@ public class PaymentController implements Controller {
                 case "/payment/write.do":
                     vo = new PaymentVO();
                     
-                    String orderIdStr = request.getParameter("resNo"); // order_id 대신 resNo
-                    String amountStr = request.getParameter("totalPrice"); // amount 대신 totalPrice
+                    String orderIdStr = request.getParameter("resNo"); 
+                    String amountStr = request.getParameter("totalPrice");
                     String pickupDateStr = request.getParameter("pickupDate");
 
                     if (orderIdStr == null || orderIdStr.trim().isEmpty() || 
