@@ -140,12 +140,22 @@ public class StatsDAO extends DAO {
         return list;
     }
 
+ // StatsDAO.java 수정 부분
+
     private String search(PageObject pageObject) {
         String sql = "";
+        // 기존 store_id 검색 기능 유지
         String word = pageObject.getWord();
         if (word != null && word.length() != 0) {
-            sql += " where sd.store_id like ? "; 
+            sql += " and sd.store_id like ? "; 
         }
+        
+        // [추가] 날짜 기간 검색 조건 (PageObject의 accept 데이터를 활용)
+        // Controller에서 startDate와 endDate를 PageObject에 담아줘야 합니다.
+        if (pageObject.getAccept() != null) {
+            sql += " and sd.stats_date between ? and ? ";
+        }
+        
         return sql;
     }
 
@@ -154,6 +164,14 @@ public class StatsDAO extends DAO {
         if (word != null && word.length() != 0) {
             pstmt.setString(idx++, "%" + word + "%");
         }
+        
+        // [추가] 날짜 데이터 세팅
+        if (pageObject.getAccept() != null) {
+            // accept 객체에 담긴 날짜 배열이나 맵을 사용 (아래 Controller 수정 참고)
+            String[] dates = (String[]) pageObject.getAccept();
+            pstmt.setString(idx++, dates[0]); // startDate
+            pstmt.setString(idx++, dates[1]); // endDate
+        }
+        
         return idx;
-    }
-}
+    }}

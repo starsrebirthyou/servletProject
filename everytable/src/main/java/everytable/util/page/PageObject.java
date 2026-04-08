@@ -39,6 +39,9 @@ public class PageObject {
 	// 공지 분류 (기간) 를 적용시키는 변수 - period
 	// pre : 현재공지, old : 지난공지 , res : 예약공지, all : 전체공지 
 	private String period;
+
+    // [추가] 기타 데이터를 담기 위한 범용 변수 (날짜 검색용)
+    private Object accept;
 	
 	// 메시지 처리를 위한 변수
 	// 받는 사람의 id
@@ -158,7 +161,14 @@ public class PageObject {
 	public long getTotalRow() {
 		return totalRow;
 	}
+	public Object getAccept() {
+        return accept;
+    }
 
+    public void setAccept(Object accept) {
+        this.accept = accept;
+    }
+	
 	// 페이지에 대한 정보를 계산하는 처리가 되어있다. 반드시 실행해 주셔야만 한다.(데이터가 나오지 않는다.)
 	// - 페이지에 따른 데이터의 startRow와 endRow, totalPage, startPage, endPage
 	public void setTotalRow(long totalRow) {

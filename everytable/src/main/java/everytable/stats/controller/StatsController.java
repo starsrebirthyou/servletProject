@@ -63,6 +63,11 @@ public class StatsController implements Controller {
                     PageObject poSales = PageObject.getInstance(request);
                     poSales.setWord(salesId); 
 
+                    // [추가] 날짜 데이터가 있다면 PageObject의 accept에 담아서 DAO로 전달
+                    if (startDate != null && !startDate.equals("") && endDate != null && !endDate.equals("")) {
+                        poSales.setAccept(new String[]{startDate, endDate});
+                    }
+
                     // 4. 데이터 가져오기
                     List<StatsVO> salesList = (List<StatsVO>) Execute.execute(Init.getService("/stats/list.do"), poSales);
                     
@@ -72,7 +77,7 @@ public class StatsController implements Controller {
                         for(StatsVO vo : salesList) totalSum += vo.getTotalSales();
                     }
 
-                    // 6. JSP에서 사용할 수 있도록 request에 담기 (매우 중요!)
+                    // 6. JSP에서 사용할 수 있도록 request에 담기
                     request.setAttribute("list", salesList);
                     request.setAttribute("totalSum", totalSum);
                     request.setAttribute("startDate", startDate);
