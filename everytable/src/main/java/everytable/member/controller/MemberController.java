@@ -361,6 +361,14 @@ public class MemberController implements Controller {
             	case "/member/adminResetPw.do":
             	    vo = new MemberVO();
             	    vo.setId(request.getParameter("id"));
+            	    
+            	    // 파기 회원 비밀번호 초기화 차단
+            	    MemberVO checkMember = (MemberVO) Execute.execute(Init.getService("/member/view.do"), vo.getId());
+            	    if (checkMember != null && "파기".equals(checkMember.getStatus())) {
+            	        request.setAttribute("result", "purged");
+            	        return "member/ajaxResult";
+            	    }
+            	    
             	    vo.setNewPw(request.getParameter("newPw"));
 
             	    // user = 0 → 현재 비밀번호 검증 없이 변경
@@ -526,6 +534,32 @@ public class MemberController implements Controller {
                     return "redirect:list.do";
                 }
                 vo.setStatus(request.getParameter("status"));
+                
+                // ── '정지' 상태일 때: days 파라미터를 받아 suspension_end_date 계산 ──
+                if ("정지".equals(vo.getStatus())) {
+                    String daysParam = request.getParameter("days");
+                    if (daysParam == null || daysParam.trim().isEmpty()) {
+                        request.setAttribute("result", "fail");
+                        return "member/ajaxResult";
+                    }
+                    int days = Integer.parseInt(daysParam.trim());
+                    // 정지 해제일 = 내일 + (days-1) = SYSDATE + days
+                    java.time.LocalDate endDate = java.time.LocalDate.now().plusDays(days);
+                    vo.setSuspensionEndDate(endDate.toString()); // "yyyy-MM-dd"
+
+                    String reason = request.getParameter("reason");
+                    if (reason == null) reason = "";
+
+                    Integer suspendResult = (Integer) Execute.execute(
+                        Init.getService("/member/suspend.do"), 
+                        new Object[]{vo, loginId, reason}
+                    );
+                    request.setAttribute("result", suspendResult == 1 ? "ok" : "fail");
+                    return "member/ajaxResult"; // Ajax 응답
+                }
+
+                // '파기' 상태면 등급/상태 변경 불가
+                // (파기 회원은 DB 스케줄러가 자동 처리하므로 관리자가 직접 변경하는 케이스 차단)
                 Integer result = (Integer) Execute.execute(Init.getService(uri), vo);
                 session.setAttribute("msg", result == 1
                     ? "아이디 [" + vo.getId() + "]의 상태가 [" + vo.getStatus() + "](으)로 변경되었습니다."
@@ -546,6 +580,14 @@ public class MemberController implements Controller {
             case "/member/changeGrade.do":
                 vo = new MemberVO();
                 vo.setId(request.getParameter("id"));
+                
+                // 파기 회원 등급 변경 차단
+                MemberVO targetMember = (MemberVO) Execute.execute(Init.getService("/member/view.do"), vo.getId());
+                if (targetMember != null && targetMember.getStatus().equals("파기")) {
+                    session.setAttribute("msg", "개인정보가 파기된 회원의 등급은 변경할 수 없습니다.");
+                    return "redirect:list.do";
+                }
+                
                 if (vo.getId().equals(loginId)) {
                     session.setAttribute("msg", "로그인한 관리자의 등급은 변경할 수 없습니다.");
                     queryString = "page=" + request.getParameter("page")

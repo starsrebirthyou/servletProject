@@ -21,6 +21,7 @@ import everytable.member.service.MemberInfoService;
 import everytable.member.service.MemberListService;
 import everytable.member.service.MemberResetPwService;
 import everytable.member.service.MemberSearchIdService;
+import everytable.member.service.MemberSuspendService;
 import everytable.member.service.MemberUpdateLastLoginService;
 import everytable.member.service.MemberViewService;
 import everytable.member.service.MemberWithdrawService;
@@ -164,6 +165,7 @@ public class Init extends HttpServlet {
 		serviceMap.put("/member/withdraw.do", new MemberWithdrawService());
 		serviceMap.put("/member/memberInfo.do", new MemberInfoService());
 		serviceMap.put("/member/adminResetPw.do", new MemberResetPwService());
+		serviceMap.put("/member/suspend.do", new MemberSuspendService());
 		// -- DAO 저장
 		daoMap.put("memberDAO", new MemberDAO());
 		// -- service에 dao 조립
@@ -185,6 +187,7 @@ public class Init extends HttpServlet {
 		serviceMap.get("/member/withdraw.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/memberInfo.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/adminResetPw.do").setDAO(daoMap.get("memberDAO"));
+		serviceMap.get("/member/suspend.do").setDAO(daoMap.get("memberDAO"));
 
 		// ==============================================
 		// 3. 매장관리 (Store)

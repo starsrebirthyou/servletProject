@@ -19,6 +19,7 @@ public class MemberVO {
 	private String gradeName;  // 등급 이름
 	private String joinDate;   // 가입일
 	private String lastLogin;  // 최근 로그인 날짜
+	private String suspensionEndDate;  // 정지해제일
 	private String withdraw;  // 회원탈퇴일
 	
 	public long getNo() {
@@ -123,6 +124,12 @@ public class MemberVO {
 	public void setLastLogin(String lastLogin) {
 		this.lastLogin = lastLogin;
 	}
+	public String getSuspensionEndDate() {
+		return suspensionEndDate;
+	}
+	public void setSuspensionEndDate(String suspensionEndDate) {
+		this.suspensionEndDate = suspensionEndDate;
+	}
 	public String getWithdraw() {
 		return withdraw;
 	}
@@ -136,7 +143,7 @@ public class MemberVO {
 				+ gender + ", birth=" + birth + ", tel=" + tel + ", email=" + email + ", storeName=" + storeName
 				+ ", storeCate=" + storeCate + ", storeAddr=" + storeAddr + ", status=" + status + ", gradeNo="
 				+ gradeNo + ", gradeName=" + gradeName + ", joinDate=" + joinDate + ", lastLogin=" + lastLogin
-				+ ", withdraw=" + withdraw + "]";
+				+ ", suspensionEndDate=" + suspensionEndDate + ", withdraw=" + withdraw + "]";
 	}
 	
 }

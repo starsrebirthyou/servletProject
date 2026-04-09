@@ -123,7 +123,9 @@ $(function(){
     <div class="info-row">
         <span class="info-label">비밀번호</span>
         <span class="info-value">******</span>
-        <button class="btn-edit" data-target="pwForm">초기화</button>
+        <c:if test="${vo.status != '파기'}">
+        		<button class="btn-edit" data-target="pwForm">초기화</button>
+        </c:if>
     </div>
     <div class="edit-form" id="pwForm">
     <div class="mb-2">

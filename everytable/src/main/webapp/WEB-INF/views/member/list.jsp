@@ -141,6 +141,39 @@ body { background-color: #f4f6f3; }
     cursor: pointer; margin-left: 6px; font-weight: 600;
 }
 .btn-update:hover { background-color: #0a5e3f; }
+
+/* ── 정지일수 입력 모달 ── */
+.modal-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,0.45); z-index:9000;
+    align-items:center; justify-content:center;
+}
+.modal-overlay.active { display:flex; }
+.modal-box {
+    background:#fff; border-radius:14px; padding:28px 28px 22px;
+    width:340px; box-shadow:0 8px 32px rgba(0,0,0,0.18);
+}
+.modal-box h5 { font-size:1rem; font-weight:700; margin-bottom:4px; }
+.modal-box p  { font-size:0.85rem; color:#888; margin-bottom:16px; }
+.modal-box input {
+    width:100%; border:1px solid #dde0da; border-radius:8px;
+    padding:8px 12px; font-size:0.95rem; margin-bottom:8px;
+}
+.modal-box input:focus { border-color:#0f7a54; outline:none; }
+.modal-box textarea {
+    width:100%; border:1px solid #dde0da; border-radius:8px;
+    padding:8px 12px; font-size:0.88rem; resize:vertical;
+    margin-bottom:16px; min-height:72px;
+}
+.modal-footer { display:flex; gap:8px; justify-content:flex-end; }
+.modal-footer .btn-confirm {
+    background:#0f7a54; color:#fff; border:none;
+    border-radius:8px; padding:7px 20px; font-weight:600; cursor:pointer;
+}
+.modal-footer .btn-cancel-modal {
+    background:#f1f3f0; color:#555; border:none;
+    border-radius:8px; padding:7px 16px; cursor:pointer;
+}
 </style>
 
 <script type="text/javascript">
@@ -186,10 +219,40 @@ $(function(){
         $(this).next(".changeGradeNoBtn").show();
     });
 
+    /* 상태 select 변경 */
+    $(".status").on("change", function(){
+        let val = $(this).val();
+        $(this).removeClass("s-ok s-bad s-etc");
+        if(val === "정상")      $(this).addClass("s-ok");
+        else if(val === "탈퇴" || val === "정지" || val === "휴면") $(this).addClass("s-bad");
+        else                   $(this).addClass("s-etc");
+        $(this).next(".changeStatusBtn").show();
+    });
+
     /* 상태 수정 버튼 클릭 */
+    let pendingStatusRow = null;
+
     $(".changeStatusBtn").on("click", function(){
-        let id     = $(this).closest(".dataRow").find(".col-id").text().trim();
-        let status = $(this).closest(".dataRow").find(".status").val();
+        let row    = $(this).closest(".dataRow");
+        let status = row.find(".status").val();
+        let id     = row.find(".col-id").text().trim();
+        let isPurged = row.data("purged"); // 파기 여부 확인
+
+        if(isPurged){
+            alert("개인정보가 파기된 회원의 상태는 변경할 수 없습니다.");
+            return;
+        }
+
+        if(status === "정지"){
+            // 모달 열기
+            pendingStatusRow = row;
+            $("#suspendDays").val("");
+            $("#suspendReason").val("");
+            $("#suspendModal").addClass("active");
+            return;
+        }
+
+        // 정지 외 상태는 기존 방식
         let params = "id=" + id + "&status=" + status;
         params += "&page=${pageObject.page}&perPageNum=${pageObject.perPageNum}";
         params += "&keyword=${param.keyword}&status=${param.status}";
@@ -197,10 +260,53 @@ $(function(){
         location = "changeStatus.do?" + params;
     });
 
-    /* 등급 수정 버튼 클릭 */
+    /* 정지 모달 - 취소 */
+    $("#suspendCancelBtn").on("click", function(){
+        $("#suspendModal").removeClass("active");
+        pendingStatusRow = null;
+    });
+
+    /* 정지 모달 - 확인 */
+    $("#suspendConfirmBtn").on("click", function(){
+        let days   = parseInt($("#suspendDays").val());
+        let reason = $("#suspendReason").val().trim();
+        if(!days || days < 1){
+            alert("1 이상의 정지 일수를 입력해 주세요."); return;
+        }
+        if(!reason){
+            alert("정지 사유를 입력해 주세요."); return;
+        }
+
+        let id = pendingStatusRow.find(".col-id").text().trim();
+        $.ajax({
+            url : "changeStatus.do",
+            method : "POST",
+            data : { id:id, status:"정지", days:days, reason:reason },
+            success : function(data){
+                let result = $(data).find("#ajax-data-result").text().trim();
+                if(result === "ok"){
+                    alert("정지 처리가 완료되었습니다.");
+                    location.reload();
+                } else {
+                    alert("정지 처리에 실패했습니다.");
+                }
+            },
+            error : function(){ alert("서버 오류가 발생했습니다."); }
+        });
+        $("#suspendModal").removeClass("active");
+        pendingStatusRow = null;
+    });
+
+    /* 등급 수정 버튼 클릭 - 파기 차단 */
     $(".changeGradeNoBtn").on("click", function(){
-        let id      = $(this).closest(".dataRow").find(".col-id").text().trim();
-        let gradeNo = $(this).closest(".dataRow").find(".gradeNo").val();
+        let row      = $(this).closest(".dataRow");
+        let isPurged = row.data("purged");
+        if(isPurged){
+            alert("개인정보가 파기된 회원의 등급은 변경할 수 없습니다.");
+            return;
+        }
+        let id      = row.find(".col-id").text().trim();
+        let gradeNo = row.find(".gradeNo").val();
         let params = "id=" + id + "&gradeNo=" + gradeNo;
         params += "&page=${pageObject.page}&perPageNum=${pageObject.perPageNum}";
         params += "&keyword=${param.keyword}&status=${param.status}";
@@ -220,7 +326,16 @@ $(function(){
 </script>
 </head>
 <body>
-
+<c:if test="${vo.status == '파기'}">
+    <div class="alert alert-warning d-flex align-items-center gap-2 mb-3"
+         style="border-radius:10px; font-size:0.9rem;">
+        <span style="font-size:1.2rem;">⚠️</span>
+        <span>
+            <strong>안내:</strong> 본 회원은 개인정보 유효기간 경과로 인해 개인정보가 파기되었습니다.
+            정지 내역은 통계 및 운영 기록용으로만 보존됩니다.
+        </span>
+    </div>
+</c:if>
 <!-- ── 헤더 ── -->
 <div class="d-flex align-items-center mb-4 mt-3">
     <div class="me-3" style="width:54px;height:54px;background:#e8f5ee;border-radius:14px;
@@ -251,6 +366,7 @@ $(function(){
                 <option value="탈퇴" ${status == '탈퇴' ? 'selected' : ''}>탈퇴</option>
                 <option value="정지" ${status == '정지' ? 'selected' : ''}>정지</option>
                 <option value="휴면" ${status == '휴면' ? 'selected' : ''}>휴면</option>
+                <option value="파기" ${status == '파기' ? 'selected' : ''}>파기</option>
             </select>
         </div>
         <div class="filter-group">
@@ -304,7 +420,7 @@ $(function(){
             </tr>
         </c:if>
         <c:forEach items="${list}" var="vo" varStatus="vs">
-            <tr class="dataRow">
+            <tr class="dataRow" data-purged="${vo.status == '파기' ? 'true' : 'false'}">
                 <td>${pageObject.startRow + vs.index}</td>
                 <td>
                     <div class="d-flex align-items-center gap-2">
@@ -321,8 +437,8 @@ $(function(){
                                 <c:when test="${vo.gradeNo == 9}">g9</c:when>
                                 <c:when test="${vo.gradeNo == 2}">g2</c:when>
                                 <c:otherwise>g1</c:otherwise>
-                            </c:choose>
-                        ">
+                            </c:choose>"
+            					${vo.status == '파기' ? 'disabled' : ''}>
                             <option value="1" ${vo.gradeNo == 1 ? 'selected' : ''}>일반</option>
                             <option value="2" ${vo.gradeNo == 2 ? 'selected' : ''}>점주</option>
                             <option value="9" ${vo.gradeNo == 9 ? 'selected' : ''}>관리자</option>
@@ -339,8 +455,8 @@ $(function(){
                                 <c:when test="${vo.status == '정상'}">s-ok</c:when>
                                 <c:when test="${vo.status == '탈퇴' || vo.status == '정지' || vo.status == '휴면'}">s-bad</c:when>
                                 <c:otherwise>s-etc</c:otherwise>
-                            </c:choose>
-                        ">
+                            </c:choose>"
+            					${vo.status == '파기' ? 'disabled' : ''}>
                             <option value="정상" ${vo.status == '정상' ? 'selected' : ''}>정상</option>
                             <option value="휴면" ${vo.status == '휴면' ? 'selected' : ''}>휴면</option>
                             <option value="정지" ${vo.status == '정지' ? 'selected' : ''}>정지</option>
@@ -368,5 +484,18 @@ $(function(){
     </div>
 </div>
 
+<!-- ── 정지일수 입력 모달 ── -->
+<div class="modal-overlay" id="suspendModal">
+    <div class="modal-box">
+        <h5>⛔ 정지 처리</h5>
+        <p>정지 일수를 입력하면 그 다음날이 정지 해제일이 됩니다.</p>
+        <input type="number" id="suspendDays" min="1" max="365" placeholder="정지 일수 (예: 7)">
+        <textarea id="suspendReason" placeholder="정지 사유를 입력하세요."></textarea>
+        <div class="modal-footer">
+            <button class="btn-cancel-modal" id="suspendCancelBtn">취소</button>
+            <button class="btn-confirm"      id="suspendConfirmBtn">확인</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
