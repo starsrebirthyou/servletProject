@@ -42,8 +42,8 @@ public class PaymentDAO extends DAO {
 	            vo.setMethod(rs.getString("method"));
 	            vo.setAmount(rs.getLong("amount"));
 	            vo.setStatus(rs.getString("status"));
-	            vo.setPayDate(rs.getDate("pay_date"));
-	            vo.setUpdateDate(rs.getDate("update_date"));
+	            vo.setPayDate(rs.getTimestamp("pay_date"));
+	            vo.setUpdateDate(rs.getTimestamp("update_date"));
 	            vo.setPickupDate(rs.getTimestamp("pickup_date"));
 	            list.add(vo); 
 	        }
@@ -96,8 +96,8 @@ public class PaymentDAO extends DAO {
             vo.setMethod(rs.getString("method"));
             vo.setAmount(rs.getLong("amount"));
             vo.setStatus(rs.getString("status"));
-            vo.setPayDate(rs.getDate("pay_date"));
-            vo.setUpdateDate(rs.getDate("update_date"));
+            vo.setPayDate(rs.getTimestamp("pay_date"));;
+            vo.setUpdateDate(rs.getTimestamp("update_date"));
             vo.setPickupDate(rs.getTimestamp("pickup_date"));
         }
         DB.close(con, pstmt, rs);
