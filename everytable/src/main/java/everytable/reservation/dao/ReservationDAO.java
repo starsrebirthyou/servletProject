@@ -355,4 +355,18 @@ public class ReservationDAO extends DAO {
 	    return total;
 	}
 
+	// ★ [추가] 단체주문 완료 시 최종 금액과 요청사항(orderAdd)을 업데이트하는 기능 ★
+	public int updateFinalOrder(long resNo, long totalPrice, String orderAdd) throws Exception {
+		int result = 0;
+		con = DB.getConnection();
+		String sql = "UPDATE reservation SET total_price = ?, order_add = ? WHERE res_no = ?";
+		pstmt = con.prepareStatement(sql);
+		pstmt.setLong(1, totalPrice);
+		pstmt.setString(2, orderAdd);
+		pstmt.setLong(3, resNo);
+		result = pstmt.executeUpdate();
+		DB.close(con, pstmt);
+		return result;
+	}
+
 }

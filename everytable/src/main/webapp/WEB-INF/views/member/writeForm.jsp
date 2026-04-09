@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>일반회원 가입</title>
+<title>회원가입</title>
 <style>
 body { background-color: #f4f6f3; }
 

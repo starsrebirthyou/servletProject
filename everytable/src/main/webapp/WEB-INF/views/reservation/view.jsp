@@ -257,7 +257,7 @@ body {
 						</tr>
 						<tr>
 							<th>방문 예정 일시</th>
-							<td class="text-highlight">${vo.resDate}/ ${vo.resTime}</td>
+							<td class="text-highlight">${vo.resDate}/${vo.resTime}</td>
 						</tr>
 						<tr>
 							<th>예약 인원</th>
@@ -312,9 +312,15 @@ body {
 
 					<div class="total-row">
 						<span>최종 결제 금액</span> <span class="total-price"> <c:choose>
-								<c:when test="${not empty vo.totalPrice}">
-									<fmt:formatNumber value="${vo.totalPrice}" />원</c:when>
-								<c:otherwise>-</c:otherwise>
+								<%-- totalPrice가 0보다 큰 경우에만 금액 표시 --%>
+								<c:when test="${vo.totalPrice > 0}">
+									<fmt:formatNumber value="${vo.totalPrice}" />원
+            </c:when>
+								<%-- 그 외(0원인 경우 등)에는 결제 전임을 알림 --%>
+								<c:otherwise>
+									<span class="text-muted"
+										style="font-size: 14px; font-weight: normal;">결제 전</span>
+								</c:otherwise>
 							</c:choose>
 						</span>
 					</div>

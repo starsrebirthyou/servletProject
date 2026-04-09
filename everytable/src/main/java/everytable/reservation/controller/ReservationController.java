@@ -36,14 +36,14 @@ public class ReservationController implements Controller {
 
 			// [공통] 로그인 체크 (이미 정제된 uri를 사용하므로 정상 작동함)
 			// [공통] 로그인 체크 예외 대상 (로그인 안 해도 들어갈 수 있는 주소들)
-			boolean isExempted = uri.equals("/reservation/groupShare.do") 
-			                  || uri.equals("/reservation/groupMenuForm.do") 
-			                  || uri.equals("/reservation/groupOrderWrite.do")
-			                  || uri.equals("/reservation/groupOrderComplete"); // 완료 페이지 포함
+			boolean isExempted = uri.equals("/reservation/groupShare.do") || uri.equals("/reservation/groupMenuForm.do")
+					|| uri.equals("/reservation/groupOrderWrite.do") || uri.equals("/reservation/groupOrderComplete"); // 완료
+																														// 페이지
+																														// 포함
 
 			if (loginVO == null && !isExempted) {
-			    session.setAttribute("msg", "로그인이 필요한 서비스입니다.");
-			    return "redirect:/member/loginForm.do";
+				session.setAttribute("msg", "로그인이 필요한 서비스입니다.");
+				return "redirect:/member/loginForm.do";
 			}
 
 			ReservationVO vo;
@@ -281,22 +281,49 @@ public class ReservationController implements Controller {
 			// 단체 주문 - 취합 현황 (주최자 확인)
 			case "/reservation/groupOrderStatus.do":
 				no = Long.parseLong(request.getParameter("resNo"));
+				// [수정] storeId 파라미터가 있다면 받고, 없으면 DB에서 가져온 VO에서 꺼내야 합니다.
+				String sIdParam = request.getParameter("storeId");
+
 				request.setAttribute("orderList",
 						Execute.execute(Init.getService("/reservation/groupOrderList.do"), no));
 				request.setAttribute("total", Execute.execute(Init.getService("/reservation/groupOrderTotal.do"), no));
 				request.setAttribute("resNo", no);
-				request.setAttribute("storeId", no);
+
+				if (sIdParam != null && !sIdParam.equals("")) {
+					request.setAttribute("storeId", sIdParam);
+				} else {
+					// storeId가 없다면 상세 정보를 가져와서 세팅
+					ReservationVO statusVO = (ReservationVO) Execute.execute(Init.getService("/reservation/view.do"),
+							no);
+					request.setAttribute("storeId", statusVO.getStoreId());
+				}
 				return "reservation/groupOrderStatus";
 
-				// 240번 라인 근처 수정
+			// 240번 라인 근처 수정
 			case "/reservation/groupShare.do":
-			    String shareNo = request.getParameter("resNo");
-			    String shareStoreId = request.getParameter("storeId"); // [추가] 파라미터 받기
-			    
-			    request.setAttribute("resNo", shareNo);
-			    request.setAttribute("storeId", shareStoreId); // [추가] JSP에서 ${storeId}로 쓸 수 있게 세팅
-			    
-			    return "reservation/groupShare";
+				String shareNo = request.getParameter("resNo");
+				String shareStoreId = request.getParameter("storeId");
+
+				request.setAttribute("resNo", shareNo);
+				request.setAttribute("storeId", shareStoreId);
+				return "reservation/groupShare";
+
+			case "/reservation/finalOrder.do":
+				// 변수명 중복 방지를 위해 switch문 밖의 no 변수를 재사용하거나 새로운 이름을 사용합니다.
+				long fResNo = Long.parseLong(request.getParameter("resNo"));
+				String fOrderAdd = request.getParameter("orderAdd");
+				String fStoreId = request.getParameter("storeId");
+
+				// switch문 상단의 vo 변수 재사용
+				vo = new ReservationVO();
+				vo.setResNo(fResNo);
+				vo.setOrderAdd(fOrderAdd);
+
+				// 서비스 실행 (금액 합산 및 orderAdd 업데이트)
+				Execute.execute(Init.getService(uri), vo);
+
+				// 결제 페이지로 이동 (resNo와 storeId를 들고 갑니다)
+				return "redirect:/payment/writeForm.do?resNo=" + fResNo + "&storeId=" + fStoreId;
 
 			default:
 				// 정의되지 않은 URI인 경우 404 페이지로 유도하여 NPE 방지

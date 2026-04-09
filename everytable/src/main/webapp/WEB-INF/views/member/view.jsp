@@ -369,7 +369,9 @@ $(function(){
 </div>
 
 <div class="d-flex gap-2 mt-3" style="max-width:640px;margin:12px auto 0;">
-    <button class="btn btn-danger btn-sm" id="deleteBtn">회원탈퇴</button>
+	<c:if test="${!vo.id.equals('admin')}">
+    		<button class="btn btn-danger btn-sm" id="deleteBtn">회원탈퇴</button>
+    </c:if>
     <button type="button" class="cancelBtn btn btn-success btn-sm">이전</button>
 </div>
 
