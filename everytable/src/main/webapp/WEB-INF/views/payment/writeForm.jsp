@@ -14,9 +14,10 @@
     <form action="write.do" method="post" id="finalOrderForm">
         <input type="hidden" name="order_id" value="${param.resNo}">
         <input type="hidden" name="amount" value="${param.totalPrice}">
-        <input type="hidden" name="user_id" value="${login.id }">
+        <input type="hidden" name="user_id" value="${login.id}">
         <input type="hidden" name="pickupDate" value="${param.pickupDate}">
-
+        <input type="hidden" name="store_id" value="${param.storeId}">
+        
         <div class="card shadow-sm mx-auto" style="max-width: 500px; border-radius: 20px; border: none;">
             <div class="card-body p-4">
                 <div class="text-center mb-4">
@@ -28,13 +29,13 @@
                 <div class="mb-4 border-bottom pb-3">
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">주문 금액</span>
-                       <span class="fw-bold text-success">
-  						 	<fmt:formatNumber value="${param.totalPrice}" />원
-						</span>
+                        <span class="fw-bold text-success">
+                            <fmt:formatNumber value="${param.totalPrice}" />원
+                        </span>
                     </div>
                     <div class="d-flex justify-content-between">
                         <span class="text-muted">픽업일시</span>
-                        <span class="text-dark fw-bold">${vo.pickupDate}</span>
+                        <span class="text-dark fw-bold">${param.pickupDate}</span>
                     </div>
                 </div>
                 
@@ -57,7 +58,7 @@
                 </div>
                 
                 <button type="submit" class="btn btn-dark w-100 py-3 fw-bold shadow-sm" style="border-radius: 15px;">
-                    ${param.totalPrice}원 결제하기
+                    <fmt:formatNumber value="${param.totalPrice}" />원 결제하기
                 </button>
                 <button type="button" onclick="history.back();" class="btn btn-link text-muted w-100 mt-2 text-decoration-none">이전으로</button>
             </div>
@@ -67,9 +68,9 @@
 
 <script type="text/javascript">
 $(function() {
-    $("#paymentForm").on("submit", function(event) {
+    // ★ 수정 4: 선택자를 form의 id인 #finalOrderForm으로 정확히 맞춤 ★
+    $("#finalOrderForm").on("submit", function(event) {
         alert("주문이 완료되었습니다! 매장에서 승인하면 알림을 보내드립니다.");
-    
     });
 });
 </script>

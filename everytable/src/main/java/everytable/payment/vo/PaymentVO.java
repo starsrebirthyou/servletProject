@@ -11,6 +11,7 @@ public class PaymentVO {
 	private Date updateDate;//수정일시
 	private Date pickupDate; //픽업예정 일시
 	private Long payment_id; //고유번호
+	private Long storeid;//매장번호
 	
 	public Long getOrder_id() {
 		return order_id;
@@ -66,12 +67,19 @@ public class PaymentVO {
 	public void setPayment_id(Long payment_id) {
 		this.payment_id = payment_id;
 	}
+	public Long getStoreid() {
+		return storeid;
+	}
+	public void setStoreid(Long storeid) {
+		this.storeid = storeid;
+	}
 	@Override
 	public String toString() {
 		return "PaymentVO [order_id=" + order_id + ", user_id=" + user_id + ", method=" + method + ", amount=" + amount
 				+ ", status=" + status + ", payDate=" + payDate + ", updateDate=" + updateDate + ", pickupDate="
-				+ pickupDate + ", payment_id=" + payment_id + "]";
+				+ pickupDate + ", payment_id=" + payment_id + ", storeid=" + storeid + "]";
 	}
+	
 	
 	
 }

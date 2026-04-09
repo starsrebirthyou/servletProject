@@ -53,20 +53,22 @@ public class PaymentController implements Controller {
 
                 case "/payment/write.do":
                     try {
-                    	
-                    	System.out.println("========================================");
-                        System.out.println("결제 시도 예약번호(order_id): " + request.getParameter("order_id"));
-                        System.out.println("결제 시도 금액(amount): " + request.getParameter("amount"));
-                        System.out.println("결제 시도 유저(user_id): " + request.getParameter("user_id"));
-                        System.out.println("========================================");
-                        
-                        
                         vo = new PaymentVO();
                         vo.setOrder_id(Long.parseLong(request.getParameter("order_id")));
                         vo.setAmount(Long.parseLong(request.getParameter("amount")));
                         vo.setUser_id(request.getParameter("user_id"));
                         vo.setMethod(request.getParameter("method"));
-                        vo.setStatus("SUCCESS");
+                        
+                        // store_id 세팅
+                        String storeIdStr = request.getParameter("store_id");
+                        if(storeIdStr != null && !storeIdStr.isEmpty()) {
+                            vo.setStoreid(Long.parseLong(storeIdStr));
+                        } else {
+                            vo.setStoreid(73L); 
+                        }
+                        
+                        // ★ 수정: DAO와 맞게 초기 상태를 "결제대기"로 설정 ★
+                        vo.setStatus("status"); 
                         
                         String pDate = request.getParameter("pickupDate");
                         if(pDate != null && !pDate.isEmpty()) {
@@ -76,7 +78,9 @@ public class PaymentController implements Controller {
                         }
 
                         Execute.execute(Init.getService(uri), vo);
-                        request.getSession().setAttribute("msg", "결제가 완료되었습니다!");
+                        
+                        // 메시지도 "완료"보다는 "접수" 느낌으로 수정하면 더 자연스럽습니다.
+                        request.getSession().setAttribute("msg", "결제 요청이 접수되었습니다! 매장 승인을 기다려주세요.");
                         return "redirect:list.do";
                     } catch (Exception e) {
                         e.printStackTrace();
