@@ -24,7 +24,7 @@ public class MemberDAO extends DAO {
                 + " FROM member m, grade g, store s "
                 + " WHERE m.id = ? AND m.grade_no = g.grade_no "
                 + " AND m.id = s.member_id(+) " // 이 부분이 핵심! (데이터가 없는 쪽이 +)
-                + " AND m.status = '정상'";
+                + " AND m.status IN ('정상', '휴면')";
         
         pstmt = con.prepareStatement(sql);
         pstmt.setString(1, userVO.getId());
@@ -45,6 +45,10 @@ public class MemberDAO extends DAO {
         return vo;
     }
 
+    
+	// ----------------------------------------------------------------
+	// 휴면 → 정상으로 상태 변경
+	// ----------------------------------------------------------------
     public Integer updateLastLogin(String id) throws Exception {
         con = DB.getConnection();
         String sql = "UPDATE member SET last_login = SYSDATE WHERE id = ?";
@@ -55,6 +59,21 @@ public class MemberDAO extends DAO {
         return result;
     }
 
+    
+    // ----------------------------------------------------------------
+	// 휴면 → 정상으로 상태 변경
+	// ----------------------------------------------------------------
+	public Integer reactivate(String id) throws Exception {
+	    con = DB.getConnection();
+	    String sql = "UPDATE member SET status = '정상' WHERE id = ?";
+	    pstmt = con.prepareStatement(sql);
+	    pstmt.setString(1, id);
+	    Integer result = pstmt.executeUpdate();
+	    DB.close(con, pstmt);
+	    return result;
+	}
+	
+	
     // ----------------------------------------------------------------
     // 회원가입
     // ----------------------------------------------------------------
@@ -118,20 +137,6 @@ public class MemberDAO extends DAO {
         DB.close(con, pstmt, rs);
         return vo;
     }
-    
-    
-	 // ----------------------------------------------------------------
-	 // 휴면 → 정상으로 상태 변경
-	 // ----------------------------------------------------------------
-	public Integer reactivate(String id) throws Exception {
-	    con = DB.getConnection();
-	    String sql = "UPDATE member SET status = '정상' WHERE id = ?";
-	    pstmt = con.prepareStatement(sql);
-	    pstmt.setString(1, id);
-	    Integer result = pstmt.executeUpdate();
-	    DB.close(con, pstmt);
-	    return result;
-	}
     
     
 	 // ----------------------------------------------------------------
