@@ -8,79 +8,110 @@ import everytable.util.db.DB;
 
 public class ReviewDAO extends DAO {
 
-    // ✅ 1. 리뷰 리스트 조회 (매장 기준)
-    public List<ReviewVO> list(ReviewVO vo) throws Exception {
-        List<ReviewVO> list = null;
-        try {
-            con = DB.getConnection();
+	    // 1. 매장별 리뷰 목록 (storeId가 있을 때)
+	    public List<ReviewVO> list(ReviewVO vo) throws Exception {
+	        List<ReviewVO> list = null;
+	        try {
+	            con = DB.getConnection();
+	            // is_deleted 컬럼을 SELECT 항목에 추가했습니다.
+	            String sql = "SELECT r.review_id as no, r.content, r.user_id, m.name as user_name, "
+	                       + " r.store_id, r.rating, r.is_deleted, " 
+	                       + " TO_CHAR(r.created_at, 'yyyy-mm-dd') created_at "
+	                       + " FROM review r, member m "
+	                       + " WHERE r.user_id = m.id "
+	                       + " AND r.store_id = ? "
+	                       + " AND r.is_deleted = 0 "
+	                       + " ORDER BY r.review_id DESC ";
 
-            String sql = "SELECT r.review_id as no, r.content, r.user_id, m.name as user_name, "
-                       + " r.store_id, s.store_name, r.rating, r.is_deleted, "
-                       + " TO_CHAR(r.created_at, 'yyyy-mm-dd') created_at "
-                       + " FROM review r, member m, store s "
-                       + " WHERE (r.user_id = m.id) "
-                       + " AND (r.store_id = s.store_id) "
-                       + " AND r.store_id = ? "
-                       + " AND r.is_deleted = 0 "
-                       + " ORDER BY r.review_id DESC ";
+	            pstmt = con.prepareStatement(sql);
+	            pstmt.setLong(1, vo.getStoreId()); 
 
-            pstmt = con.prepareStatement(sql);
-            pstmt.setLong(1, vo.getStoreId());  // ✅ store_id로 조회
+	            rs = pstmt.executeQuery();
 
-            rs = pstmt.executeQuery();
+	            while (rs != null && rs.next()) {
+	                if (list == null) list = new ArrayList<>();
+	                ReviewVO resultVO = new ReviewVO();
+	                resultVO.setNo(rs.getLong("no"));
+	                resultVO.setContent(rs.getString("content"));
+	                resultVO.setUserId(rs.getString("user_id"));
+	                resultVO.setUserName(rs.getString("user_name"));
+	                resultVO.setStoreId(rs.getLong("store_id"));
+	                resultVO.setRating(rs.getDouble("rating"));
+	                resultVO.setIsDeleted(rs.getInt("is_deleted"));
+	                resultVO.setCreatedAt(rs.getString("created_at"));
+	                list.add(resultVO);
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            throw new Exception("매장 리뷰 조회 중 DB 오류");
+	        } finally { DB.close(con, pstmt, rs); }
+	        return list;
+	    }
 
-            while (rs != null && rs.next()) {
-                if (list == null) list = new ArrayList<>();
+	    // ✅ 1-1. 내가 쓴 리뷰 목록 (userId로 조회 - storeId가 0일 때 대비)
+	    public List<ReviewVO> myList(ReviewVO vo) throws Exception {
+	        List<ReviewVO> list = null;
+	        try {
+	            con = DB.getConnection();
+	            // store 테이블 조인을 빼서 데이터 누락을 방지했습니다.
+	            String sql = "SELECT r.review_id as no, r.content, r.user_id, m.name as user_name, "
+	                    + " r.store_id, r.store_name, r.rating, r.is_deleted, " // ✅ r.store_name 추가!
+	                    + " TO_CHAR(r.created_at, 'yyyy-mm-dd') created_at "
+	                    + " FROM review r, member m "
+	                    + " WHERE r.user_id = m.id "
+	                    + " AND r.user_id = ? "
+	                    + " AND r.is_deleted = 0 "
+	                    + " ORDER BY r.review_id DESC ";
+	            pstmt = con.prepareStatement(sql);
+	            pstmt.setString(1, vo.getUserId());
 
-                ReviewVO resultVO = new ReviewVO();
-                resultVO.setNo(rs.getLong("no"));
-                resultVO.setContent(rs.getString("content"));
-                resultVO.setUserId(rs.getString("user_id")); 
-                resultVO.setUserName(rs.getString("user_name"));
-                resultVO.setStoreId(rs.getLong("store_id"));
-                resultVO.setStoreName(rs.getString("store_name"));
-                resultVO.setRating(rs.getDouble("rating"));
-                resultVO.setIsDeleted(rs.getInt("is_deleted"));
-                resultVO.setCreatedAt(rs.getString("created_at"));
+	            rs = pstmt.executeQuery();
 
-                list.add(resultVO);
-            }
+	            while (rs != null && rs.next()) {
+	                if (list == null) list = new ArrayList<>();
+	                ReviewVO resultVO = new ReviewVO();
+	                resultVO.setNo(rs.getLong("no"));
+	                resultVO.setContent(rs.getString("content"));
+	                resultVO.setUserId(rs.getString("user_id"));
+	                resultVO.setUserName(rs.getString("user_name"));
+	                resultVO.setStoreId(rs.getLong("store_id"));
+	                resultVO.setStoreName(rs.getString("store_name"));
+	                resultVO.setRating(rs.getDouble("rating"));
+	                resultVO.setIsDeleted(rs.getInt("is_deleted"));
+	                resultVO.setCreatedAt(rs.getString("created_at"));
+	                list.add(resultVO);
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            throw new Exception("내 리뷰 조회 중 DB 오류");
+	        } finally { DB.close(con, pstmt, rs); }
+	        return list;
+	    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception("리뷰 리스트 조회 중 DB 오류 발생");
-        } finally {
-            DB.close(con, pstmt, rs);
-        }
-        return list;
-    }
-
-    // 2. 리뷰 등록
-    public Integer write(ReviewVO vo) throws Exception {
-        Integer result = 0;
-        try {
-            con = DB.getConnection();
-
-            String sql = "INSERT INTO review (review_id, content, user_id, store_id, store_name, rating, is_deleted, created_at) " 
-                       + " VALUES (review_seq.nextval, ?, ?, ?, ?, ?, 0, SYSDATE)";
-            
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, vo.getContent());  
-            pstmt.setString(2, vo.getUserId());   
-            pstmt.setLong(3, vo.getStoreId());    
-            pstmt.setString(4, vo.getStoreName()); 
-            pstmt.setDouble(5, vo.getRating()); 
-            
-            result = pstmt.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception("리뷰 등록 중 DB 오류 발생");
-        } finally {
-            DB.close(con, pstmt);
-        }
-        return result;
-    }
+	    // 2. 리뷰 등록
+	 // ReviewDAO.java의 write 메서드
+	    public Integer write(ReviewVO vo) throws Exception {
+	        Integer result = 0;
+	        try {
+	            con = DB.getConnection();
+	            // ✅ 쿼리에 store_name 컬럼 추가
+	            String sql = "INSERT INTO review (review_id, content, user_id, store_id, store_name, rating, is_deleted, created_at) " 
+	                       + " VALUES (review_seq.nextval, ?, ?, ?, ?, ?, 0, SYSDATE)";
+	            
+	            pstmt = con.prepareStatement(sql);
+	            pstmt.setString(1, vo.getContent());  
+	            pstmt.setString(2, vo.getUserId());   
+	            pstmt.setLong(3, vo.getStoreId());    
+	            pstmt.setString(4, vo.getStoreName()); // ✅ 매장 이름 세팅
+	            pstmt.setDouble(5, vo.getRating()); 
+	            
+	            result = pstmt.executeUpdate();
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            throw new Exception("리뷰 등록 중 DB 오류");
+	        } finally { DB.close(con, pstmt); }
+	        return result;
+	    }
 
     // 3. 리뷰 상세보기
     public ReviewVO view(long no) throws Exception {

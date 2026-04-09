@@ -313,6 +313,7 @@ public class Init extends HttpServlet {
 		serviceMap.put("/review/view.do", new ReviewViewService());
 		// 매장별 리스트 서비스 등록
 		serviceMap.put("/review/storeList.do", new ReviewListService()); 
+		serviceMap.put("/review/adminList.do", new ReviewListService()); 
 
 		// DAO 주입 (DI)
 		serviceMap.get("/review/list.do").setDAO(daoMap.get("reviewDAO"));

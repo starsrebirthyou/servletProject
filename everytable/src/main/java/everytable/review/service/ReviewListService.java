@@ -16,15 +16,21 @@ public class ReviewListService implements Service {
 
     @Override
     public Object service(Object obj) throws Exception {
-        // 1. 넘어온 객체가 PageObject인지 확인 후 형변환
-    		ReviewVO vo = (ReviewVO) obj;
-        
-        // 2. DAO의 list 메서드 호출 (ReviewVO를 인자로 전달)
-        // DAO에서 이미 유저 ID로 필터링된 리스트를 반환합니다.
-        List<ReviewVO> list = dao.list(vo);
-        
-        // 3. [추가 로직] 본인 확인 처리 (선택 사항)
-        // 만약 리스트에 담긴 리뷰들이 로그인한 사람의 리뷰라면 sameId를 1로 세팅
+        ReviewVO vo = (ReviewVO) obj;
+        List<ReviewVO> list = null;
+
+        // ✅ storeId가 0이 아니면 매장별 리뷰 조회
+        if (vo.getStoreId() != 0) {
+            System.out.println("--- [Service] 매장 리뷰 조회 실행 (ID: " + vo.getStoreId() + ")");
+            list = dao.list(vo);
+        } 
+        // ✅ storeId가 0이면 내 리뷰(userId 기준) 조회
+        else {
+            System.out.println("--- [Service] 내 리뷰 목록 조회 실행 (User: " + vo.getUserId() + ")");
+            list = dao.myList(vo); // 👈 핵심 수정: list에서 myList로 변경!
+        }
+
+        // ✅ 본인 리뷰 체크 (수정/삭제 버튼 활성화용)
         if (list != null && vo.getUserId() != null) {
             for (ReviewVO listVO : list) {
                 if (vo.getUserId().equals(listVO.getUserId())) {
@@ -32,7 +38,7 @@ public class ReviewListService implements Service {
                 }
             }
         }
-        
+
         return list;
     }
 }
