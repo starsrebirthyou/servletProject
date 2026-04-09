@@ -91,35 +91,41 @@ public class StatsDAO extends DAO {
         return totalRow;
     }
 
-    // 4. 대시보드 상단 요약 (에러 해결을 위해 다시 추가)
+ // 4. 대시보드 상단 요약
     public StatsVO getTodaySummary(String storeId) throws Exception {
         StatsVO vo = new StatsVO();
         try {
             con = DB.getConnection();
             
-            // [수정] 이미 데이터가 4월 10일까지 있으므로, 
-            // 테스트를 위해 오늘 날짜를 '2026-04-10'으로 가정하거나 
-            // 실제 SYSDATE와 비교하도록 설정합니다.
             String sql = "SELECT NVL(SUM(TOTAL_PRICE), 0) as sales, COUNT(ORDER_ID) as cnt "
                        + "FROM orders "
                        + "WHERE STORE_ID = ? "
                        + "AND TO_CHAR(CREATED_AT, 'YYYY-MM-DD') = TO_CHAR(SYSDATE, 'YYYY-MM-DD')";
             
             pstmt = con.prepareStatement(sql);
+            
+            // [보완] storeId가 null이거나 비어있으면 기본값 "1"을 세팅하여 에러 방지
+            if (storeId == null || storeId.trim().equals("")) {
+                storeId = "1";
+            }
+            
+            // 숫자로 변환하여 첫 번째 물음표(?)에 세팅
             pstmt.setInt(1, Integer.parseInt(storeId));
             
             rs = pstmt.executeQuery();
             
             if (rs.next()) {
-                vo.setTotalSales(rs.getDouble("sales")); // ₩460,000 예상
-                vo.setOrderCount(rs.getInt("cnt"));     // 22건 예상
+                vo.setTotalSales(rs.getDouble("sales"));
+                vo.setOrderCount(rs.getInt("cnt"));
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         } finally {
             DB.close(con, pstmt, rs);
         }
         return vo;
     }
-    
 
  // StatsDAO.java 수정 부분
 
