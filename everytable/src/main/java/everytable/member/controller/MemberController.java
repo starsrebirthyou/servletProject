@@ -41,17 +41,19 @@ public class MemberController implements Controller {
                     request.setAttribute("msg", "아이디 또는 비밀번호가 일치하지 않거나 이용이 제한된 계정입니다.");
                 		return "member/loginForm";
                 }
+
+                System.out.println("▶▶▶ loginVO.getStatus() = " + loginVO.getStatus());
                 
                 // ── 휴면 계정: 이메일 인증 단계로 분기 ──
                 if (loginVO.getStatus().equals("휴면")) {
                     // 인증번호 생성 + 세션 저장 + 메일 발송
-                    // loginVO에 email이 없으면 DB에서 별도 조회 필요 (view() 재활용)
                     MemberVO dormantMember = (MemberVO) Execute.execute(
                         Init.getService("/member/view.do"), loginVO.getId()
                     );
                     int authCode = (int)(Math.random() * 899999) + 100000;
                     session.setAttribute("authCode", String.valueOf(authCode));
-                    session.setAttribute("dormantId", loginVO.getId()); // 인증 완료 후 로그인에 사용
+                    session.setAttribute("dormantId", loginVO.getId());
+                    session.setAttribute("dormantLoginVO", loginVO);
 
                     String subject = "에브리테이블(EveryTable) 휴면 계정 인증번호입니다.";
                     String content = "안녕하세요.<br><br>"
@@ -98,27 +100,19 @@ public class MemberController implements Controller {
                 // 휴면 → 정상 변경
                 Execute.execute(Init.getService("/member/reactivate.do"), dormantId);
 
-                // 자동 로그인 처리 (LoginVO 재조회)
-                LoginVO reactivatedVO = new LoginVO();
-                reactivatedVO.setId(dormantId);
-                // status가 이제 '정상'이므로 login 서비스 대신 view로 세션 구성
-                MemberVO reactivatedMember = (MemberVO) Execute.execute(
-                    Init.getService("/member/view.do"), dormantId
-                );
-                reactivatedVO.setId(dormantId);
-                reactivatedVO.setName(reactivatedMember.getName());
-                // gradeNo, gradeName은 LoginVO에 맞게 설정 (view()에 없으면 별도 조회)
+                // 세션에 저장해뒀던 LoginVO 그대로 사용
+                LoginVO reactivatedVO = (LoginVO) session.getAttribute("dormantLoginVO");
                 session.setAttribute("login", reactivatedVO);
                 Execute.execute(Init.getService("/member/updateLastLogin.do"), dormantId);
 
                 // 세션 정리
                 session.removeAttribute("authCode");
                 session.removeAttribute("dormantId");
-
+                session.removeAttribute("dormantLoginVO");
                 session.removeAttribute("dormantRedirectUrl");
 
                 request.setAttribute("result", "ok");
-                session.setAttribute("msg", reactivatedMember.getName() + "님, 휴면이 해제되었습니다. 환영합니다.");
+                session.setAttribute("msg", reactivatedVO.getName() + "님, 휴면이 해제되었습니다. 환영합니다.");
                 return "member/ajaxResult";
                 
 
@@ -649,7 +643,7 @@ public class MemberController implements Controller {
                 
                 // 파기 회원 등급 변경 차단
                 MemberVO targetMember = (MemberVO) Execute.execute(Init.getService("/member/view.do"), vo.getId());
-                if (targetMember != null && targetMember.getStatus().equals("파기")) {
+                if (targetMember != null && "파기".equals(targetMember.getStatus())) {
                     session.setAttribute("msg", "개인정보가 파기된 회원의 등급은 변경할 수 없습니다.");
                     return "redirect:list.do";
                 }
@@ -683,7 +677,7 @@ public class MemberController implements Controller {
                 + "&perPageNum=" + request.getParameter("perPageNum")
                 + "&keyword=" + (request.getParameter("keyword") != null ? request.getParameter("keyword") : "")
                 + "&status=" + (request.getParameter("status") != null ? request.getParameter("status") : "")
-                + "&gradeNo=" + (request.getParameter("gradeNo") != null ? request.getParameter("gradeNo") : "")
+                + "&gradeNo=" + (request.getParameter("filterGradeNo") != null ? request.getParameter("filterGradeNo") : "")
                 + "&dateFrom=" + (request.getParameter("dateFrom") != null ? request.getParameter("dateFrom") : "")
                 + "&dateTo=" + (request.getParameter("dateTo") != null ? request.getParameter("dateTo") : "");
                 return "redirect:list.do?" + queryString;

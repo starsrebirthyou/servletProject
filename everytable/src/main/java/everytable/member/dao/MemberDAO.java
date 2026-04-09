@@ -48,7 +48,7 @@ public class MemberDAO extends DAO {
 
     
 	// ----------------------------------------------------------------
-	// 휴면 → 정상으로 상태 변경
+	// 최근 접속일 갱신
 	// ----------------------------------------------------------------
     public Integer updateLastLogin(String id) throws Exception {
         con = DB.getConnection();
@@ -105,6 +105,7 @@ public class MemberDAO extends DAO {
         return result;
     }
 
+    
     // ----------------------------------------------------------------
     // 내 정보 보기
     // ----------------------------------------------------------------
@@ -112,11 +113,12 @@ public class MemberDAO extends DAO {
     public MemberVO view(String id) throws Exception {
         MemberVO vo = null;
         con = DB.getConnection();
-        String sql = "SELECT m.id, m.name, m.gender, TO_CHAR(m.birth, 'yyyy-mm-dd') birth, "
-                   + " m.tel, m.email, g.grade_name, TO_CHAR(m.join_date, 'yyyy-mm-dd') join_date, "
-                   + " TO_CHAR(m.last_login, 'yyyy-mm-dd') last_login "
-                   + " FROM member m, grade g "
-                   + " WHERE m.id = ? AND m.grade_no = g.grade_no";
+        String sql = "SELECT m.id, m.name, m.gender, TO_CHAR(m.birth, 'yyyy-mm-dd') birth, m.tel, "
+        				+ "m.email, m.status, m.grade_no, g.grade_name, "
+        				+ "TO_CHAR(m.join_date, 'yyyy-mm-dd') join_date, "
+        				+ " TO_CHAR(m.last_login, 'yyyy-mm-dd') last_login "
+        				+ " FROM member m, grade g "
+        				+ " WHERE m.id = ? AND m.grade_no = g.grade_no";
         
         pstmt = con.prepareStatement(sql);
         pstmt.setString(1, id);

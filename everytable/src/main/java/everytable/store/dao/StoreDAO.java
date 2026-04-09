@@ -138,7 +138,7 @@ public class StoreDAO extends DAO {
         return result;
     }
 
-    // ✅ [추가] member_id로 자신의 매장 조회 (점주 매장 관리 자동 리다이렉트용)
+    // 5. member_id로 매장 조회
     public StoreVO findByMemberId(String memberId) throws Exception {
         StoreVO vo = null;
         try {
@@ -183,6 +183,7 @@ public class StoreDAO extends DAO {
         return totalRow;
     }
 
+
     private String search(PageObject pageObject) {
         String sql = "";
         String key  = pageObject.getKey();
@@ -190,17 +191,20 @@ public class StoreDAO extends DAO {
         if (word != null && !word.equals("")) {
             sql += " and ( 1=0 ";
             if (key != null && key.indexOf("n") >= 0) sql += " or store_name like ? ";
+            if (key != null && key.indexOf("a") >= 0) sql += " or store_addr like ? ";
             if (key != null && key.indexOf("c") >= 0) sql += " or store_cate like ? ";
             sql += " ) ";
         }
         return sql;
     }
 
+
     private int searchDataSet(java.sql.PreparedStatement pstmt, int idx, PageObject pageObject) throws Exception {
         String word = pageObject.getWord();
         if (word != null && !word.equals("")) {
             String key = pageObject.getKey();
             if (key != null && key.indexOf("n") >= 0) pstmt.setString(idx++, "%" + word + "%");
+            if (key != null && key.indexOf("a") >= 0) pstmt.setString(idx++, "%" + word + "%");
             if (key != null && key.indexOf("c") >= 0) pstmt.setString(idx++, "%" + word + "%");
         }
         return idx;

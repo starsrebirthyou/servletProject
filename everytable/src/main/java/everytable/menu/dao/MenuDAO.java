@@ -8,6 +8,7 @@ import everytable.util.db.DB;
 
 public class MenuDAO extends DAO {
 
+    // 고객용 - 판매중(is_active=1)만 조회
     public List<MenuVO> list(Long storeId, boolean isAdmin) throws Exception {
         List<MenuVO> list = null;
         try {
@@ -19,13 +20,38 @@ public class MenuDAO extends DAO {
             while (rs.next()) {
                 if (list == null) list = new ArrayList<>();
                 MenuVO vo = new MenuVO();
-                vo.setMenu_no(rs.getLong("menu_no"));
-                vo.setStore_id(rs.getLong("store_id"));
-                vo.setMenu_name(rs.getString("menu_name"));
-                vo.setPrice(rs.getInt("price"));
+                vo.setMenu_no    (rs.getLong  ("menu_no"));
+                vo.setStore_id   (rs.getLong  ("store_id"));
+                vo.setMenu_name  (rs.getString("menu_name"));
+                vo.setPrice      (rs.getInt   ("price"));
                 vo.setDescription(rs.getString("description"));
-                vo.setImage_url(rs.getString("image_url"));
-                vo.setIs_active(rs.getInt("is_active"));
+                vo.setImage_url  (rs.getString("image_url"));
+                vo.setIs_active  (rs.getInt   ("is_active"));
+                list.add(vo);
+            }
+        } finally { DB.close(con, pstmt, rs); }
+        return list;
+    }
+
+    // ✅ 점주 관리용 - 품절 포함 전체 조회
+    public List<MenuVO> listAll(Long storeId) throws Exception {
+        List<MenuVO> list = null;
+        try {
+            con = DB.getConnection();
+            String sql = "select * from menu where store_id = ? order by menu_no asc";
+            pstmt = con.prepareStatement(sql);
+            pstmt.setLong(1, storeId);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                if (list == null) list = new ArrayList<>();
+                MenuVO vo = new MenuVO();
+                vo.setMenu_no    (rs.getLong  ("menu_no"));
+                vo.setStore_id   (rs.getLong  ("store_id"));
+                vo.setMenu_name  (rs.getString("menu_name"));
+                vo.setPrice      (rs.getInt   ("price"));
+                vo.setDescription(rs.getString("description"));
+                vo.setImage_url  (rs.getString("image_url"));
+                vo.setIs_active  (rs.getInt   ("is_active"));
                 list.add(vo);
             }
         } finally { DB.close(con, pstmt, rs); }
@@ -42,13 +68,13 @@ public class MenuDAO extends DAO {
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 vo = new MenuVO();
-                vo.setMenu_no(rs.getLong("menu_no"));
-                vo.setStore_id(rs.getLong("store_id"));
-                vo.setMenu_name(rs.getString("menu_name"));
-                vo.setPrice(rs.getInt("price"));
+                vo.setMenu_no    (rs.getLong  ("menu_no"));
+                vo.setStore_id   (rs.getLong  ("store_id"));
+                vo.setMenu_name  (rs.getString("menu_name"));
+                vo.setPrice      (rs.getInt   ("price"));
                 vo.setDescription(rs.getString("description"));
-                vo.setImage_url(rs.getString("image_url"));
-                vo.setIs_active(rs.getInt("is_active"));
+                vo.setImage_url  (rs.getString("image_url"));
+                vo.setIs_active  (rs.getInt   ("is_active"));
             }
         } finally { DB.close(con, pstmt, rs); }
         return vo;
@@ -60,7 +86,7 @@ public class MenuDAO extends DAO {
             con = DB.getConnection();
             String sql = "update menu set is_active = ? where menu_no = ?";
             pstmt = con.prepareStatement(sql);
-            pstmt.setInt(1, vo.getIs_active());
+            pstmt.setInt (1, vo.getIs_active());
             pstmt.setLong(2, vo.getMenu_no());
             result = pstmt.executeUpdate();
         } finally { DB.close(con, pstmt, rs); }
@@ -74,10 +100,10 @@ public class MenuDAO extends DAO {
             String sql = "update menu set menu_name=?, price=?, description=?, image_url=? where menu_no=?";
             pstmt = con.prepareStatement(sql);
             pstmt.setString(1, vo.getMenu_name());
-            pstmt.setInt(2, vo.getPrice());
+            pstmt.setInt   (2, vo.getPrice());
             pstmt.setString(3, vo.getDescription());
             pstmt.setString(4, vo.getImage_url());
-            pstmt.setLong(5, vo.getMenu_no());
+            pstmt.setLong  (5, vo.getMenu_no());
             result = pstmt.executeUpdate();
         } finally { DB.close(con, pstmt, rs); }
         return result;
@@ -94,6 +120,7 @@ public class MenuDAO extends DAO {
         } finally { DB.close(con, pstmt, rs); }
         return result;
     }
+
     public int write(MenuVO vo) throws Exception {
         int result = 0;
         try {
@@ -101,9 +128,9 @@ public class MenuDAO extends DAO {
             String sql = "insert into menu (menu_no, store_id, menu_name, price, description, image_url, is_active, created_date) "
                        + "values (menu_seq.NEXTVAL, ?, ?, ?, ?, ?, 1, SYSDATE)";
             pstmt = con.prepareStatement(sql);
-            pstmt.setLong(1, vo.getStore_id());
+            pstmt.setLong  (1, vo.getStore_id());
             pstmt.setString(2, vo.getMenu_name());
-            pstmt.setInt(3, vo.getPrice());
+            pstmt.setInt   (3, vo.getPrice());
             pstmt.setString(4, vo.getDescription());
             pstmt.setString(5, vo.getImage_url());
             result = pstmt.executeUpdate();
