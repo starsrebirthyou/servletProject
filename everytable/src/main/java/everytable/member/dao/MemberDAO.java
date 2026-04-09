@@ -21,7 +21,7 @@ public class MemberDAO extends DAO {
     public LoginVO login(LoginVO userVO) throws Exception {
         LoginVO vo = null;
         con = DB.getConnection();
-        String sql = "SELECT m.id, m.pw, m.name, m.grade_no, g.grade_name, s.store_id "
+        String sql = "SELECT m.id, m.pw, m.name, m.grade_no, g.grade_name, s.store_id, m.status "
                 + " FROM member m, grade g, store s "
                 + " WHERE m.id = ? AND m.grade_no = g.grade_no "
                 + " AND m.id = s.member_id(+) " // 이 부분이 핵심! (데이터가 없는 쪽이 +)
@@ -40,6 +40,7 @@ public class MemberDAO extends DAO {
             vo.setGradeNo(rs.getInt("grade_no"));
             vo.setGradeName(rs.getString("grade_name"));
             vo.setStoreId(rs.getLong("store_id"));
+            vo.setStatus(rs.getString("status"));
 
         }
         DB.close(con, pstmt, rs);

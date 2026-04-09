@@ -43,7 +43,7 @@ public class MemberController implements Controller {
                 }
                 
                 // ── 휴면 계정: 이메일 인증 단계로 분기 ──
-                if ("휴면".equals(loginVO.getStatus())) {
+                if (loginVO.getStatus().equals("휴면")) {
                     // 인증번호 생성 + 세션 저장 + 메일 발송
                     // loginVO에 email이 없으면 DB에서 별도 조회 필요 (view() 재활용)
                     MemberVO dormantMember = (MemberVO) Execute.execute(
@@ -602,7 +602,7 @@ public class MemberController implements Controller {
                 vo.setStatus(request.getParameter("status"));
                 
                 // ── '정지' 상태일 때: days 파라미터를 받아 suspension_end_date 계산 ──
-                if ("정지".equals(vo.getStatus())) {
+                if (vo.getStatus().equals("정지")) {
                     String daysParam = request.getParameter("days");
                     if (daysParam == null || daysParam.trim().isEmpty()) {
                         request.setAttribute("result", "fail");
@@ -633,7 +633,7 @@ public class MemberController implements Controller {
                 String queryString = "page=" + request.getParameter("page")
                 + "&perPageNum=" + request.getParameter("perPageNum")
                 + "&keyword=" + URLEncoder.encode(request.getParameter("keyword") != null ? request.getParameter("keyword") : "", "UTF-8")
-                + "&status=" + URLEncoder.encode(request.getParameter("status") != null ? request.getParameter("status") : "", "UTF-8")
+                + "&status=" + URLEncoder.encode(request.getParameter("filterStatus") != null ? request.getParameter("filterStatus") : "", "UTF-8")
                 + "&gradeNo=" + (request.getParameter("gradeNo") != null ? request.getParameter("gradeNo") : "")
                 + "&dateFrom=" + (request.getParameter("dateFrom") != null ? request.getParameter("dateFrom") : "")
                 + "&dateTo=" + (request.getParameter("dateTo") != null ? request.getParameter("dateTo") : "");
