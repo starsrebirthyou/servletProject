@@ -6,6 +6,7 @@ import everytable.main.controller.Controller;
 import everytable.main.controller.Init;
 import everytable.main.service.Execute;
 import everytable.member.vo.LoginVO;
+import everytable.reservation.dao.ReservationDAO;
 import everytable.reservation.vo.ReservationVO;
 import everytable.util.page.PageObject;
 import jakarta.servlet.http.HttpServletRequest;
@@ -143,42 +144,81 @@ public class ReservationController implements Controller {
 
 			// 6. 예약 수정 폼
 			case "/reservation/updateForm.do":
-			    no = Long.parseLong(request.getParameter("no"));
-			    
-			    // 1. 우선 예약 정보를 가져옴
-			    ReservationVO vo1 = (ReservationVO) Execute.execute(Init.getService("/reservation/view.do"), no);
-			    
-			    // 2. [핵심] VO 내부에 있는 storeMenuList 필드에 메뉴 리스트를 가져와서 채움
-			    // Init.java에 메뉴 리스트 서비스가 등록되어 있어야 합니다.
-			    vo1.setStoreMenuList((List<ReservationVO>) Execute.execute(Init.getService("/menu/list.do"), vo1.getStoreId()));
-			    
-			    // 3. 데이터가 꽉 찬 vo를 request에 세팅
-			    request.setAttribute("vo", vo1);
-			    
-			    return "reservation/updateForm";
+				no = Long.parseLong(request.getParameter("no"));
+
+				// 1. 우선 예약 정보를 가져옴
+				ReservationVO vo1 = (ReservationVO) Execute.execute(Init.getService("/reservation/view.do"), no);
+
+				// 2. [핵심] VO 내부에 있는 storeMenuList 필드에 메뉴 리스트를 가져와서 채움
+				// Init.java에 메뉴 리스트 서비스가 등록되어 있어야 합니다.
+				vo1.setStoreMenuList(
+						(List<ReservationVO>) Execute.execute(Init.getService("/menu/list.do"), vo1.getStoreId()));
+
+				// 3. 데이터가 꽉 찬 vo를 request에 세팅
+				request.setAttribute("vo", vo1);
+
+				return "reservation/updateForm";
 
 			// 7. 예약 수정 처리
 			case "/reservation/update.do":
-				vo1 = new ReservationVO();
-				vo1.setResNo(Long.parseLong(request.getParameter("resNo")));
-				vo1.setResDate(request.getParameter("resDate"));
-				vo1.setResTime(request.getParameter("resTime"));
-				vo1.setResCount(Long.parseLong(request.getParameter("resCount")));
-				vo1.setResPhone(request.getParameter("resPhone"));
-				vo1.setResType(request.getParameter("resType"));
+			    // 1. 기본 예약 정보 수집
+			    long resNo = Long.parseLong(request.getParameter("resNo"));
+			    String resPhone = request.getParameter("resPhone");
+			    String resDate = request.getParameter("resDate");
+			    String resTime = request.getParameter("resTime");
+			    long resCount = Long.parseLong(request.getParameter("resCount"));
+			    String resType = request.getParameter("resType");
+			    String orderAdd = request.getParameter("orderAdd");
+			    long totalPrice = Long.parseLong(request.getParameter("totalPrice"));
 
-				Execute.execute(Init.getService(uri), vo1);
-				session.setAttribute("msg", "예약 정보가 수정되었습니다.");
-				return "redirect:view.do?no=" + vo1.getResNo();
+			    ReservationVO vo11 = new ReservationVO();
+			    vo11.setResNo(resNo);
+			    vo11.setResPhone(resPhone);
+			    vo11.setResDate(resDate);
+			    vo11.setResTime(resTime);
+			    vo11.setResCount(resCount);
+			    vo11.setResType(resType);
+			    vo11.setOrderAdd(orderAdd);
+			    vo11.setTotalPrice(totalPrice);
+
+			    // 2. 메뉴 리스트 수집 (이름 주의: price)
+			    String[] mNos = request.getParameterValues("menuNos");
+			    String[] qtys = request.getParameterValues("quantities");
+			    String[] priceArr = request.getParameterValues("price"); // JSP의 name="price"와 일치
+
+			    // 3. DB 업데이트 시작
+			    ReservationDAO dao = new ReservationDAO();
+			    
+			    // (1) 기본 예약 테이블 정보 수정 (DAO 7번 메서드)
+			    dao.update(vo11);
+			    
+			    // (2) 기존 주문 메뉴 싹 삭제 (DAO 추가1 메서드)
+			    dao.deleteOrderItems(resNo);
+			    
+			    // (3) 새로운 메뉴 리스트 저장 (DAO 추가2 메서드)
+			    if (mNos != null && priceArr != null) {
+			        for (int i = 0; i < mNos.length; i++) {
+			            long mNo = Long.parseLong(mNos[i]);
+			            long qty = Long.parseLong(qtys[i]);
+			            long p = Long.parseLong(priceArr[i]);
+			            
+			            if(qty > 0) { // 수량이 0보다 큰 것만 저장
+			                dao.insertOrderItem(resNo, mNo, qty, p);
+			            }
+			        }
+			    }
+
+			    session.setAttribute("msg", "예약 수정이 완료되었습니다.");
+			    return "redirect:view.do?no=" + resNo;
 
 			// 8. 사용자 예약 취소 매장용
 			case "/reservation/adminCancel.do":
-				vo1 = new ReservationVO();
-				vo1.setResNo(Long.parseLong(request.getParameter("resNo")));
-				vo1.setCancelReason(request.getParameter("cancelReason"));
-				vo1.setResStatus(4L);
+				vo11 = new ReservationVO();
+				vo11.setResNo(Long.parseLong(request.getParameter("resNo")));
+				vo11.setCancelReason(request.getParameter("cancelReason"));
+				vo11.setResStatus(4L);
 
-				Execute.execute(Init.getService(uri), vo1);
+				Execute.execute(Init.getService(uri), vo11);
 				session.setAttribute("msg", "예약 거절이 완료되었습니다.");
 				return "redirect:adminVist.do";
 
@@ -190,39 +230,39 @@ public class ReservationController implements Controller {
 			case "/reservation/orderWrite.do":
 				System.out.println("/reservation/orderWrite.do - 메뉴 주문 처리");
 
-				vo1 = new ReservationVO();
+				vo11 = new ReservationVO();
 
 				// [수정] JSP의 name="menuNos", name="quantities"와 일치시켜야 합니다!
-				String[] menuNos = request.getParameterValues("menuNos");
-				String[] quantities = request.getParameterValues("quantities");
+				String[] menuNos1 = request.getParameterValues("menuNos");
+				String[] quantities1 = request.getParameterValues("quantities");
 				String storeIdStr1 = request.getParameter("storeId");
-				String totalPriceStr = request.getParameter("totalPrice");
+				String totalPriceStr1 = request.getParameter("totalPrice");
 
 				// 기본 정보 세팅
-				vo1.setStoreId((storeIdStr1 != null && !storeIdStr1.equals("")) ? Long.parseLong(storeIdStr1) : 0L);
-				vo1.setTotalPrice(
-						(totalPriceStr != null && !totalPriceStr.equals("")) ? Long.parseLong(totalPriceStr) : 0L);
+				vo11.setStoreId((storeIdStr1 != null && !storeIdStr1.equals("")) ? Long.parseLong(storeIdStr1) : 0L);
+				vo11.setTotalPrice(
+						(totalPriceStr1 != null && !totalPriceStr1.equals("")) ? Long.parseLong(totalPriceStr1) : 0L);
 
 				// 수량이 0보다 큰 데이터 처리
-				if (menuNos != null && quantities != null) {
-					for (int i = 0; i < menuNos.length; i++) {
+				if (menuNos1 != null && quantities1 != null) {
+					for (int i = 0; i < menuNos1.length; i++) {
 						// 빈값이거나 "0"인 경우 제외
-						if (quantities[i] != null && !quantities[i].equals("0") && !quantities[i].equals("")) {
+						if (quantities1[i] != null && !quantities1[i].equals("0") && !quantities1[i].equals("")) {
 							// VO 구조에 따라 리스트로 담거나, 일단 첫 번째 값을 세팅
-							vo1.setMenuNo(Long.parseLong(menuNos[i]));
-							vo1.setQuantity(Long.parseLong(quantities[i]));
+							vo11.setMenuNo(Long.parseLong(menuNos1[i]));
+							vo11.setQuantity(Long.parseLong(quantities1[i]));
 							break; // 일단 로직상 한 개만 처리하게 되어있으므로 break
 						}
 					}
 				}
 
 				// 서비스 실행 (resNo 반환)
-				Long resNo = (Long) Execute.execute(Init.getService(uri), vo1);
+				Long resNo1 = (Long) Execute.execute(Init.getService(uri), vo11);
 
 				request.getSession().setAttribute("msg", "메뉴 주문이 완료되었습니다.");
 
 				// 상세페이지로 이동
-				return "redirect:/reservation/orderView.do?resNo=" + resNo;
+				return "redirect:/reservation/orderView.do?resNo=" + resNo1;
 
 			// 단체 주문 - 메뉴 선택 폼 (참여자 접속)
 			case "/reservation/groupMenuForm.do":
@@ -265,7 +305,7 @@ public class ReservationController implements Controller {
 					return "error/404";
 				}
 
-				long resNo1 = Long.parseLong(groupResNo.trim());
+				long resNo11 = Long.parseLong(groupResNo.trim());
 
 				if (groupMenuNos != null && groupQuantities != null) {
 					for (int i = 0; i < groupMenuNos.length; i++) {
@@ -277,7 +317,7 @@ public class ReservationController implements Controller {
 
 						try {
 							ReservationVO groupVO = new ReservationVO();
-							groupVO.setResNo(resNo1); // 위에서 변환한 숫자 사용
+							groupVO.setResNo(resNo11); // 위에서 변환한 숫자 사용
 							groupVO.setMenuNo(Long.parseLong(groupMenuNos[i].trim()));
 							groupVO.setQuantity(Long.parseLong(groupQuantities[i].trim()));
 
@@ -327,12 +367,12 @@ public class ReservationController implements Controller {
 				String fStoreId = request.getParameter("storeId");
 				String fTotalPrice = request.getParameter("totalPrice");
 				// switch문 상단의 vo 변수 재사용
-				vo1 = new ReservationVO();
-				vo1.setResNo(fResNo);
-				vo1.setOrderAdd(fOrderAdd);
+				vo11 = new ReservationVO();
+				vo11.setResNo(fResNo);
+				vo11.setOrderAdd(fOrderAdd);
 
 				// 서비스 실행 (금액 합산 및 orderAdd 업데이트)
-				Execute.execute(Init.getService(uri), vo1);
+				Execute.execute(Init.getService(uri), vo11);
 
 				// 결제 페이지로 이동 (resNo와 storeId를 들고 갑니다)
 				return "redirect:/payment/writeForm.do?resNo=" + fResNo + "&storeId=" + fStoreId + "&totalPrice="

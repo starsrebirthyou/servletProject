@@ -289,14 +289,16 @@ body {
 						</thead>
 						<tbody>
 							<c:choose>
-								<%-- vo 객체 내부에 담긴 orderList를 참조하도록 변경 --%>
+								<%-- vo.orderList 내부의 데이터를 참조 --%>
 								<c:when test="${not empty vo.orderList}">
 									<c:forEach items="${vo.orderList}" var="item">
 										<tr>
 											<td class="fw-bold">${item.menuName}</td>
 											<td class="text-center text-muted">${item.quantity}개</td>
-											<td class="text-end"><fmt:formatNumber
-													value="${item.price}" />원</td>
+											<td class="text-end">
+												<%-- 단가 x 수량으로 해당 메뉴의 총액 표시 --%> <fmt:formatNumber
+													value="${item.price * item.quantity}" />원
+											</td>
 										</tr>
 									</c:forEach>
 								</c:when>
@@ -312,14 +314,13 @@ body {
 
 					<div class="total-row">
 						<span>최종 결제 금액</span> <span class="total-price"> <c:choose>
-								<%-- totalPrice가 0보다 큰 경우에만 금액 표시 --%>
+								<%-- reservation 테이블의 total_price 필드 출력 --%>
 								<c:when test="${vo.totalPrice > 0}">
 									<fmt:formatNumber value="${vo.totalPrice}" />원
-            </c:when>
-								<%-- 그 외(0원인 경우 등)에는 결제 전임을 알림 --%>
+                </c:when>
 								<c:otherwise>
 									<span class="text-muted"
-										style="font-size: 14px; font-weight: normal;">결제 전</span>
+										style="font-size: 14px; font-weight: normal;">결제 정보 없음</span>
 								</c:otherwise>
 							</c:choose>
 						</span>
