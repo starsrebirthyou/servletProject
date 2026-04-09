@@ -17,11 +17,10 @@ public class MemberDAO extends DAO {
     // ----------------------------------------------------------------
     // 로그인 / 로그아웃
     // ----------------------------------------------------------------
-
     public LoginVO login(LoginVO userVO) throws Exception {
         LoginVO vo = null;
         con = DB.getConnection();
-        String sql = "SELECT m.id, m.pw, m.name, m.grade_no, g.grade_name, s.store_id "
+        String sql = "SELECT m.id, m.pw, m.name, m.grade_no, g.grade_name, s.store_id, m.status "
                 + " FROM member m, grade g, store s "
                 + " WHERE m.id = ? AND m.grade_no = g.grade_no "
                 + " AND m.id = s.member_id(+) " // 이 부분이 핵심! (데이터가 없는 쪽이 +)
@@ -40,6 +39,7 @@ public class MemberDAO extends DAO {
             vo.setGradeNo(rs.getInt("grade_no"));
             vo.setGradeName(rs.getString("grade_name"));
             vo.setStoreId(rs.getLong("store_id"));
+            vo.setStatus(rs.getString("status"));
 
         }
         DB.close(con, pstmt, rs);
@@ -48,7 +48,7 @@ public class MemberDAO extends DAO {
 
     
 	// ----------------------------------------------------------------
-	// 휴면 → 정상으로 상태 변경
+	// 최근 접속일 갱신
 	// ----------------------------------------------------------------
     public Integer updateLastLogin(String id) throws Exception {
         con = DB.getConnection();
@@ -105,6 +105,7 @@ public class MemberDAO extends DAO {
         return result;
     }
 
+    
     // ----------------------------------------------------------------
     // 내 정보 보기
     // ----------------------------------------------------------------
@@ -112,11 +113,12 @@ public class MemberDAO extends DAO {
     public MemberVO view(String id) throws Exception {
         MemberVO vo = null;
         con = DB.getConnection();
-        String sql = "SELECT m.id, m.name, m.gender, TO_CHAR(m.birth, 'yyyy-mm-dd') birth, "
-                   + " m.tel, m.email, g.grade_name, TO_CHAR(m.join_date, 'yyyy-mm-dd') join_date, "
-                   + " TO_CHAR(m.last_login, 'yyyy-mm-dd') last_login "
-                   + " FROM member m, grade g "
-                   + " WHERE m.id = ? AND m.grade_no = g.grade_no";
+        String sql = "SELECT m.id, m.name, m.gender, TO_CHAR(m.birth, 'yyyy-mm-dd') birth, m.tel, "
+        				+ "m.email, m.status, m.grade_no, g.grade_name, "
+        				+ "TO_CHAR(m.join_date, 'yyyy-mm-dd') join_date, "
+        				+ " TO_CHAR(m.last_login, 'yyyy-mm-dd') last_login "
+        				+ " FROM member m, grade g "
+        				+ " WHERE m.id = ? AND m.grade_no = g.grade_no";
         
         pstmt = con.prepareStatement(sql);
         pstmt.setString(1, id);

@@ -255,7 +255,7 @@ $(function(){
         // 정지 외 상태는 기존 방식
         let params = "id=" + id + "&status=" + status;
         params += "&page=${pageObject.page}&perPageNum=${pageObject.perPageNum}";
-        params += "&keyword=${param.keyword}&status=${param.status}";
+        params += "&keyword=${param.keyword}&filterStatus=${param.status}";
         params += "&gradeNo=${param.gradeNo}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}";
         location = "changeStatus.do?" + params;
     });
@@ -310,7 +310,7 @@ $(function(){
         let params = "id=" + id + "&gradeNo=" + gradeNo;
         params += "&page=${pageObject.page}&perPageNum=${pageObject.perPageNum}";
         params += "&keyword=${param.keyword}&status=${param.status}";
-        params += "&gradeNo=${param.gradeNo}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}";
+        params += "&filterGradeNo=${param.gradeNo}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}";
         location = "changeGrade.do?" + params;
     });
 

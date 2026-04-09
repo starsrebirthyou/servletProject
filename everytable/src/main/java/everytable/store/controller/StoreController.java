@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import everytable.main.controller.Controller;
 import everytable.main.controller.Init;
+import everytable.member.vo.LoginVO;
+import everytable.store.dao.StoreDAO;
 import everytable.store.vo.StoreVO;
 import everytable.util.page.PageObject;
 
@@ -26,8 +28,10 @@ public class StoreController implements Controller {
 
                 case "/store/write.do":
                     if (request.getMethod().equals("POST")) {
-                        HttpSession session = request.getSession();
-                        String memberId = (String) session.getAttribute("id");
+                        HttpSession writeSession = request.getSession();
+                        // ✅ LoginVO에서 id 추출
+                        LoginVO writeLogin = (LoginVO) writeSession.getAttribute("login");
+                        String memberId = (writeLogin != null) ? writeLogin.getId() : null;
 
                         StoreVO writeVo = new StoreVO();
                         writeVo.setMember_id(memberId);
@@ -61,18 +65,37 @@ public class StoreController implements Controller {
                     if (strStoreId == null || strStoreId.trim().isEmpty()) {
                         return "redirect:list.do";
                     }
-                    Long store_id = Long.parseLong(strStoreId.trim()); // ✅ trim()
+                    Long store_id = Long.parseLong(strStoreId.trim());
                     request.setAttribute("vo", Init.getService(uri).service(store_id));
                     request.setAttribute("menuList", Init.getService("/menu/list.do").service(store_id));
                     jsp = "store/view";
                     break;
 
                 case "/store/update.do":
-                    String updateStoreId = request.getParameter("store_id");
-                    if (updateStoreId == null || updateStoreId.trim().isEmpty()) {
-                        return "redirect:list.do";
+                    HttpSession session = request.getSession();
+                    // ✅ "id" 대신 "login" 키로 LoginVO 꺼내기
+                    LoginVO loginVO = (LoginVO) session.getAttribute("login");
+
+                    if (loginVO == null) {
+                        return "redirect:/member/loginForm.do";
                     }
-                    Long updateId = Long.parseLong(updateStoreId.trim()); // ✅ trim() - 핵심 수정
+                    String loginId = loginVO.getId();
+
+                    String updateStoreId = request.getParameter("store_id");
+
+                    // ✅ store_id 없으면 로그인 ID로 매장 조회 후 자동 리다이렉트
+                    if (updateStoreId == null || updateStoreId.trim().isEmpty()) {
+                        StoreDAO dao = new StoreDAO();
+                        StoreVO myStore = dao.findByMemberId(loginId);
+
+                        if (myStore == null) {
+                            // 등록된 매장 없으면 등록 페이지로
+                            return "redirect:write.do";
+                        }
+                        return "redirect:update.do?store_id=" + myStore.getStore_id();
+                    }
+
+                    Long updateId = Long.parseLong(updateStoreId.trim());
 
                     if (request.getMethod().equals("POST")) {
                         StoreVO vo = new StoreVO();

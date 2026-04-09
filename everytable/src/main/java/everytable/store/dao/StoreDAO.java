@@ -37,7 +37,7 @@ public class StoreDAO extends DAO {
         return result;
     }
 
-    // ✅ [수정] 매장 리스트 조회 - stats 조인 제거, store 테이블만 조회 + 페이징
+    // 2. 매장 리스트 조회 (페이징)
     public List<StoreVO> list(PageObject pageObject) throws Exception {
         List<StoreVO> list = null;
         try {
@@ -56,18 +56,18 @@ public class StoreDAO extends DAO {
             while (rs.next()) {
                 if (list == null) list = new ArrayList<>();
                 StoreVO vo = new StoreVO();
-                vo.setStore_id       (rs.getLong  ("store_id"));
-                vo.setMember_id      (rs.getString ("member_id"));
-                vo.setStore_name     (rs.getString ("store_name"));
-                vo.setStore_cate     (rs.getString ("store_cate"));
-                vo.setStore_addr     (rs.getString ("store_addr"));
-                vo.setStore_tel      (rs.getString ("store_tel"));
-                vo.setOpen_time      (rs.getString ("open_time"));
-                vo.setMin_order_price(rs.getInt    ("min_order_price"));
-                vo.setPrepare_time   (rs.getString ("prepare_time"));
-                vo.setFilename       (rs.getString ("filename"));
-                vo.setAvg_rating     (rs.getDouble ("avg_rating"));
-                vo.setReview_count   (rs.getInt    ("review_count"));
+                vo.setStore_id        (rs.getLong  ("store_id"));
+                vo.setMember_id       (rs.getString("member_id"));
+                vo.setStore_name      (rs.getString("store_name"));
+                vo.setStore_cate      (rs.getString("store_cate"));
+                vo.setStore_addr      (rs.getString("store_addr"));
+                vo.setStore_tel       (rs.getString("store_tel"));
+                vo.setOpen_time       (rs.getString("open_time"));
+                vo.setMin_order_price (rs.getInt   ("min_order_price"));
+                vo.setPrepare_time    (rs.getString("prepare_time"));
+                vo.setFilename        (rs.getString("filename"));
+                vo.setAvg_rating      (rs.getDouble("avg_rating"));
+                vo.setReview_count    (rs.getInt   ("review_count"));
                 list.add(vo);
             }
         } finally { DB.close(con, pstmt, rs); }
@@ -85,17 +85,18 @@ public class StoreDAO extends DAO {
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 vo = new StoreVO();
-                vo.setStore_id       (rs.getLong  ("store_id"));
-                vo.setStore_name     (rs.getString ("store_name"));
-                vo.setStore_cate     (rs.getString ("store_cate"));
-                vo.setStore_addr     (rs.getString ("store_addr"));
-                vo.setAvg_rating     (rs.getDouble ("avg_rating"));
-                vo.setReview_count   (rs.getInt    ("review_count"));
-                vo.setFilename       (rs.getString ("filename"));
-                vo.setStore_tel      (rs.getString ("store_tel"));
-                vo.setOpen_time      (rs.getString ("open_time"));
-                vo.setMin_order_price(rs.getInt    ("min_order_price"));
-                vo.setPrepare_time   (rs.getString ("prepare_time"));
+                vo.setStore_id        (rs.getLong  ("store_id"));
+                vo.setMember_id       (rs.getString("member_id"));
+                vo.setStore_name      (rs.getString("store_name"));
+                vo.setStore_cate      (rs.getString("store_cate"));
+                vo.setStore_addr      (rs.getString("store_addr"));
+                vo.setAvg_rating      (rs.getDouble("avg_rating"));
+                vo.setReview_count    (rs.getInt   ("review_count"));
+                vo.setFilename        (rs.getString("filename"));
+                vo.setStore_tel       (rs.getString("store_tel"));
+                vo.setOpen_time       (rs.getString("open_time"));
+                vo.setMin_order_price (rs.getInt   ("min_order_price"));
+                vo.setPrepare_time    (rs.getString("prepare_time"));
                 vo.setRefund_policy_24(rs.getString("refund_policy_24"));
                 vo.setRefund_policy_12(rs.getString("refund_policy_12"));
                 vo.setRefund_policy_0 (rs.getString("refund_policy_0"));
@@ -137,7 +138,38 @@ public class StoreDAO extends DAO {
         return result;
     }
 
-    // 5. 전체 행 수 조회 (페이징용)
+    // 5. member_id로 매장 조회
+    public StoreVO findByMemberId(String memberId) throws Exception {
+        StoreVO vo = null;
+        try {
+            con = DB.getConnection();
+            String sql = "select * from store where member_id = ?";
+            pstmt = con.prepareStatement(sql);
+            pstmt.setString(1, memberId);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                vo = new StoreVO();
+                vo.setStore_id        (rs.getLong  ("store_id"));
+                vo.setMember_id       (rs.getString("member_id"));
+                vo.setStore_name      (rs.getString("store_name"));
+                vo.setStore_cate      (rs.getString("store_cate"));
+                vo.setStore_addr      (rs.getString("store_addr"));
+                vo.setAvg_rating      (rs.getDouble("avg_rating"));
+                vo.setReview_count    (rs.getInt   ("review_count"));
+                vo.setFilename        (rs.getString("filename"));
+                vo.setStore_tel       (rs.getString("store_tel"));
+                vo.setOpen_time       (rs.getString("open_time"));
+                vo.setMin_order_price (rs.getInt   ("min_order_price"));
+                vo.setPrepare_time    (rs.getString("prepare_time"));
+                vo.setRefund_policy_24(rs.getString("refund_policy_24"));
+                vo.setRefund_policy_12(rs.getString("refund_policy_12"));
+                vo.setRefund_policy_0 (rs.getString("refund_policy_0"));
+            }
+        } finally { DB.close(con, pstmt, rs); }
+        return vo;
+    }
+
+    // 6. 전체 행 수 조회 (페이징용)
     public Long getTotalRow(PageObject pageObject) throws Exception {
         Long totalRow = 0L;
         try {
@@ -151,6 +183,7 @@ public class StoreDAO extends DAO {
         return totalRow;
     }
 
+
     private String search(PageObject pageObject) {
         String sql = "";
         String key  = pageObject.getKey();
@@ -158,17 +191,20 @@ public class StoreDAO extends DAO {
         if (word != null && !word.equals("")) {
             sql += " and ( 1=0 ";
             if (key != null && key.indexOf("n") >= 0) sql += " or store_name like ? ";
+            if (key != null && key.indexOf("a") >= 0) sql += " or store_addr like ? ";
             if (key != null && key.indexOf("c") >= 0) sql += " or store_cate like ? ";
             sql += " ) ";
         }
         return sql;
     }
 
+
     private int searchDataSet(java.sql.PreparedStatement pstmt, int idx, PageObject pageObject) throws Exception {
         String word = pageObject.getWord();
         if (word != null && !word.equals("")) {
             String key = pageObject.getKey();
             if (key != null && key.indexOf("n") >= 0) pstmt.setString(idx++, "%" + word + "%");
+            if (key != null && key.indexOf("a") >= 0) pstmt.setString(idx++, "%" + word + "%");
             if (key != null && key.indexOf("c") >= 0) pstmt.setString(idx++, "%" + word + "%");
         }
         return idx;
