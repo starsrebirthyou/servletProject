@@ -17,7 +17,6 @@ public class MemberDAO extends DAO {
     // ----------------------------------------------------------------
     // 로그인 / 로그아웃
     // ----------------------------------------------------------------
-
     public LoginVO login(LoginVO userVO) throws Exception {
         LoginVO vo = null;
         con = DB.getConnection();
