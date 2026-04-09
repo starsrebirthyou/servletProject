@@ -236,12 +236,6 @@ $(function(){
         let row    = $(this).closest(".dataRow");
         let status = row.find(".status").val();
         let id     = row.find(".col-id").text().trim();
-        let isPurged = row.data("purged"); // 파기 여부 확인
-
-        if(isPurged){
-            alert("개인정보가 파기된 회원의 상태는 변경할 수 없습니다.");
-            return;
-        }
 
         if(status === "정지"){
             // 모달 열기
@@ -297,14 +291,9 @@ $(function(){
         pendingStatusRow = null;
     });
 
-    /* 등급 수정 버튼 클릭 - 파기 차단 */
+    /* 등급 수정 버튼 클릭 */
     $(".changeGradeNoBtn").on("click", function(){
         let row      = $(this).closest(".dataRow");
-        let isPurged = row.data("purged");
-        if(isPurged){
-            alert("개인정보가 파기된 회원의 등급은 변경할 수 없습니다.");
-            return;
-        }
         let id      = row.find(".col-id").text().trim();
         let gradeNo = row.find(".gradeNo").val();
         let params = "id=" + id + "&gradeNo=" + gradeNo;
@@ -326,16 +315,6 @@ $(function(){
 </script>
 </head>
 <body>
-<c:if test="${vo.status == '파기'}">
-    <div class="alert alert-warning d-flex align-items-center gap-2 mb-3"
-         style="border-radius:10px; font-size:0.9rem;">
-        <span style="font-size:1.2rem;">⚠️</span>
-        <span>
-            <strong>안내:</strong> 본 회원은 개인정보 유효기간 경과로 인해 개인정보가 파기되었습니다.
-            정지 내역은 통계 및 운영 기록용으로만 보존됩니다.
-        </span>
-    </div>
-</c:if>
 <!-- ── 헤더 ── -->
 <div class="d-flex align-items-center mb-4 mt-3">
     <div class="me-3" style="width:54px;height:54px;background:#e8f5ee;border-radius:14px;
@@ -366,7 +345,6 @@ $(function(){
                 <option value="탈퇴" ${status == '탈퇴' ? 'selected' : ''}>탈퇴</option>
                 <option value="정지" ${status == '정지' ? 'selected' : ''}>정지</option>
                 <option value="휴면" ${status == '휴면' ? 'selected' : ''}>휴면</option>
-                <option value="파기" ${status == '파기' ? 'selected' : ''}>파기</option>
             </select>
         </div>
         <div class="filter-group">
@@ -406,7 +384,7 @@ $(function(){
                 <th>번호</th>
                 <th>아이디</th>
                 <th>이름</th>
-                <th>연락처</th>
+                <th>이메일</th>
                 <th>등급</th>
                 <th>상태</th>
                 <th>가입일</th>
@@ -420,7 +398,7 @@ $(function(){
             </tr>
         </c:if>
         <c:forEach items="${list}" var="vo" varStatus="vs">
-            <tr class="dataRow" data-purged="${vo.status == '파기' ? 'true' : 'false'}">
+            <tr class="dataRow">
                 <td>${pageObject.startRow + vs.index}</td>
                 <td>
                     <div class="d-flex align-items-center gap-2">
@@ -428,7 +406,7 @@ $(function(){
                     </div>
                 </td>
                 <td>${vo.name}</td>
-                <td>${vo.tel}</td>
+                <td>${vo.email}</td>
 				<!-- 등급 뱃지형 드롭다운 -->
                 <td>
                     <div class="d-flex align-items-center">
@@ -437,8 +415,7 @@ $(function(){
                                 <c:when test="${vo.gradeNo == 9}">g9</c:when>
                                 <c:when test="${vo.gradeNo == 2}">g2</c:when>
                                 <c:otherwise>g1</c:otherwise>
-                            </c:choose>"
-            					${vo.status == '파기' ? 'disabled' : ''}>
+                            </c:choose>">
                             <option value="1" ${vo.gradeNo == 1 ? 'selected' : ''}>일반</option>
                             <option value="2" ${vo.gradeNo == 2 ? 'selected' : ''}>점주</option>
                             <option value="9" ${vo.gradeNo == 9 ? 'selected' : ''}>관리자</option>
@@ -455,8 +432,7 @@ $(function(){
                                 <c:when test="${vo.status == '정상'}">s-ok</c:when>
                                 <c:when test="${vo.status == '탈퇴' || vo.status == '정지' || vo.status == '휴면'}">s-bad</c:when>
                                 <c:otherwise>s-etc</c:otherwise>
-                            </c:choose>"
-            					${vo.status == '파기' ? 'disabled' : ''}>
+                            </c:choose>">
                             <option value="정상" ${vo.status == '정상' ? 'selected' : ''}>정상</option>
                             <option value="휴면" ${vo.status == '휴면' ? 'selected' : ''}>휴면</option>
                             <option value="정지" ${vo.status == '정지' ? 'selected' : ''}>정지</option>
@@ -489,7 +465,7 @@ $(function(){
     <div class="modal-box">
         <h5>⛔ 정지 처리</h5>
         <p>정지 일수를 입력하면 그 다음날이 정지 해제일이 됩니다.</p>
-        <input type="number" id="suspendDays" min="1" max="365" placeholder="정지 일수 (예: 7)">
+        <input type="number" id="suspendDays" min="1" placeholder="정지 일수 (예: 7)">
         <textarea id="suspendReason" placeholder="정지 사유를 입력하세요."></textarea>
         <div class="modal-footer">
             <button class="btn-cancel-modal" id="suspendCancelBtn">취소</button>

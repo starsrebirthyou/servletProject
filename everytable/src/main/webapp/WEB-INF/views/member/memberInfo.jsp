@@ -162,6 +162,12 @@ $(function(){
         <span class="info-value">${vo.birth}</span>
     </div>
 
+    <!-- 상태 -->
+    <div class="info-row">
+        <span class="info-label">상태</span>
+        <span class="info-value">${vo.status}</span>
+    </div>
+
     <!-- 등급 -->
     <div class="info-row">
         <span class="info-label">등급</span>
@@ -185,6 +191,14 @@ $(function(){
 	    <div class="info-row">
 	        <span class="info-label">탈퇴일</span>
 	        <span class="info-value">${vo.withdraw}</span>
+	    </div>
+	</c:if>
+	
+    <c:if test="${!empty vo.suspensionEndDate}">
+	    <!-- 정지해제일 -->
+	    <div class="info-row">
+	        <span class="info-label">정지해제일</span>
+	        <span class="info-value">${vo.suspensionEndDate}</span>
 	    </div>
 	</c:if>
 

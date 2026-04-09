@@ -105,7 +105,6 @@ $(function(){
     <div class="container-fluid" style="margin-top: 80px; margin-bottom: 80px;">
         <div class="container mt-3 mb-3">
             <decorator:body />
-            <%@ include file="/WEB-INF/views/member/loginModal.jsp" %>
         </div>
     </div>
 

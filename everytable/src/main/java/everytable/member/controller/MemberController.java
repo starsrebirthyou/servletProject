@@ -38,7 +38,7 @@ public class MemberController implements Controller {
 
                 loginVO = (LoginVO) Execute.execute(Init.getService(uri), userVO);
                 if (loginVO == null) {
-                    request.setAttribute("msg", "아이디 또는 비밀번호가 일치하지 않거나 이용이 제한된 계정입니다.");
+                    request.setAttribute("msg", "아이디 또는 비밀번호가 일치하지 않거나 정지된 계정입니다.");
                 		return "member/loginForm";
                 }
 

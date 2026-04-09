@@ -32,18 +32,22 @@ public class MemberDAO extends DAO {
         rs = pstmt.executeQuery();
         if (rs != null && rs.next()) {
             String savedPw = rs.getString("pw");
-            if (!BCrypt.checkpw(userVO.getPw(), savedPw)) return null; // 비밀번호 불일치
+            if (!BCrypt.checkpw(userVO.getPw(), savedPw)) {
+                // 비밀번호 불일치 → id만 null로 세팅해서 구분
+                DB.close(con, pstmt, rs);
+                return null;
+            }
             vo = new LoginVO();
             vo.setId(rs.getString("id"));
             vo.setName(rs.getString("name"));
             vo.setGradeNo(rs.getInt("grade_no"));
             vo.setGradeName(rs.getString("grade_name"));
             vo.setStoreId(rs.getLong("store_id"));
-            vo.setStatus(rs.getString("status"));
-
+            vo.setStatus(rs.getString("status")); // 정상/휴면/정지/탈퇴/파기 모두 반환
         }
+        
         DB.close(con, pstmt, rs);
-        return vo;
+        return vo; // 아이디 없으면 null
     }
 
     
@@ -359,24 +363,19 @@ public class MemberDAO extends DAO {
         con = DB.getConnection();
 
         // 1단계: 조건 + 정렬
-        String sql = "SELECT m.no, m.id, m.name, m.gender, TO_CHAR(m.birth, 'yyyy-mm-dd') birth, "
-                   + " m.tel, m.email, m.status, m.grade_no, g.grade_name, "
-                   + " TO_CHAR(m.join_date,  'yyyy-mm-dd') join_date, "
-                   + " TO_CHAR(m.last_login, 'yyyy-mm-dd') last_login, "
-                   + " TO_CHAR(m.withdraw_date, 'yyyy-mm-dd') withdraw_date "
+        String sql = "SELECT m.no, m.id, m.name, m.email, m.status, m.grade_no, g.grade_name, "
+                   + " TO_CHAR(m.join_date, 'yyyy-mm-dd') join_date "
                    + " FROM member m, grade g "
-                   + " WHERE m.grade_no = g.grade_no ";
+                   + " WHERE (m.grade_no = g.grade_no) AND (m.status IN ('정상', '휴면', '정지', '탈퇴')) ";
         sql += searchCondition(filter);
         sql += " ORDER BY m.no";
 
         // 2단계: rownum 부여
-        sql = "SELECT ROWNUM rnum, no, id, name, gender, birth, tel, email, "
-            + " status, grade_no, grade_name, join_date, last_login, withdraw_date "
+        sql = "SELECT ROWNUM rnum, no, id, name, email, status, grade_no, grade_name, join_date "
             + " FROM (" + sql + ")";
 
         // 3단계: 페이지 범위 추출
-        sql = "SELECT rnum, no, id, name, gender, birth, tel, email, "
-            + " status, grade_no, grade_name, join_date, last_login, withdraw_date "
+        sql = "SELECT rnum, no, id, name, email, status, grade_no, grade_name, join_date "
             + " FROM (" + sql + ") WHERE rnum BETWEEN ? AND ?";
 
         pstmt = con.prepareStatement(sql);
@@ -390,16 +389,11 @@ public class MemberDAO extends DAO {
                 vo.setNo(rs.getLong("no"));
                 vo.setId(rs.getString("id"));
                 vo.setName(rs.getString("name"));
-                vo.setGender(rs.getString("gender"));
-                vo.setBirth(rs.getString("birth"));
-                vo.setTel(rs.getString("tel"));
-                vo.setEmail(rs.getString("email"));
+                vo.setTel(rs.getString("email"));
                 vo.setStatus(rs.getString("status"));
                 vo.setGradeNo(rs.getInt("grade_no"));
                 vo.setGradeName(rs.getString("grade_name"));
                 vo.setJoinDate(rs.getString("join_date"));
-                vo.setLastLogin(rs.getString("last_login"));
-                vo.setWithdraw(rs.getString("withdraw_date"));
                 list.add(vo);
             }
         }
@@ -419,7 +413,8 @@ public class MemberDAO extends DAO {
 	                + " m.tel, m.email, m.status, g.grade_name, "
 	                + " TO_CHAR(m.join_date,  'yyyy-mm-dd') join_date, "
 	                + " TO_CHAR(m.last_login, 'yyyy-mm-dd') last_login, "
-	                + " TO_CHAR(m.withdraw_date, 'yyyy-mm-dd') withdraw_date "
+	                + " TO_CHAR(m.withdraw_date, 'yyyy-mm-dd') withdraw_date, "
+	                + " TO_CHAR(m.suspension_end_date, 'yyyy-mm-dd') suspension_end_date "
 	                + " FROM member m, grade g "
 	                + " WHERE m.id = ? AND m.grade_no = g.grade_no";
 	     pstmt = con.prepareStatement(sql);
@@ -439,6 +434,7 @@ public class MemberDAO extends DAO {
 	         vo.setJoinDate(rs.getString("join_date"));
 	         vo.setLastLogin(rs.getString("last_login"));
 	         vo.setWithdraw(rs.getString("withdraw_date"));
+             vo.setSuspensionEndDate(rs.getString("suspension_end_date"));
 	     }
 	     DB.close(con, pstmt, rs);
 	     return vo;
