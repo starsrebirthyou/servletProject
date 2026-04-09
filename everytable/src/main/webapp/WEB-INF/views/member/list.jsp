@@ -310,7 +310,7 @@ $(function(){
         let params = "id=" + id + "&gradeNo=" + gradeNo;
         params += "&page=${pageObject.page}&perPageNum=${pageObject.perPageNum}";
         params += "&keyword=${param.keyword}&status=${param.status}";
-        params += "&gradeNo=${param.gradeNo}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}";
+        params += "&filterGradeNo=${param.gradeNo}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}";
         location = "changeGrade.do?" + params;
     });
 
