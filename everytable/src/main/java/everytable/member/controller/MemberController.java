@@ -347,14 +347,8 @@ public class MemberController implements Controller {
 	
 	        	    String id = (String) Execute.execute(Init.getService("/member/searchId.do"), vo);
 	
-	        	    if (id != null) {
-	        	        // 성공 시 아이디만 출력하고 끝!
-	        	        // response.getWriter().print(id); 
-	        	        // return null; 
-	        	    
 	        	    request.setAttribute("result", (id != null) ? id : "no");
 	        	    return "member/ajaxResult"; 
-	        	}
 	         
 	        	    
 	      // --------------------------------------------------------
@@ -422,6 +416,8 @@ public class MemberController implements Controller {
             	}
             	String targetId = request.getParameter("id");
             	request.setAttribute("vo", Execute.execute(Init.getService(uri), targetId));
+            // 정지 내역 추가
+            request.setAttribute("suspensionList", Execute.execute(Init.getService("/member/suspensionList.do"), targetId));
             	return "member/memberInfo";
             	
             	
