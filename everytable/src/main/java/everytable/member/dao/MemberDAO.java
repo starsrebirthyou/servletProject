@@ -121,6 +121,20 @@ public class MemberDAO extends DAO {
     
     
 	 // ----------------------------------------------------------------
+	 // 휴면 → 정상으로 상태 변경
+	 // ----------------------------------------------------------------
+	public Integer reactivate(String id) throws Exception {
+	    con = DB.getConnection();
+	    String sql = "UPDATE member SET status = '정상' WHERE id = ?";
+	    pstmt = con.prepareStatement(sql);
+	    pstmt.setString(1, id);
+	    Integer result = pstmt.executeUpdate();
+	    DB.close(con, pstmt);
+	    return result;
+	}
+    
+    
+	 // ----------------------------------------------------------------
 	 // 회원탈퇴
 	 // ----------------------------------------------------------------
 	 public Integer withdraw(MemberVO vo) throws Exception {
