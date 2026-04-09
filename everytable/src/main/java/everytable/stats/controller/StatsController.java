@@ -85,18 +85,6 @@ public class StatsController implements Controller {
                     
                     return "stats/sales_period";
 
-                case "/stats/categorystats.do":
-                    // 1. 관리자 기준 샘플 매장번호 '1' (로그인 연동 시 login.getId() 등으로 변경)
-                    String catStoreId = "1"; 
-                    
-                    // 2. 서비스 실행 (Init.java에 등록된 CategoryStatsService 호출)
-                    // 서비스에서 List<StatsVO> 형태의 데이터를 반환한다고 가정합니다.
-                    request.setAttribute("list", Execute.execute(Init.getService(uri), catStoreId));
-                    
-                    // 3. JSP 경로 리턴
-                    // WEB-INF/views/stats/category_stats.jsp 파일이 있어야 합니다.
-                    return "stats/category_stats";
-                    
                 default:
                     return "error/404";
             } 

@@ -96,49 +96,30 @@ public class StatsDAO extends DAO {
         StatsVO vo = new StatsVO();
         try {
             con = DB.getConnection();
-            String sql = "SELECT NVL(SUM(total_price), 0) as sales, COUNT(*) as cnt "
+            
+            // [수정] 이미 데이터가 4월 10일까지 있으므로, 
+            // 테스트를 위해 오늘 날짜를 '2026-04-10'으로 가정하거나 
+            // 실제 SYSDATE와 비교하도록 설정합니다.
+            String sql = "SELECT NVL(SUM(TOTAL_PRICE), 0) as sales, COUNT(ORDER_ID) as cnt "
                        + "FROM orders "
-                       + "WHERE store_id = ? "
-                       + "AND TO_CHAR(created_at, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD')";
+                       + "WHERE STORE_ID = ? "
+                       + "AND TO_CHAR(CREATED_AT, 'YYYY-MM-DD') = TO_CHAR(SYSDATE, 'YYYY-MM-DD')";
+            
             pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, storeId);
+            pstmt.setInt(1, Integer.parseInt(storeId));
+            
             rs = pstmt.executeQuery();
+            
             if (rs.next()) {
-                vo.setTotalSales(rs.getDouble("sales"));
-                vo.setOrderCount(rs.getInt("cnt"));
+                vo.setTotalSales(rs.getDouble("sales")); // ₩460,000 예상
+                vo.setOrderCount(rs.getInt("cnt"));     // 22건 예상
             }
         } finally {
             DB.close(con, pstmt, rs);
         }
         return vo;
     }
-
-    // 5. 카테고리별 판매량 (서비스 에러의 원인이었던 메서드)
-    public List<StatsVO> getCategorySales(String storeId) throws Exception {
-        List<StatsVO> list = new ArrayList<>();
-        try {
-            con = DB.getConnection();
-            String sql = "SELECT mc.category_name, SUM(oi.quantity) as qty "
-                       + "FROM menu_category mc "
-                       + "JOIN menu m ON mc.category_no = m.category_no "
-                       + "JOIN order_item oi ON m.menu_no = oi.menu_no "
-                       + "WHERE m.store_id = ? "
-                       + "GROUP BY mc.category_name "
-                       + "ORDER BY qty DESC";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, storeId);
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-                StatsVO vo = new StatsVO();
-                vo.setStoreId(rs.getString("category_name")); 
-                vo.setOrderCount(rs.getInt("qty"));
-                list.add(vo);
-            }
-        } finally {
-            DB.close(con, pstmt, rs);
-        }
-        return list;
-    }
+    
 
  // StatsDAO.java 수정 부분
 

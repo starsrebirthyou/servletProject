@@ -28,7 +28,6 @@
 				<ul class="nav flex-column mt-2">
 					<li class="nav-item"><a class="nav-link active" href="dashboard.do">대시보드 홈</a></li>
 					<li class="nav-item"><a class="nav-link" href="sales.do">기간별 매출조회</a></li>
-					<li class="nav-item"><a class="nav-link" href="categorystats.do">카테고리 통계</a></li>
 				</ul>
 			</nav>
 
@@ -59,14 +58,6 @@
 						<div class="card p-4">
 							<h5 class="mb-4 fw-bold">과거 매출 추이</h5>
 							<div style="height: 350px;"><canvas id="salesChart"></canvas></div>
-						</div>
-					</div>
-					<div class="col-md-5">
-						<div class="card p-4">
-							<h5 class="mb-4 fw-bold">카테고리별 판매 비중</h5>
-							<div style="position: relative; height: 350px; width: 100%;">
-								<canvas id="categoryChart"></canvas>
-							</div>
 						</div>
 					</div>
 				</div>

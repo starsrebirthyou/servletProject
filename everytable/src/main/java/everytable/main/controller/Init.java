@@ -74,8 +74,6 @@ import everytable.review.service.ReviewViewService;
 import everytable.review.service.ReviewWriteService;
 import everytable.stats.controller.StatsController;
 import everytable.stats.dao.StatsDAO;
-import everytable.stats.service.CategoryStatsService;
-import everytable.stats.service.StatsCategorySalesService;
 import everytable.stats.service.StatsDashboardService;
 import everytable.stats.service.StatsReportService;
 import everytable.stats.service.StatsTodaySummaryService;
@@ -326,16 +324,11 @@ public class Init extends HttpServlet {
 		serviceMap.put("/stats/list.do", new StatsDashboardService()); // 리스트용
 		serviceMap.put("/stats/report.do", new StatsReportService());  // 리포트용
 		serviceMap.put("/stats/todaySummary.do", new StatsTodaySummaryService()); // 오늘 요약용 (추가)
-		serviceMap.put("/stats/categorySales.do", new StatsCategorySalesService()); // 카테고리 차트용 (추가)
-		// 만약 기존에 쓰던 이름이 있다면 유지
-		serviceMap.put("/stats/categorystats.do", new CategoryStatsService()); 
 
 		// DAO 조립 (프라이팬 쥐여주기)
 		serviceMap.get("/stats/list.do").setDAO(daoMap.get("statsDAO"));
 		serviceMap.get("/stats/report.do").setDAO(daoMap.get("statsDAO"));
 		serviceMap.get("/stats/todaySummary.do").setDAO(daoMap.get("statsDAO"));
-		serviceMap.get("/stats/categorySales.do").setDAO(daoMap.get("statsDAO"));
-		serviceMap.get("/stats/categorystats.do").setDAO(daoMap.get("statsDAO"));
 		
 		// ==============================================
 		// 10. 환불 (Refund)
