@@ -148,15 +148,25 @@
 </div>
 
 <script>
+//view.jsp 하단 스크립트 수정
 $(function() {
     $("a[href='#review-section']").click(function(e) {
         e.preventDefault();
+<<<<<<< HEAD
+        
+        let storeId = "${vo.store_id}"; 
+        let storeName = "${vo.store_name}"; // ✅ DB에서 가져온 매장명
+        
+        // 작성 페이지로 바로 보낼 때도 이름을 파라미터로 붙입니다.
+        location.href = "/review/storeList.do?storeId=" + storeId + "&storeName=" + encodeURIComponent(("${vo.store_name}"));
+=======
         let storeId = "${vo.store_id}";
         if (!storeId || storeId === "") {
             alert("매장 정보를 찾을 수 없습니다.");
             return;
         }
         location.href = "/review/storeList.do?storeId=" + storeId;
+>>>>>>> branch 'master' of https://github.com/starsrebirthyou/servletProject.git
     });
 });
 </script>

@@ -21,27 +21,10 @@
     <div class="write-box shadow-sm">
         <h4 class="text-center font-weight-bold mb-4">리뷰 작성하기</h4>
         
-        <form action="write.do" method="post">
-            
-            <div class="form-group">
-                <label for="storeId" class="text-muted">리뷰를 작성할 매장을 선택해주세요</label>
-                <%-- storeId가 이미 넘어왔다면 선택 고정, 없다면 선택창 노출 --%>
-                <select name="storeId" id="storeId" class="form-control" required>
-                    <c:if test="${empty storeId}">
-                        <option value="">-- 매장 선택 --</option>
-                        <%-- 매장 리스트가 있다면 반복문 실행 --%>
-                        <c:forEach items="${storeList}" var="store">
-                            <option value="${store.storeId}">${store.storeName}</option>
-                        </c:forEach>
-                        <%-- 테스트용 데이터 --%>
-                        <option value="1">사근동 맛집 1호점</option>
-                        <option value="2">역삼동 분식점</option>
-                    </c:if>
-                    <c:if test="${!empty storeId}">
-                        <option value="${storeId}" selected>선택된 매장 번호: ${storeId}</option>
-                    </c:if>
-                </select>
-            </div>
+        <form action="write.do" method="post" id="reviewForm">
+            <!-- ✅ 핵심 수정: 매장 이름을 서버로 넘기기 위한 hidden 필드 -->
+            <input type="hidden" name="storeName" id="storeNameInput" value="${storeName}">
+
 
             <div class="form-group text-center">
                 <label class="text-muted">별점을 선택해주세요</label>
@@ -65,5 +48,6 @@
         </form>
     </div>
 </div>
+
 </body>
 </html>
