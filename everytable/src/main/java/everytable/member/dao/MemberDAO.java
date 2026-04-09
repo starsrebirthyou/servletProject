@@ -8,6 +8,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import everytable.main.dao.DAO;
 import everytable.member.vo.LoginVO;
 import everytable.member.vo.MemberVO;
+import everytable.member.vo.SuspensionHistoryVO;
 import everytable.util.db.DB;
 import everytable.util.page.PageObject;
 
@@ -24,7 +25,7 @@ public class MemberDAO extends DAO {
                 + " FROM member m, grade g, store s "
                 + " WHERE m.id = ? AND m.grade_no = g.grade_no "
                 + " AND m.id = s.member_id(+) " // 이 부분이 핵심! (데이터가 없는 쪽이 +)
-                + " AND m.status = '정상'";
+                + " AND m.status IN ('정상', '휴면')";
         
         pstmt = con.prepareStatement(sql);
         pstmt.setString(1, userVO.getId());
@@ -45,6 +46,10 @@ public class MemberDAO extends DAO {
         return vo;
     }
 
+    
+	// ----------------------------------------------------------------
+	// 휴면 → 정상으로 상태 변경
+	// ----------------------------------------------------------------
     public Integer updateLastLogin(String id) throws Exception {
         con = DB.getConnection();
         String sql = "UPDATE member SET last_login = SYSDATE WHERE id = ?";
@@ -55,6 +60,21 @@ public class MemberDAO extends DAO {
         return result;
     }
 
+    
+    // ----------------------------------------------------------------
+	// 휴면 → 정상으로 상태 변경
+	// ----------------------------------------------------------------
+	public Integer reactivate(String id) throws Exception {
+	    con = DB.getConnection();
+	    String sql = "UPDATE member SET status = '정상' WHERE id = ?";
+	    pstmt = con.prepareStatement(sql);
+	    pstmt.setString(1, id);
+	    Integer result = pstmt.executeUpdate();
+	    DB.close(con, pstmt);
+	    return result;
+	}
+	
+	
     // ----------------------------------------------------------------
     // 회원가입
     // ----------------------------------------------------------------
@@ -499,4 +519,65 @@ public class MemberDAO extends DAO {
         DB.close(con, pstmt, rs);
         return email;
     }
+    
+    
+	// ----------------------------------------------------------------
+	// 정지 처리
+	// ----------------------------------------------------------------
+	public Integer suspend(MemberVO vo, String adminId, String reason) throws Exception {
+	    con = DB.getConnection();
+	
+	    // 1) member 테이블 업데이트
+	    String sql = "UPDATE member SET status = '정지', suspension_end_date = ? WHERE id = ?";
+	    pstmt = con.prepareStatement(sql);
+	    pstmt.setDate(1, java.sql.Date.valueOf(vo.getSuspensionEndDate())); // "yyyy-MM-dd"
+	    pstmt.setString(2, vo.getId());
+	    Integer result = pstmt.executeUpdate();
+	    DB.close(null, pstmt); // con 유지
+	
+	    // 2) suspension_history 테이블 INSERT
+	    String hisSql = "INSERT INTO suspension_history(no, user_id, start_date, end_date, reason, admin_id)"
+	                   + " VALUES(suspension_history_seq.NEXTVAL, ?, SYSDATE, ?, ?, ?)";
+	    pstmt = con.prepareStatement(hisSql);
+	    pstmt.setString(1, vo.getId());
+	    pstmt.setDate(2, java.sql.Date.valueOf(vo.getSuspensionEndDate()));
+	    pstmt.setString(3, reason);
+	    pstmt.setString(4, adminId);
+	    pstmt.executeUpdate();
+	
+	    DB.close(con, pstmt);
+	    return result;
+	}
+	
+	
+	
+	// ----------------------------------------------------------------
+	// 정지 내역 조회
+	// ----------------------------------------------------------------
+	public List<SuspensionHistoryVO> suspensionList(String userId) throws Exception {
+	    List<SuspensionHistoryVO> list = new ArrayList<>();
+	    con = DB.getConnection();
+	    String sql = "SELECT no, user_id, TO_CHAR(start_date, 'yyyy-mm-dd') start_date, "
+	               + " TO_CHAR(end_date, 'yyyy-mm-dd') end_date, reason, admin_id "
+	               + " FROM suspension_history "
+	               + " WHERE user_id = ? "
+	               + " ORDER BY no DESC";
+	    pstmt = con.prepareStatement(sql);
+	    pstmt.setString(1, userId);
+	    rs = pstmt.executeQuery();
+	    if (rs != null) {
+	        while (rs.next()) {
+	            SuspensionHistoryVO vo = new SuspensionHistoryVO();
+	            vo.setNo(rs.getLong("no"));
+	            vo.setUserId(rs.getString("user_id"));
+	            vo.setStartDate(rs.getString("start_date"));
+	            vo.setEndDate(rs.getString("end_date"));
+	            vo.setReason(rs.getString("reason"));
+	            vo.setAdminId(rs.getString("admin_id"));
+	            list.add(vo);
+	        }
+	    }
+	    DB.close(con, pstmt, rs);
+	    return list;
+	}
 }

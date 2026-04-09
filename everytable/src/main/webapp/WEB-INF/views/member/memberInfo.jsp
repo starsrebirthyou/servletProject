@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -123,7 +124,9 @@ $(function(){
     <div class="info-row">
         <span class="info-label">비밀번호</span>
         <span class="info-value">******</span>
-        <button class="btn-edit" data-target="pwForm">초기화</button>
+        <c:if test="${vo.status != '파기'}">
+        		<button class="btn-edit" data-target="pwForm">초기화</button>
+        </c:if>
     </div>
     <div class="edit-form" id="pwForm">
     <div class="mb-2">
@@ -186,11 +189,77 @@ $(function(){
 	</c:if>
 
 </div>
+
+<%-- 정지 내역 --%>
+<c:if test="${not empty suspensionList}">
+<div style="max-width:640px; margin:20px auto 0;">
+    <h6 class="fw-bold mb-2" style="color:#333; font-size:0.95rem;">
+        ⛔ 정지 내역 <span style="color:#aaa; font-weight:400; font-size:0.82rem;">
+            (총 ${fn:length(suspensionList)}건)
+        </span>
+    </h6>
+    <div style="background:#fff; border-radius:14px; border:1px solid #e8ebe6; overflow:hidden;">
+        <table class="table mb-0" style="font-size:0.85rem;">
+            <thead>
+                <tr style="background:#f4f6f3;">
+                    <th style="padding:10px 14px; color:#555; font-weight:600;">정지 시작일</th>
+                    <th style="padding:10px 14px; color:#555; font-weight:600;">정지 해제일</th>
+                    <th style="padding:10px 14px; color:#555; font-weight:600;">사유</th>
+                    <th style="padding:10px 14px; color:#555; font-weight:600;">처리 관리자</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach items="${suspensionList}" var="sh">
+                <tr>
+                    <td style="padding:10px 14px; vertical-align:middle;">${sh.startDate}</td>
+                    <td style="padding:10px 14px; vertical-align:middle;">${sh.endDate}</td>
+                    <td style="padding:10px 14px; vertical-align:middle;">${sh.reason}</td>
+                    <td style="padding:10px 14px; vertical-align:middle;">${sh.adminId}</td>
+                </tr>
+                </c:forEach>
+            </tbody>
+        </table>
+    </div>
+</div>
+</c:if>
 <div class="d-flex gap-2 mt-3" style="max-width:640px;margin:12px auto 0;">
 	<a type="button" href="list.do?page=${param.page}&perPageNum=${param.perPageNum}&keyword=${param.keyword}
 		&status=${param.status}&gradeNo=${param.gradeNo}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}" 
 	    class="btn btn-success btn-sm">리스트</a>
 </div>
+
+<%-- 정지 내역 --%>
+<c:if test="${not empty suspensionList}">
+<div style="max-width:640px; margin:20px auto 0;">
+    <h6 class="fw-bold mb-2" style="color:#333; font-size:0.95rem;">
+        ⛔ 정지 내역 <span style="color:#aaa; font-weight:400; font-size:0.82rem;">
+            (총 ${fn:length(suspensionList)}건)
+        </span>
+    </h6>
+    <div style="background:#fff; border-radius:14px; border:1px solid #e8ebe6; overflow:hidden;">
+        <table class="table mb-0" style="font-size:0.85rem;">
+            <thead>
+                <tr style="background:#f4f6f3;">
+                    <th style="padding:10px 14px; color:#555; font-weight:600;">정지 시작일</th>
+                    <th style="padding:10px 14px; color:#555; font-weight:600;">정지 해제일</th>
+                    <th style="padding:10px 14px; color:#555; font-weight:600;">사유</th>
+                    <th style="padding:10px 14px; color:#555; font-weight:600;">처리 관리자</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach items="${suspensionList}" var="sh">
+                <tr>
+                    <td style="padding:10px 14px; vertical-align:middle;">${sh.startDate}</td>
+                    <td style="padding:10px 14px; vertical-align:middle;">${sh.endDate}</td>
+                    <td style="padding:10px 14px; vertical-align:middle;">${sh.reason}</td>
+                    <td style="padding:10px 14px; vertical-align:middle;">${sh.adminId}</td>
+                </tr>
+                </c:forEach>
+            </tbody>
+        </table>
+    </div>
+</div>
+</c:if>
 
 </body>
 </html>

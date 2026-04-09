@@ -41,6 +41,29 @@ public class MemberController implements Controller {
                     request.setAttribute("msg", "아이디 또는 비밀번호가 일치하지 않거나 이용이 제한된 계정입니다.");
                 		return "member/loginForm";
                 }
+                
+                // ── 휴면 계정: 이메일 인증 단계로 분기 ──
+                if ("휴면".equals(loginVO.getStatus())) {
+                    // 인증번호 생성 + 세션 저장 + 메일 발송
+                    // loginVO에 email이 없으면 DB에서 별도 조회 필요 (view() 재활용)
+                    MemberVO dormantMember = (MemberVO) Execute.execute(
+                        Init.getService("/member/view.do"), loginVO.getId()
+                    );
+                    int authCode = (int)(Math.random() * 899999) + 100000;
+                    session.setAttribute("authCode", String.valueOf(authCode));
+                    session.setAttribute("dormantId", loginVO.getId()); // 인증 완료 후 로그인에 사용
+
+                    String subject = "에브리테이블(EveryTable) 휴면 계정 인증번호입니다.";
+                    String content = "안녕하세요.<br><br>"
+                                   + "휴면 상태의 계정입니다. 인증 후 정상 계정으로 전환됩니다.<br><br>"
+                                   + "인증번호: <b>" + authCode + "</b><br><br>"
+                                   + "해당 인증번호를 입력하여 인증을 완료해 주세요.<br><br>감사합니다.";
+                    Mail.sendMail(dormantMember.getEmail(), subject, content);
+
+                    String redirectUrl = request.getParameter("redirectUrl");
+                    session.setAttribute("dormantRedirectUrl", redirectUrl);
+                    return "redirect:/member/dormantAuthForm.do";
+                }
 
                 session.setAttribute("login", loginVO);
                 Execute.execute(Init.getService("/member/updateLastLogin.do"), loginVO.getId());
@@ -50,6 +73,53 @@ public class MemberController implements Controller {
                 if (redirectUrl != null && !redirectUrl.trim().isEmpty())
                     return "redirect:" + redirectUrl;
                 return "redirect:/main/main.do";
+                
+                
+            // --------------------------------------------------------
+            // 휴면 인증 폼
+            // --------------------------------------------------------
+            case "/member/dormantAuthForm.do":
+                return "member/dormantAuthForm";
+
+
+            // --------------------------------------------------------
+            // 휴면 인증번호 확인 + 휴면 해제 + 자동 로그인
+            // --------------------------------------------------------
+            case "/member/dormantVerify.do":
+                String inputCode = request.getParameter("code");
+                String savedCode = (String) session.getAttribute("authCode");
+                String dormantId = (String) session.getAttribute("dormantId");
+
+                if (savedCode == null || dormantId == null || !savedCode.equals(inputCode)) {
+                    request.setAttribute("result", "fail");
+                    return "member/ajaxResult";
+                }
+
+                // 휴면 → 정상 변경
+                Execute.execute(Init.getService("/member/reactivate.do"), dormantId);
+
+                // 자동 로그인 처리 (LoginVO 재조회)
+                LoginVO reactivatedVO = new LoginVO();
+                reactivatedVO.setId(dormantId);
+                // status가 이제 '정상'이므로 login 서비스 대신 view로 세션 구성
+                MemberVO reactivatedMember = (MemberVO) Execute.execute(
+                    Init.getService("/member/view.do"), dormantId
+                );
+                reactivatedVO.setId(dormantId);
+                reactivatedVO.setName(reactivatedMember.getName());
+                // gradeNo, gradeName은 LoginVO에 맞게 설정 (view()에 없으면 별도 조회)
+                session.setAttribute("login", reactivatedVO);
+                Execute.execute(Init.getService("/member/updateLastLogin.do"), dormantId);
+
+                // 세션 정리
+                session.removeAttribute("authCode");
+                session.removeAttribute("dormantId");
+
+                session.removeAttribute("dormantRedirectUrl");
+
+                request.setAttribute("result", "ok");
+                session.setAttribute("msg", reactivatedMember.getName() + "님, 휴면이 해제되었습니다. 환영합니다.");
+                return "member/ajaxResult";
                 
 
             // --------------------------------------------------------
@@ -130,7 +200,7 @@ public class MemberController implements Controller {
             // 로그인 필요 처리
             // --------------------------------------------------------
             case "/member/loginRequired.do":
-                redirectUrl = request.getParameter("redirectUrl");
+            	redirectUrl = request.getParameter("redirectUrl");
                 if (loginId != null) {
                     if (redirectUrl != null && !redirectUrl.trim().isEmpty())
                         return "redirect:" + redirectUrl;
@@ -206,8 +276,8 @@ public class MemberController implements Controller {
 	             
 	         // ── 2단계: 인증번호 확인 ──
 	         case "/member/verifyAuthCode.do":
-	             String inputCode = request.getParameter("code");
-	             String savedCode = (String) session.getAttribute("authCode");
+	             inputCode = request.getParameter("code");
+	             savedCode = (String) session.getAttribute("authCode");
 	             
 	             if (savedCode != null && savedCode.equals(inputCode)) {
 	                 session.setAttribute("authStatus", true); // 인증 완료 상태 저장
@@ -277,14 +347,8 @@ public class MemberController implements Controller {
 	
 	        	    String id = (String) Execute.execute(Init.getService("/member/searchId.do"), vo);
 	
-	        	    if (id != null) {
-	        	        // 성공 시 아이디만 출력하고 끝!
-	        	        // response.getWriter().print(id); 
-	        	        // return null; 
-	        	    
 	        	    request.setAttribute("result", (id != null) ? id : "no");
 	        	    return "member/ajaxResult"; 
-	        	}
 	         
 	        	    
 	      // --------------------------------------------------------
@@ -352,6 +416,8 @@ public class MemberController implements Controller {
             	}
             	String targetId = request.getParameter("id");
             	request.setAttribute("vo", Execute.execute(Init.getService(uri), targetId));
+            // 정지 내역 추가
+            request.setAttribute("suspensionList", Execute.execute(Init.getService("/member/suspensionList.do"), targetId));
             	return "member/memberInfo";
             	
             	
@@ -361,6 +427,14 @@ public class MemberController implements Controller {
             	case "/member/adminResetPw.do":
             	    vo = new MemberVO();
             	    vo.setId(request.getParameter("id"));
+            	    
+            	    // 파기 회원 비밀번호 초기화 차단
+            	    MemberVO checkMember = (MemberVO) Execute.execute(Init.getService("/member/view.do"), vo.getId());
+            	    if (checkMember != null && "파기".equals(checkMember.getStatus())) {
+            	        request.setAttribute("result", "purged");
+            	        return "member/ajaxResult";
+            	    }
+            	    
             	    vo.setNewPw(request.getParameter("newPw"));
 
             	    // user = 0 → 현재 비밀번호 검증 없이 변경
@@ -526,6 +600,32 @@ public class MemberController implements Controller {
                     return "redirect:list.do";
                 }
                 vo.setStatus(request.getParameter("status"));
+                
+                // ── '정지' 상태일 때: days 파라미터를 받아 suspension_end_date 계산 ──
+                if ("정지".equals(vo.getStatus())) {
+                    String daysParam = request.getParameter("days");
+                    if (daysParam == null || daysParam.trim().isEmpty()) {
+                        request.setAttribute("result", "fail");
+                        return "member/ajaxResult";
+                    }
+                    int days = Integer.parseInt(daysParam.trim());
+                    // 정지 해제일 = 내일 + (days-1) = SYSDATE + days
+                    java.time.LocalDate endDate = java.time.LocalDate.now().plusDays(days);
+                    vo.setSuspensionEndDate(endDate.toString()); // "yyyy-MM-dd"
+
+                    String reason = request.getParameter("reason");
+                    if (reason == null) reason = "";
+
+                    Integer suspendResult = (Integer) Execute.execute(
+                        Init.getService("/member/suspend.do"), 
+                        new Object[]{vo, loginId, reason}
+                    );
+                    request.setAttribute("result", suspendResult == 1 ? "ok" : "fail");
+                    return "member/ajaxResult"; // Ajax 응답
+                }
+
+                // '파기' 상태면 등급/상태 변경 불가
+                // (파기 회원은 DB 스케줄러가 자동 처리하므로 관리자가 직접 변경하는 케이스 차단)
                 Integer result = (Integer) Execute.execute(Init.getService(uri), vo);
                 session.setAttribute("msg", result == 1
                     ? "아이디 [" + vo.getId() + "]의 상태가 [" + vo.getStatus() + "](으)로 변경되었습니다."
@@ -546,6 +646,14 @@ public class MemberController implements Controller {
             case "/member/changeGrade.do":
                 vo = new MemberVO();
                 vo.setId(request.getParameter("id"));
+                
+                // 파기 회원 등급 변경 차단
+                MemberVO targetMember = (MemberVO) Execute.execute(Init.getService("/member/view.do"), vo.getId());
+                if (targetMember != null && targetMember.getStatus().equals("파기")) {
+                    session.setAttribute("msg", "개인정보가 파기된 회원의 등급은 변경할 수 없습니다.");
+                    return "redirect:list.do";
+                }
+                
                 if (vo.getId().equals(loginId)) {
                     session.setAttribute("msg", "로그인한 관리자의 등급은 변경할 수 없습니다.");
                     queryString = "page=" + request.getParameter("page")

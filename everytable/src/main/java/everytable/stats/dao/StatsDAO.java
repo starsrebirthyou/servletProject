@@ -91,61 +91,58 @@ public class StatsDAO extends DAO {
         return totalRow;
     }
 
-    // 4. 대시보드 상단 요약 (에러 해결을 위해 다시 추가)
+ // 4. 대시보드 상단 요약
     public StatsVO getTodaySummary(String storeId) throws Exception {
         StatsVO vo = new StatsVO();
         try {
             con = DB.getConnection();
-            String sql = "SELECT NVL(SUM(total_price), 0) as sales, COUNT(*) as cnt "
+            
+            String sql = "SELECT NVL(SUM(TOTAL_PRICE), 0) as sales, COUNT(ORDER_ID) as cnt "
                        + "FROM orders "
-                       + "WHERE store_id = ? "
-                       + "AND TO_CHAR(created_at, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD')";
+                       + "WHERE STORE_ID = ? "
+                       + "AND TO_CHAR(CREATED_AT, 'YYYY-MM-DD') = TO_CHAR(SYSDATE, 'YYYY-MM-DD')";
+            
             pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, storeId);
+            
+            // [보완] storeId가 null이거나 비어있으면 기본값 "1"을 세팅하여 에러 방지
+            if (storeId == null || storeId.trim().equals("")) {
+                storeId = "1";
+            }
+            
+            // 숫자로 변환하여 첫 번째 물음표(?)에 세팅
+            pstmt.setInt(1, Integer.parseInt(storeId));
+            
             rs = pstmt.executeQuery();
+            
             if (rs.next()) {
                 vo.setTotalSales(rs.getDouble("sales"));
                 vo.setOrderCount(rs.getInt("cnt"));
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         } finally {
             DB.close(con, pstmt, rs);
         }
         return vo;
     }
 
-    // 5. 카테고리별 판매량 (서비스 에러의 원인이었던 메서드)
-    public List<StatsVO> getCategorySales(String storeId) throws Exception {
-        List<StatsVO> list = new ArrayList<>();
-        try {
-            con = DB.getConnection();
-            String sql = "SELECT mc.category_name, SUM(oi.quantity) as qty "
-                       + "FROM menu_category mc "
-                       + "JOIN menu m ON mc.category_no = m.category_no "
-                       + "JOIN order_item oi ON m.menu_no = oi.menu_no "
-                       + "WHERE m.store_id = ? "
-                       + "GROUP BY mc.category_name "
-                       + "ORDER BY qty DESC";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, storeId);
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-                StatsVO vo = new StatsVO();
-                vo.setStoreId(rs.getString("category_name")); 
-                vo.setOrderCount(rs.getInt("qty"));
-                list.add(vo);
-            }
-        } finally {
-            DB.close(con, pstmt, rs);
-        }
-        return list;
-    }
+ // StatsDAO.java 수정 부분
 
     private String search(PageObject pageObject) {
         String sql = "";
+        // 기존 store_id 검색 기능 유지
         String word = pageObject.getWord();
         if (word != null && word.length() != 0) {
-            sql += " where sd.store_id like ? "; 
+            sql += " and sd.store_id like ? "; 
         }
+        
+        // [추가] 날짜 기간 검색 조건 (PageObject의 accept 데이터를 활용)
+        // Controller에서 startDate와 endDate를 PageObject에 담아줘야 합니다.
+        if (pageObject.getAccept() != null) {
+            sql += " and sd.stats_date between ? and ? ";
+        }
+        
         return sql;
     }
 
@@ -154,6 +151,14 @@ public class StatsDAO extends DAO {
         if (word != null && word.length() != 0) {
             pstmt.setString(idx++, "%" + word + "%");
         }
+        
+        // [추가] 날짜 데이터 세팅
+        if (pageObject.getAccept() != null) {
+            // accept 객체에 담긴 날짜 배열이나 맵을 사용 (아래 Controller 수정 참고)
+            String[] dates = (String[]) pageObject.getAccept();
+            pstmt.setString(idx++, dates[0]); // startDate
+            pstmt.setString(idx++, dates[1]); // endDate
+        }
+        
         return idx;
-    }
-}
+    }}
