@@ -40,42 +40,49 @@ public class PaymentController implements Controller {
                     return "payment/view";
 
                 case "/payment/writeForm.do":
-                    String strNo = request.getParameter("no");
-                    if (strNo != null && !strNo.equals("")) {
-                        no = Long.parseLong(strNo);
-                        vo = (PaymentVO) Execute.execute(Init.getService("/payment/view.do"), no);
-                        request.setAttribute("vo", vo);
-                    }
+                    // 주소창(?totalPrice=72000)에서 데이터를 낚아챕니다.
+                    String tPrice = request.getParameter("totalPrice");
+                    String rNo = request.getParameter("resNo");
+
+                    vo = new PaymentVO();
+                    if (tPrice != null && !tPrice.equals("")) vo.setAmount(Long.parseLong(tPrice));
+                    if (rNo != null && !rNo.equals("")) vo.setOrder_id(Long.parseLong(rNo));
+
+                    request.setAttribute("vo", vo); // 이제 JSP에서 ${vo.amount}로 나옵니다!
                     return "payment/writeForm";
 
                 case "/payment/write.do":
-                    vo = new PaymentVO();
-                    String orderIdStr = request.getParameter("order_id");
-                    String amountStr = request.getParameter("amount");
-                    String pickupDateStr = request.getParameter("pickupDate");
-
-                    if (orderIdStr == null || orderIdStr.trim().isEmpty() || 
-                        amountStr == null || amountStr.trim().isEmpty() ||
-                        pickupDateStr == null || pickupDateStr.trim().isEmpty()) {
-                        throw new Exception("필수 정보(주문번호, 금액, 픽업일)가 누락되었습니다.");
-                    }
-
-                    vo.setOrder_id(Long.parseLong(orderIdStr));
-                    vo.setAmount(Long.parseLong(amountStr));
-                    vo.setMethod(request.getParameter("method"));
-                    vo.setUser_id(request.getParameter("user_id"));
-                    vo.setStatus("SUCCESS");
-                    
                     try {
-                        vo.setPickupDate(java.sql.Date.valueOf(pickupDateStr));
+                    	
+                    	System.out.println("========================================");
+                        System.out.println("결제 시도 예약번호(order_id): " + request.getParameter("order_id"));
+                        System.out.println("결제 시도 금액(amount): " + request.getParameter("amount"));
+                        System.out.println("결제 시도 유저(user_id): " + request.getParameter("user_id"));
+                        System.out.println("========================================");
+                        
+                        
+                        vo = new PaymentVO();
+                        vo.setOrder_id(Long.parseLong(request.getParameter("order_id")));
+                        vo.setAmount(Long.parseLong(request.getParameter("amount")));
+                        vo.setUser_id(request.getParameter("user_id"));
+                        vo.setMethod(request.getParameter("method"));
+                        vo.setStatus("SUCCESS");
+                        
+                        String pDate = request.getParameter("pickupDate");
+                        if(pDate != null && !pDate.isEmpty()) {
+                            vo.setPickupDate(java.sql.Date.valueOf(pDate));
+                        } else {
+                            vo.setPickupDate(new java.sql.Date(System.currentTimeMillis()));
+                        }
+
+                        Execute.execute(Init.getService(uri), vo);
+                        request.getSession().setAttribute("msg", "결제가 완료되었습니다!");
+                        return "redirect:list.do";
                     } catch (Exception e) {
-                        throw new Exception("날짜 형식이 잘못되었습니다. (YYYY-MM-DD)");
+                        e.printStackTrace();
+                        throw new Exception("결제 처리 중 오류: " + e.getMessage());
                     }
-
-                    Execute.execute(Init.getService(uri), vo);
-                    request.getSession().setAttribute("msg", "결제가 완료되었습니다.");
-                    return "redirect:list.do";
-
+                   
                 case "/payment/updateForm.do":
                     LoginVO login = (LoginVO) request.getSession().getAttribute("login");
                     if (login == null || login.getGradeNo() != 9) {

@@ -313,7 +313,7 @@ public class ReservationController implements Controller {
 				long fResNo = Long.parseLong(request.getParameter("resNo"));
 				String fOrderAdd = request.getParameter("orderAdd");
 				String fStoreId = request.getParameter("storeId");
-
+				String fTotalPrice = request.getParameter("totalPrice");
 				// switch문 상단의 vo 변수 재사용
 				vo = new ReservationVO();
 				vo.setResNo(fResNo);
@@ -323,8 +323,7 @@ public class ReservationController implements Controller {
 				Execute.execute(Init.getService(uri), vo);
 
 				// 결제 페이지로 이동 (resNo와 storeId를 들고 갑니다)
-				return "redirect:/payment/writeForm.do?resNo=" + fResNo + "&storeId=" + fStoreId;
-
+				return "redirect:/payment/writeForm.do?resNo=" + fResNo + "&storeId=" + fStoreId + "&totalPrice=" + fTotalPrice;
 			default:
 				// 정의되지 않은 URI인 경우 404 페이지로 유도하여 NPE 방지
 				return "error/404";

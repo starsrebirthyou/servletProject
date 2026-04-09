@@ -83,6 +83,7 @@ body {
 			id="finalOrderForm">
 			<input type="hidden" name="resNo" value="${resNo}"> <input
 				type="hidden" name="storeId" value="${storeId}">
+				<input type="hidden" name="totalPrice" value="${total}">
 			<textarea name="orderAdd" id="hiddenOrderAdd" style="display: none;"></textarea>
 
 			<button type="button" onclick="confirmFinalOrder()"
