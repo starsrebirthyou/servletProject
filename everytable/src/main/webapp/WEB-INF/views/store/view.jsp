@@ -1,8 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<%-- ✅ 로그인 모달 include --%>
+<%-- 로그인 모달 include --%>
 <%@ include file="/WEB-INF/views/member/loginModal.jsp" %>
 
 <style>
@@ -39,8 +40,23 @@
 <div class="container mt-5">
     <div class="row align-items-center mb-4">
         <div class="col-auto">
-            <img src="/upload/store/${vo.filename}" class="rounded-circle"
-                style="width: 120px; height: 120px; object-fit: cover;">
+            <%-- 이미지: URL 방식 vs 파일 방식 분기 --%>
+            <c:choose>
+                <c:when test="${fn:startsWith(vo.filename, 'http')}">
+                    <img src="${vo.filename}" class="rounded-circle"
+                         style="width:120px; height:120px; object-fit:cover;">
+                </c:when>
+                <c:when test="${not empty vo.filename}">
+                    <img src="/upload/store/${vo.filename}" class="rounded-circle"
+                         style="width:120px; height:120px; object-fit:cover;">
+                </c:when>
+                <c:otherwise>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center"
+                         style="width:120px; height:120px; background:#f0f0f0;">
+                        <i class="fa-solid fa-image" style="font-size:2rem; color:#ccc;"></i>
+                    </div>
+                </c:otherwise>
+            </c:choose>
         </div>
         <div class="col">
             <span class="badge bg-secondary">${vo.store_cate}</span>
@@ -76,7 +92,6 @@
         </div>
     </div>
 
-    <%-- ✅ href 대신 onclick="requireLogin(...)" 으로 변경 --%>
     <button onclick="requireLogin('/reservation/writeForm.do?storeId=${vo.store_id}')"
         class="btn w-100 py-3 mb-5 fw-bold text-white"
         style="background-color: #c48a45; border-radius: 15px;">주문하기</button>
@@ -148,25 +163,15 @@
 </div>
 
 <script>
-//view.jsp 하단 스크립트 수정
 $(function() {
     $("a[href='#review-section']").click(function(e) {
         e.preventDefault();
-<<<<<<< HEAD
-        
-        let storeId = "${vo.store_id}"; 
-        let storeName = "${vo.store_name}"; // ✅ DB에서 가져온 매장명
-        
-        // 작성 페이지로 바로 보낼 때도 이름을 파라미터로 붙입니다.
-        location.href = "/review/storeList.do?storeId=" + storeId + "&storeName=" + encodeURIComponent(("${vo.store_name}"));
-=======
         let storeId = "${vo.store_id}";
         if (!storeId || storeId === "") {
             alert("매장 정보를 찾을 수 없습니다.");
             return;
         }
         location.href = "/review/storeList.do?storeId=" + storeId;
->>>>>>> branch 'master' of https://github.com/starsrebirthyou/servletProject.git
     });
 });
 </script>

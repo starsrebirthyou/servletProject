@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="pageNav" tagdir="/WEB-INF/tags" %>
 <!DOCTYPE html>
 <html>
@@ -54,7 +55,6 @@ $(function(){
             <div class="row g-3">
                 <div class="col-md-3">
                     <select name="key" class="form-select form-select-lg">
-                        <%-- ✅ 매장명/지역/카테고리 세 가지 --%>
                         <option value="n" ${pageObject.key == 'n' ? 'selected' : ''}>매장명</option>
                         <option value="a" ${pageObject.key == 'a' ? 'selected' : ''}>지역</option>
                         <option value="c" ${pageObject.key == 'c' ? 'selected' : ''}>카테고리</option>
@@ -78,9 +78,15 @@ $(function(){
                 <div class="card h-100">
                     <div class="img-wrapper">
                         <c:choose>
-                            <c:when test="${!empty vo.filename}">
+                            <%-- URL 방식 (http로 시작) --%>
+                            <c:when test="${fn:startsWith(vo.filename, 'http')}">
+                                <img src="${vo.filename}" alt="${vo.store_name}">
+                            </c:when>
+                            <%-- 파일명 방식 --%>
+                            <c:when test="${not empty vo.filename}">
                                 <img src="/upload/store/${vo.filename}" alt="${vo.store_name}">
                             </c:when>
+                            <%-- 이미지 없음 --%>
                             <c:otherwise>
                                 <i class="fa-solid fa-image no-img-icon"></i>
                             </c:otherwise>
