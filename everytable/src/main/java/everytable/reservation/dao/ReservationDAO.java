@@ -203,15 +203,16 @@ public class ReservationDAO extends DAO {
 		int result = 0;
 		con = DB.getConnection();
 		String sql = "update reservation set res_date = ?, res_time = ?, "
-				+ " res_count = ?, res_phone = ?, res_type = ?, total_price = ? " + " where res_no = ?";
+				+ " res_count = ?, res_phone = ?, res_type = ?, order_add = ?, total_price = ? " + " where res_no = ?";
 		pstmt = con.prepareStatement(sql);
 		pstmt.setString(1, vo.getResDate());
 		pstmt.setString(2, vo.getResTime());
 		pstmt.setLong(3, vo.getResCount());
 		pstmt.setString(4, vo.getResPhone());
 		pstmt.setString(5, vo.getResType());
-		pstmt.setLong(6, vo.getTotalPrice());
-		pstmt.setLong(7, vo.getResNo());
+		pstmt.setString(6, vo.getOrderAdd());
+		pstmt.setLong(7, vo.getTotalPrice());
+		pstmt.setLong(8, vo.getResNo());
 		result = pstmt.executeUpdate();
 		DB.close(con, pstmt);
 		return result;
@@ -367,6 +368,30 @@ public class ReservationDAO extends DAO {
 		result = pstmt.executeUpdate();
 		DB.close(con, pstmt);
 		return result;
+	}
+	
+	// [추가 1] 수정을 위해 기존에 등록된 메뉴(order_item)를 싹 지우는 기능
+	public void deleteOrderItems(long resNo) throws Exception {
+	    con = DB.getConnection();
+	    String sql = "delete from order_item where res_no = ?";
+	    pstmt = con.prepareStatement(sql);
+	    pstmt.setLong(1, resNo);
+	    pstmt.executeUpdate();
+	    DB.close(con, pstmt);
+	}
+
+	// [추가 2] 수정한 메뉴들을 하나씩 다시 저장하는 기능 (기존 groupOrderWrite와 비슷하지만 심플하게)
+	public void insertOrderItem(long resNo, long menuNo, long quantity, long price) throws Exception {
+	    con = DB.getConnection();
+	    String sql = "insert into order_item(order_item_no, res_no, menu_no, quantity, price) "
+	               + " values(order_item_seq.nextval, ?, ?, ?, ?)";
+	    pstmt = con.prepareStatement(sql);
+	    pstmt.setLong(1, resNo);
+	    pstmt.setLong(2, menuNo);
+	    pstmt.setLong(3, quantity);
+	    pstmt.setLong(4, price);
+	    pstmt.executeUpdate();
+	    DB.close(con, pstmt);
 	}
 
 }

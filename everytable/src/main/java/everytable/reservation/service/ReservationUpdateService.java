@@ -15,27 +15,38 @@ public class ReservationUpdateService implements Service {
 	}
 
 	@Override
-	public ReservationVO service(Object obj) throws Exception {
-		// 1. obj가 Long인지 ReservationVO인지 체크해서 처리
-		Long no = null;
-
+	public Object service(Object obj) throws Exception {
 		if (obj instanceof Long) {
-			no = (Long) obj;
+			// [수정 폼 조회 로직] 기존과 동일
+			Long no = (Long) obj;
+			ReservationVO vo = dao.view(no);
+			if (vo != null) {
+				vo.setOrderList(dao.orderList(no));
+				vo.setStoreMenuList(dao.storeMenuList(vo.getStoreId()));
+			}
+			return vo;
 		} else if (obj instanceof ReservationVO) {
-			no = ((ReservationVO) obj).getResNo();
+			// [수정 처리 로직]
+			ReservationVO vo = (ReservationVO) obj;
+
+			// 1. 기본 예약 정보 수정 (reservation 테이블)
+			int result = dao.update(vo);
+
+			// 2. ★ 핵심: 기존 메뉴 싹 지우기 ★
+			dao.deleteOrderItems(vo.getResNo());
+
+			// 3. ★ 핵심: JSP에서 넘어온 새 메뉴 리스트 다시 넣기 ★
+			// 컨트롤러에서 vo.setOrderList()로 메뉴 정보를 담아주어야 합니다.
+			if (vo.getOrderList() != null) {
+				for (ReservationVO item : vo.getOrderList()) {
+					// 수량이 1개 이상인 경우에만 저장
+					if (item.getQuantity() > 0) {
+						dao.insertOrderItem(vo.getResNo(), item.getMenuNo(), item.getQuantity(), item.getPrice());
+					}
+				}
+			}
+			return result;
 		}
-
-		// 2. 기존 예약 정보 가져오기 (매장 정보 포함)
-		ReservationVO vo = dao.view(no);
-
-		if (vo != null) {
-			// 3. 해당 예약번호(no)로 이미 주문한 메뉴 리스트 가져와서 담기
-			vo.setOrderList(dao.orderList(no));
-
-			// 4. 해당 매장(storeId)의 전체 메뉴 리스트 가져와서 담기
-			vo.setStoreMenuList(dao.storeMenuList(vo.getStoreId()));
-		}
-
-		return vo;
+		return null;
 	}
 }
