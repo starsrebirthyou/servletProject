@@ -21,6 +21,9 @@ public class StoreController implements Controller {
 
                 case "/store/list.do":
                     PageObject pageObject = PageObject.getInstance(request);
+                    String perPageNum = request.getParameter("perPageNum");
+                    if(perPageNum == null || perPageNum.equals(""))
+                    	pageObject.setPerPageNum(9);
                     request.setAttribute("list", Init.getService(uri).service(pageObject));
                     request.setAttribute("pageObject", pageObject);
                     jsp = "store/list";
