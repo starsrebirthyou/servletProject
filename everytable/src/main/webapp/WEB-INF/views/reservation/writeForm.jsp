@@ -26,7 +26,7 @@
 	$(function() {
 		// 취소 버튼 클릭 시 이전 페이지로
 		$(".cancelBtn").click(function() {
-			history.back();
+			location.href = "/store/view.do?store_id=${storeVO.store_id}";
 		});
 
 		// 예약 날짜를 오늘 이후로만 선택 가능하게 설정
