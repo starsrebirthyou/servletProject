@@ -401,49 +401,6 @@ public class MemberController implements Controller {
                 
                 
             // --------------------------------------------------------
-            // 회원 상세 정보 보기
-            // --------------------------------------------------------
-            case "/member/memberInfo.do":
-            	if (loginVO == null) {
-            		session.setAttribute("msg", "로그인이 필요합니다.");
-            		return "redirect:/member/loginForm.do";
-            	}
-            	String targetNo = request.getParameter("no");
-            	MemberVO memberInfoVO = (MemberVO) Execute.execute(Init.getService(uri), targetNo);
-            request.setAttribute("vo", memberInfoVO);
-            // suspensionList는 id로 조회
-            if (memberInfoVO != null) {
-                request.setAttribute("suspensionList",
-                    Execute.execute(Init.getService("/member/suspensionList.do"), memberInfoVO.getId()));
-            }
-            // 정지 내역 추가
-            request.setAttribute("suspensionList", Execute.execute(Init.getService("/member/suspensionList.do"), targetNo));
-            	return "member/memberInfo";
-            	
-            	
-            	// --------------------------------------------------------
-            	// 관리자 - 회원 비밀번호 초기화
-            	// --------------------------------------------------------
-            	case "/member/adminResetPw.do":
-            	    vo = new MemberVO();
-            	    vo.setId(request.getParameter("id"));
-            	    
-            	    // 파기 회원 비밀번호 초기화 차단
-            	    MemberVO checkMember = (MemberVO) Execute.execute(Init.getService("/member/view.do"), vo.getId());
-            	    if (checkMember != null && "파기".equals(checkMember.getStatus())) {
-            	        request.setAttribute("result", "purged");
-            	        return "member/ajaxResult";
-            	    }
-            	    
-            	    vo.setNewPw(request.getParameter("newPw"));
-
-            	    // user = 0 → 현재 비밀번호 검증 없이 변경
-            	    Integer res = (Integer) Execute.execute(Init.getService(uri), vo);
-            	    request.setAttribute("result", res == 1 ? "ok" : "fail");
-            	    return "member/ajaxResult";
-
-                    
-            // --------------------------------------------------------
             // 비밀번호 변경 (내 정보에서)
             // --------------------------------------------------------
             case "/member/changePw.do":
@@ -457,7 +414,7 @@ public class MemberController implements Controller {
                 vo.setNewPw(request.getParameter("newPw")); // 새 비밀번호
              
                 // changePw(vo, 1) → 현재 비밀번호 검증 포함
-                res = (Integer) Execute.execute(Init.getService(uri), vo);
+               Integer res = (Integer) Execute.execute(Init.getService(uri), vo);
                 request.setAttribute("result", res == 1 ? "ok" : "fail");
                 return "member/ajaxResult";
 
@@ -541,7 +498,6 @@ public class MemberController implements Controller {
                 session.removeAttribute("login");
                 session.setAttribute("msg", "탈퇴가 완료되었습니다.");
                 return "redirect:/notice/list.do";
-
                 
                 
             // --------------------------------------------------------
@@ -689,6 +645,43 @@ public class MemberController implements Controller {
                 return "redirect:list.do?" + queryString;
 
                 
+            // --------------------------------------------------------
+            // 회원 상세 정보 보기
+            // --------------------------------------------------------
+            case "/member/memberInfo.do":
+            	if (loginVO == null) {
+            		session.setAttribute("msg", "로그인이 필요합니다.");
+            		return "redirect:/member/loginForm.do";
+            	}
+            	String targetId = request.getParameter("id");
+            	request.setAttribute("vo", Execute.execute(Init.getService(uri), targetId));
+            // 정지 내역 추가
+            request.setAttribute("suspensionList", Execute.execute(Init.getService("/member/suspensionList.do"), targetId));
+            	return "member/memberInfo";
+            	
+            	
+            	// --------------------------------------------------------
+            	// 관리자 - 회원 비밀번호 초기화
+            	// --------------------------------------------------------
+            	case "/member/adminResetPw.do":
+            	    vo = new MemberVO();
+            	    vo.setId(request.getParameter("id"));
+            	    
+            	    // 파기 회원 비밀번호 초기화 차단
+            	    MemberVO checkMember = (MemberVO) Execute.execute(Init.getService("/member/view.do"), vo.getId());
+            	    if (checkMember != null && "파기".equals(checkMember.getStatus())) {
+            	        request.setAttribute("result", "purged");
+            	        return "member/ajaxResult";
+            	    }
+            	    
+            	    vo.setNewPw(request.getParameter("newPw"));
+
+            	    // user = 0 → 현재 비밀번호 검증 없이 변경
+            	    res = (Integer) Execute.execute(Init.getService(uri), vo);
+            	    request.setAttribute("result", res == 1 ? "ok" : "fail");
+            	    return "member/ajaxResult";
+                	    
+                	    
             default:
                 return "error/noPage";
             }
