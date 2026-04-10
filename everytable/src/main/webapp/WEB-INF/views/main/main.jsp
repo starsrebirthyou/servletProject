@@ -388,15 +388,6 @@ body {
                 간편하게 주문까지. 에브리테이블이<br>
                 식사의 모든 순간을 함께합니다.
             </p>
-            <div class="hero-actions">
-                <a href="/store/list.do" class="btn-primary-hero">매장 둘러보기</a>
-                <c:if test="${empty login}">
-                    <a href="/member/writeTypeSelect.do" class="btn-ghost-hero">회원가입</a>
-                </c:if>
-                <c:if test="${!empty login}">
-                    <a href="/reservation/list.do" class="btn-ghost-hero">내 주문 보기</a>
-                </c:if>
-            </div>
         </div>
 
         <div class="hero-card">
@@ -490,17 +481,6 @@ body {
 <!-- ── CTA ── -->
 <section class="cta-section">
     <h2>지금 바로 시작해보세요</h2>
-    <p>회원가입은 무료입니다. 매장 점주라면 입점도 환영합니다.</p>
-    <c:choose>
-        <c:when test="${empty login}">
-            <a href="/member/writeTypeSelect.do" class="btn-cta">무료 회원가입</a>
-            <a href="/store/list.do" class="btn-cta-ghost">매장 둘러보기</a>
-        </c:when>
-        <c:otherwise>
-            <a href="/store/list.do" class="btn-cta">매장 둘러보기</a>
-            <a href="/reservation/list.do" class="btn-cta-ghost">내 주문 보기</a>
-        </c:otherwise>
-    </c:choose>
 </section>
 
 </body>
