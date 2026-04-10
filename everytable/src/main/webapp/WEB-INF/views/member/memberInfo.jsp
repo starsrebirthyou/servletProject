@@ -238,9 +238,7 @@ $(function(){
 </c:if>
 
 <div class="d-flex gap-2 mt-3" style="max-width:640px;margin:12px auto 0;">
-	<a type="button" href="list.do?page=${param.page}&perPageNum=${param.perPageNum}&keyword=${param.keyword}
-		&status=${param.status}&gradeNo=${param.gradeNo}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}" 
-	    class="btn btn-success btn-sm">리스트</a>
+	<a type="button" href="list.do?page=${param.page}&perPageNum=${param.perPageNum}&keyword=${param.keyword}&status=${param.status}&gradeNo=${param.gradeNo}&dateFrom=${param.dateFrom}&dateTo=${param.dateTo}" class="btn btn-success btn-sm">리스트</a>
 </div>
 
 </body>

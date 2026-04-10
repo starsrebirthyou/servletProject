@@ -408,10 +408,16 @@ public class MemberController implements Controller {
             		session.setAttribute("msg", "로그인이 필요합니다.");
             		return "redirect:/member/loginForm.do";
             	}
-            	String targetId = request.getParameter("id");
-            	request.setAttribute("vo", Execute.execute(Init.getService(uri), targetId));
+            	String targetNo = request.getParameter("no");
+            	MemberVO memberInfoVO = (MemberVO) Execute.execute(Init.getService(uri), targetNo);
+            request.setAttribute("vo", memberInfoVO);
+            // suspensionList는 id로 조회
+            if (memberInfoVO != null) {
+                request.setAttribute("suspensionList",
+                    Execute.execute(Init.getService("/member/suspensionList.do"), memberInfoVO.getId()));
+            }
             // 정지 내역 추가
-            request.setAttribute("suspensionList", Execute.execute(Init.getService("/member/suspensionList.do"), targetId));
+            request.setAttribute("suspensionList", Execute.execute(Init.getService("/member/suspensionList.do"), targetNo));
             	return "member/memberInfo";
             	
             	

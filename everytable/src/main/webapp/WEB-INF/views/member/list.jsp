@@ -179,8 +179,11 @@ body { background-color: #f4f6f3; }
 <script type="text/javascript">
 $(function(){
 	$(".btn-detail").on("click", function(){
-		let id = $(this).closest(".dataRow").find(".col-id").text().trim();
-	    location.href = "memberInfo.do?id=" + id;
+		let no = $(this).closest(".dataRow").find(".col-no").val().trim();
+	    location.href = "memberInfo.do?no=" + no + "&page=${pageObject.page}"
+	    		+ "&perPageNum=${pageObject.perPageNum}" + "&keyword=${param.keyword}"
+	    		+ "&status=${param.status}" + "&gradeNo=${param.gradeNo}" + "&dateFrom=${param.dateFrom}"
+	    		+ "&dateTo=${param.dateTo}"
 	});
 
     /* 상태 select 변경 → 색상 변경 및 수정 버튼 표시 */
@@ -235,7 +238,7 @@ $(function(){
     $(".changeStatusBtn").on("click", function(){
         let row    = $(this).closest(".dataRow");
         let status = row.find(".status").val();
-        let id     = row.find(".col-id").text().trim();
+        let id     = row.find(".col-no").text().trim();
 
         if(status === "정지"){
             // 모달 열기
@@ -271,7 +274,7 @@ $(function(){
             alert("정지 사유를 입력해 주세요."); return;
         }
 
-        let id = pendingStatusRow.find(".col-id").text().trim();
+        let id = pendingStatusRow.find(".col-no").text().trim();
         $.ajax({
             url : "changeStatus.do",
             method : "POST",
@@ -294,7 +297,7 @@ $(function(){
     /* 등급 수정 버튼 클릭 */
     $(".changeGradeNoBtn").on("click", function(){
         let row      = $(this).closest(".dataRow");
-        let id      = row.find(".col-id").text().trim();
+        let id      = row.find(".col-no").text().trim();
         let gradeNo = row.find(".gradeNo").val();
         let params = "id=" + id + "&gradeNo=" + gradeNo;
         params += "&page=${pageObject.page}&perPageNum=${pageObject.perPageNum}";
@@ -399,6 +402,9 @@ $(function(){
         </c:if>
         <c:forEach items="${list}" var="vo" varStatus="vs">
             <tr class="dataRow">
+                <td style="display:none;">
+        				<input type="hidden" class="col-no" value="${vo.no}">
+    				</td>
                 <td>${pageObject.startRow + vs.index}</td>
                 <td>
                     <div class="d-flex align-items-center gap-2">
@@ -443,11 +449,7 @@ $(function(){
                 </td>
                 <td>${vo.joinDate}</td>
                 <td>
-                    <span class="btn-detail noMove" 
-                    		onclick="location='memberInfo.do?id=${vo.id}&page=${pageObject.page}
-                    		&perPageNum=${pageObject.perPageNum}&keyword=${param.keyword}
-                    		&status=${param.status}&gradeNo=${param.gradeNo}&dateFrom=${param.dateFrom}
-                    		&dateTo=${param.dateTo}'">상세보기</span>
+                    <span class="btn-detail noMove">상세보기</span>
                 </td>
             </tr>
         </c:forEach>
