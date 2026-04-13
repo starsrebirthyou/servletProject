@@ -139,8 +139,7 @@ public class PaymentController implements Controller {
                     
                     if(payIdstr != null && !payIdstr.trim().equals("")) {
                         vo.setPayment_id(Long.parseLong(payIdstr));
-                        vo.setStatus(request.getParameter("status"));
-                        Execute.execute(Init.getService(uri), vo);
+                     
                     }
                     
                     request.getSession().setAttribute("msg", "상태가 변경되었습니다.");
