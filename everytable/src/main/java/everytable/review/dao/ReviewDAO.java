@@ -15,12 +15,13 @@ public class ReviewDAO extends DAO {
 	            con = DB.getConnection();
 	            // is_deleted 컬럼을 SELECT 항목에 추가했습니다.
 	            String sql = "SELECT r.review_id as no, r.content, r.user_id, m.name as user_name, "
-	                       + " r.store_id, r.rating, r.is_deleted, " 
+	                       + " r.store_id, s.store_name, r.rating, r.is_deleted, " 
 	                       + " TO_CHAR(r.created_at, 'yyyy-mm-dd') created_at "
-	                       + " FROM review r, member m "
+	                       + " FROM review r, member m. store s "
 	                       + " WHERE r.user_id = m.id "
 	                       + " AND r.store_id = ? "
 	                       + " AND r.is_deleted = 0 "
+	                       + " AND r.store_id = s.store_id "
 	                       + " ORDER BY r.review_id DESC ";
 
 	            pstmt = con.prepareStatement(sql);
@@ -36,6 +37,7 @@ public class ReviewDAO extends DAO {
 	                resultVO.setUserId(rs.getString("user_id"));
 	                resultVO.setUserName(rs.getString("user_name"));
 	                resultVO.setStoreId(rs.getLong("store_id"));
+	                resultVO.setStoreName(rs.getString("store_name"));
 	                resultVO.setRating(rs.getDouble("rating"));
 	                resultVO.setIsDeleted(rs.getInt("is_deleted"));
 	                resultVO.setCreatedAt(rs.getString("created_at"));
@@ -57,12 +59,13 @@ public class ReviewDAO extends DAO {
 	         // AS-IS: 회원이 없으면 리뷰도 안 나옴
 	            StringBuilder sql = new StringBuilder();
 	            sql.append("SELECT r.review_id as no, r.content, r.user_id, m.name as user_name, ");
-	            sql.append(" r.store_id, r.store_name, r.rating, r.is_deleted, ");
+	            sql.append(" r.store_id, s.store_name, r.rating, r.is_deleted, ");
 	            sql.append(" TO_CHAR(r.created_at, 'yyyy-mm-dd') created_at ");
-	            sql.append(" FROM review r, member m ");
+	            sql.append(" FROM review r, member m, store s ");
 	            sql.append(" WHERE r.user_id = m.id ");
 	            sql.append(" AND r.user_id = ? ");
 	            sql.append(" AND r.is_deleted = 0 ");
+	            sql.append(" AND r.store_id = s.store_id ");
 	            sql.append(" ORDER BY r.review_id DESC ");
 
 	            pstmt = con.prepareStatement(sql.toString());
@@ -99,15 +102,14 @@ public class ReviewDAO extends DAO {
 	        try {
 	            con = DB.getConnection();
 	            // store_name 컬럼이 누락되지 않았는지, VALUES의 ? 개수가 맞는지 확인
-	            String sql = "INSERT INTO review (review_id, content, user_id, store_id, store_name, rating, is_deleted, created_at) " 
+	            String sql = "INSERT INTO review (review_id, content, user_id, store_id, rating, is_deleted, created_at) " 
 	                       + " VALUES (review_seq.nextval, ?, ?, ?, ?, ?, 0, SYSDATE)";
 	            
 	            pstmt = con.prepareStatement(sql);
 	            pstmt.setString(1, vo.getContent());  
 	            pstmt.setString(2, vo.getUserId());   
 	            pstmt.setLong(3, vo.getStoreId());    
-	            pstmt.setString(4, vo.getStoreName()); // ⭐ 여기가 null이면 DB에 안 쌓입니다.
-	            pstmt.setDouble(5, vo.getRating()); 
+	            pstmt.setDouble(4, vo.getRating()); 
 	            
 	            result = pstmt.executeUpdate();
 	        } catch (Exception e) {
@@ -123,9 +125,9 @@ public class ReviewDAO extends DAO {
         try {
             con = DB.getConnection();
 
-            String sql = "SELECT review_id as no, content, user_id, store_id, rating, "
-                       + " TO_CHAR(created_at, 'yyyy-mm-dd') created_at "
-                       + " FROM review WHERE review_id = ?";
+            String sql = "SELECT r.review_id as no, r.content, r.user_id, r.store_id, s.store_name, r.rating, "
+                       + " TO_CHAR(r.created_at, 'yyyy-mm-dd') created_at "
+                       + " FROM review r, store s WHERE (review_id = ?) AND (r.store_id = s.store_id)";
 
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, no);
@@ -137,6 +139,7 @@ public class ReviewDAO extends DAO {
                 vo.setContent(rs.getString("content"));
                 vo.setUserId(rs.getString("user_id"));
                 vo.setStoreId(rs.getLong("store_id"));
+                vo.setStoreName(rs.getString("store_name"));
                 vo.setRating(rs.getDouble("rating"));
                 vo.setCreatedAt(rs.getString("created_at"));
             }

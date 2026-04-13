@@ -128,7 +128,7 @@
           <c:if test="${login.gradeNo == 9}">
             <li class="nav-item"><a class="nav-link" href="/member/list.do">회원관리</a></li>
             <li class="nav-item"><a class="nav-link" href="/stats/dashboard.do">대시보드</a></li>
-            <li class="nav-item"><a class="nav-link" href="/shop/list.do">매장관리</a></li>
+            <li class="nav-item"><a class="nav-link" href="/store/list.do">매장관리</a></li>
             <li class="nav-item"><a class="nav-link" href="/payment/list.do">사용자결제내역</a></li>
           </c:if>
 
