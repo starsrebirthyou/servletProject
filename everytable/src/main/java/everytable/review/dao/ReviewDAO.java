@@ -54,15 +54,18 @@ public class ReviewDAO extends DAO {
 	        try {
 	            con = DB.getConnection();
 	            // store 테이블 조인을 빼서 데이터 누락을 방지했습니다.
-	            String sql = "SELECT r.review_id as no, r.content, r.user_id, m.name as user_name, "
-	                    + " r.store_id, r.store_name, r.rating, r.is_deleted, " // ✅ r.store_name 추가!
-	                    + " TO_CHAR(r.created_at, 'yyyy-mm-dd') created_at "
-	                    + " FROM review r, member m "
-	                    + " WHERE r.user_id = m.id "
-	                    + " AND r.user_id = ? "
-	                    + " AND r.is_deleted = 0 "
-	                    + " ORDER BY r.review_id DESC ";
-	            pstmt = con.prepareStatement(sql);
+	         // AS-IS: 회원이 없으면 리뷰도 안 나옴
+	            StringBuilder sql = new StringBuilder();
+	            sql.append("SELECT r.review_id as no, r.content, r.user_id, m.name as user_name, ");
+	            sql.append(" r.store_id, r.store_name, r.rating, r.is_deleted, ");
+	            sql.append(" TO_CHAR(r.created_at, 'yyyy-mm-dd') created_at ");
+	            sql.append(" FROM review r, member m ");
+	            sql.append(" WHERE r.user_id = m.id ");
+	            sql.append(" AND r.user_id = ? ");
+	            sql.append(" AND r.is_deleted = 0 ");
+	            sql.append(" ORDER BY r.review_id DESC ");
+
+	            pstmt = con.prepareStatement(sql.toString());
 	            pstmt.setString(1, vo.getUserId());
 
 	            rs = pstmt.executeQuery();
@@ -90,11 +93,12 @@ public class ReviewDAO extends DAO {
 
 	    // 2. 리뷰 등록
 	 // ReviewDAO.java의 write 메서드
+	 // ReviewDAO.java 내 write 메서드
 	    public Integer write(ReviewVO vo) throws Exception {
 	        Integer result = 0;
 	        try {
 	            con = DB.getConnection();
-	            // ✅ 쿼리에 store_name 컬럼 추가
+	            // store_name 컬럼이 누락되지 않았는지, VALUES의 ? 개수가 맞는지 확인
 	            String sql = "INSERT INTO review (review_id, content, user_id, store_id, store_name, rating, is_deleted, created_at) " 
 	                       + " VALUES (review_seq.nextval, ?, ?, ?, ?, ?, 0, SYSDATE)";
 	            
@@ -102,7 +106,7 @@ public class ReviewDAO extends DAO {
 	            pstmt.setString(1, vo.getContent());  
 	            pstmt.setString(2, vo.getUserId());   
 	            pstmt.setLong(3, vo.getStoreId());    
-	            pstmt.setString(4, vo.getStoreName()); // ✅ 매장 이름 세팅
+	            pstmt.setString(4, vo.getStoreName()); // ⭐ 여기가 null이면 DB에 안 쌓입니다.
 	            pstmt.setDouble(5, vo.getRating()); 
 	            
 	            result = pstmt.executeUpdate();

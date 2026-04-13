@@ -60,21 +60,26 @@ public class ReviewController implements Controller {
 
                 // 4. 리뷰 작성 처리
                  // ReviewController.java의 case "/review/write.do":
+                 // ReviewController.java 내 수정
                 case "/review/write.do":
                     if (login == null) return "member/loginForm";
                     
                     ReviewVO writeVO = new ReviewVO();
-                    writeVO.setStoreId(Long.parseLong(storeIdStr));
                     writeVO.setUserId(login.getId());
                     writeVO.setContent(request.getParameter("content"));
                     writeVO.setRating(Double.parseDouble(request.getParameter("rating")));
                     
-                    // ✅ 추가: 폼에서 넘어온 storeName 파라미터를 수집합니다.
+                    // storeId 숫자로 변환
+                    writeVO.setStoreId(Long.parseLong(request.getParameter("storeId")));
+                    
+                    // ⭐ 중요: 폼(JSP)에서 넘겨준 storeName 파라미터를 정확히 받음
                     String storeName = request.getParameter("storeName");
                     writeVO.setStoreName(storeName); 
                     
+                    System.out.println("DEBUG: DB에 저장될 매장명 -> " + storeName); // 콘솔에서 확인용
+
                     Execute.execute(Init.getService(uri), writeVO);
-                    return "redirect:storeList.do?storeId=" + storeIdStr;
+                    return "redirect:storeList.do?storeId=" + request.getParameter("storeId");
                     
                 case "/review/writeForm.do":
                     // 2. 작성 폼으로 갈 때도 이름 파라미터를 받아 request에 세팅

@@ -23,6 +23,7 @@
         
         <form action="write.do" method="post" id="reviewForm">
             <!-- ✅ 핵심 수정: 매장 이름을 서버로 넘기기 위한 hidden 필드 -->
+            <input type="hidden" name="storeId" value="${storeId}">
             <input type="hidden" name="storeName" id="storeNameInput" value="${storeName}">
 
 
