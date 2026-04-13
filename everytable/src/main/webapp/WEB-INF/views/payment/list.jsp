@@ -3,60 +3,21 @@
 <%@ taglib prefix="pageNav" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>결제 내역</title>
-
 <style type="text/css">
-    /* 1. 테이블 전체 모서리 둥글게 */
-    .table {
-        border-collapse: separate; 
-        border-spacing: 0;
-        border-radius: 15px;
-        overflow: hidden;
-        border: 1px solid #dee2e6;
-        width: 100%;
-        margin-top: 20px;
-    }
-
-    /* 2. 제목 줄 스타일 (기존 table-dark 대신 적용됨) */
-    .table thead th {
-        background-color: #f8f9fa !important;
-        color: #333 !important;
-        padding: 15px;
-        border-bottom: 2px solid #dee2e6;
-        text-align: center;
-        font-weight: bold;
-    }
-
-    /* 3. 데이터 줄 스타일 */
-    .table tbody td {
-        padding: 12px;
-        vertical-align: middle;
-        text-align: center;
-        border-top: 1px solid #dee2e6;
-    }
-
-    /* 4. 마우스 오버 효과 */
-    .dataRow:hover {
-        cursor: pointer;
-        background-color: #f1f3f5 !important;
-    }
-
-    /* 5. 상태 배지 동글동글 */
-    .badge {
-        padding: 0.5em 0.8em;
-        border-radius: 50rem !important; 
-        font-size: 0.85em;
-    }
+    .table { border-collapse: separate; border-spacing: 0; border-radius: 15px; overflow: hidden; border: 1px solid #dee2e6; width: 100%; margin-top: 20px; }
+    .table thead th { background-color: #f8f9fa !important; color: #333 !important; padding: 15px; border-bottom: 2px solid #dee2e6; text-align: center; font-weight: bold; }
+    .table tbody td { padding: 12px; vertical-align: middle; text-align: center; border-top: 1px solid #dee2e6; }
+    .dataRow:hover { cursor: pointer; background-color: #f1f3f5 !important; }
+    .badge { padding: 0.5em 0.8em; border-radius: 50rem !important; font-size: 0.85em; }
 </style>
 
 <script type="text/javascript">
 $(function(){
-    // 1. 행 클릭 시 상세보기
     $(".dataRow").click(function(){
         let no = $(this).find(".payment_id").text();
         location.href = "view.do?no=" + no 
@@ -64,7 +25,6 @@ $(function(){
                       + "&key=${pageObject.key}&word=${pageObject.word}";
     });
 
-    // 2. 검색 데이터
     <c:if test="${!empty pageObject.key && !empty pageObject.word }">
         $("#key").val("${pageObject.key}");
         $("#word").val("${pageObject.word}");
@@ -74,9 +34,15 @@ $(function(){
 </head>
 <body>
 
-    <h2 class="mb-1 fw-normal border-bottom pb-2">결제 내역</h2>
+    <h2 class="mb-1 fw-normal border-bottom pb-2">
+        <c:choose>
+            <c:when test="${login.gradeNo == 9}">결제 관리 (전체)</c:when>
+            <c:otherwise>나의 결제 내역</c:otherwise>
+        </c:choose>
+    </h2>
     
-    <%-- 검색창 영역 --%>
+    <%-- 검색창 영역: 관리자(9등급)만 보이게 처리 --%>
+    <c:if test="${login.gradeNo == 9}">
     <div class="mb-3">
         <form action="list.do" method="get" class="d-inline-flex">
             <input type="hidden" name="perPageNum" value="${pageObject.perPageNum }">
@@ -92,13 +58,14 @@ $(function(){
             </div>
         </form>
     </div>
+    </c:if>
     
-    <%-- 리스트 테이블 --%>
     <table class="table">
         <thead>
             <tr>
                 <th>주문번호</th>
-                <th>아이디</th>
+                <%-- 관리자일 때만 아이디 열 표시 --%>
+                <c:if test="${login.gradeNo == 9}"><th>아이디</th></c:if>
                 <th>결제수단</th>
                 <th>결제금액</th>
                 <th>상태</th>
@@ -109,7 +76,7 @@ $(function(){
         <c:choose>
             <c:when test="${empty list}">
                 <tr>
-                    <td colspan="6" class="text-center">결제 내역이 존재하지 않습니다.</td>
+                    <td colspan="${login.gradeNo == 9 ? 6 : 5}" class="text-center">결제 내역이 존재하지 않습니다.</td>
                 </tr>
             </c:when>
             <c:otherwise>
@@ -117,11 +84,12 @@ $(function(){
                     <tr class="dataRow">
                         <td>${vo.order_id}</td> 
                         <td class="payment_id" style="display:none;">${vo.payment_id}</td>
-                        <td>${vo.user_id}</td>
+                        <%-- 관리자일 때만 아이디 데이터 표시 --%>
+                        <c:if test="${login.gradeNo == 9}"><td>${vo.user_id}</td></c:if>
                         <td>${vo.method}</td>
                         <td class="fw-bold text-primary">
-    						<fmt:formatNumber value="${vo.amount}" pattern="#,###" />원
-						</td>
+                            <fmt:formatNumber value="${vo.amount}" pattern="#,###" />원
+                        </td>
                         <td>
                             <c:choose>
                                 <c:when test="${vo.status == 'SUCCESS'}">
@@ -135,7 +103,7 @@ $(function(){
                                 </c:otherwise>
                             </c:choose>
                         </td>
-                        <td>${vo.payDate}</td>
+                        <td><fmt:formatDate value="${vo.payDate}" pattern="yyyy-MM-dd HH:mm" /></td>
                     </tr>
                 </c:forEach>
             </c:otherwise>
@@ -143,7 +111,6 @@ $(function(){
         </tbody>
     </table>
     
-    <%-- 페이지네이션 --%>
     <div class="d-flex justify-content-center">
         <pageNav:pageNav listURI="list.do" pageObject="${pageObject}" />
     </div>

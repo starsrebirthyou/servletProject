@@ -1,6 +1,7 @@
 package everytable.payment.dao;
 
 import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import everytable.main.dao.DAO;
@@ -133,7 +134,7 @@ public class PaymentDAO extends DAO {
         int result = 0;
         con = DB.getConnection();
         
-        // 1. 시퀀스 번호 뽑기
+        // 1. 시퀀스 번호 딱 한 번만 뽑기 (이 번호가 주문번호이자 결제번호가 됩니다)
         String seqSql = "SELECT PAYMENT_SEQ.NEXTVAL FROM DUAL";
         pstmt = con.prepareStatement(seqSql);
         rs = pstmt.executeQuery();
@@ -143,33 +144,36 @@ public class PaymentDAO extends DAO {
         if(pstmt != null) pstmt.close();
         
         // 2. 부모(ORDERS) 테이블 입력
+        // ★ RES_NO 자리에 NULL 대신 newId(또는 vo에 담긴 예약번호)를 넣어주면 관리하기 좋습니다.
         String orderSql = "INSERT INTO ORDERS (ORDER_ID, STORE_ID, USER_ID, TOTAL_PRICE, CREATED_AT, RES_NO) "
-                        + "VALUES (?, ?, ?, ?, SYSDATE, NULL)";
+                        + "VALUES (?, ?, ?, ?, SYSDATE, ?)"; 
         pstmt = con.prepareStatement(orderSql);
-        pstmt.setLong(1, newId);
-        pstmt.setLong(2, vo.getStoreid());
+        pstmt.setLong(1, newId);           
+        pstmt.setLong(2, vo.getStoreid()); 
         pstmt.setString(3, vo.getUser_id());
         pstmt.setLong(4, vo.getAmount());
+        pstmt.setLong(5, newId);           // RES_NO에 일단 ID를 매칭 (나중에 조인용)
         pstmt.executeUpdate();
         pstmt.close();
 
-        // 3. 자식(PAYMENT) 테이블 입력 
-        // ★ PICKUP_DATE 컬럼과 물음표(?)를 추가했습니다 ★
+        // 3. 자식(PAYMENT) 테이블 입력
         String paySql = "INSERT INTO PAYMENT (PAYMENT_ID, ORDER_ID, USER_ID, AMOUNT, METHOD, STATUS, PAY_DATE, PICKUP_DATE) "
-                      + "VALUES (PAYMENT_SEQ.NEXTVAL, ?, ?, ?, ?, 'SUCCESS', SYSDATE, ?)";
+                      + "VALUES (?, ?, ?, ?, ?, ?, SYSDATE, ?)";
         
         pstmt = con.prepareStatement(paySql);
-        pstmt.setLong(1, newId);               // ORDER_ID
-        pstmt.setString(2, vo.getUser_id());     // USER_ID
-        pstmt.setLong(3, vo.getAmount());        // AMOUNT
-        pstmt.setString(4, vo.getMethod());      // METHOD
+        pstmt.setLong(1, newId);           // PAYMENT_ID
+        pstmt.setLong(2, newId);           // ORDER_ID (FK)
+        pstmt.setString(3, vo.getUser_id());
+        pstmt.setLong(4, vo.getAmount());   
+        pstmt.setString(5, vo.getMethod()); 
+        pstmt.setString(6, vo.getStatus()); 
         
-        // ★ [핵심] VO에 담긴 픽업 날짜를 DB 형식에 맞춰 넣어줍니다 ★
+        // 7번: PICKUP_DATE (시분초 포함)
         if (vo.getPickupDate() != null) {
-            pstmt.setTimestamp(5, new java.sql.Timestamp(vo.getPickupDate().getTime()));
+            // 컨트롤러에서 가공해서 넘겨준 시분초 포함 날짜를 그대로 세팅
+            pstmt.setTimestamp(7, (Timestamp) vo.getPickupDate());
         } else {
-            // 날짜가 없으면 현재 시간이라도 넣어줍니다 (에러 방지)
-            pstmt.setTimestamp(5, new java.sql.Timestamp(System.currentTimeMillis()));
+            pstmt.setTimestamp(7, new java.sql.Timestamp(System.currentTimeMillis()));
         }
         
         result = pstmt.executeUpdate();

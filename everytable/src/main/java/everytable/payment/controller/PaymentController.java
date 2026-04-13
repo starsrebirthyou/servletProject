@@ -19,23 +19,47 @@ public class PaymentController implements Controller {
             Long no;
 
             switch (uri) {
-                case "/payment/list.do":
-                    PageObject pageObject = PageObject.getInstance(request);
-                    request.setAttribute("list", Execute.execute(Init.getService(uri), pageObject));
-                    request.setAttribute("pageObject", pageObject);
-                    return "payment/list";
+            case "/payment/list.do":
+                // 1. 페이지 정보 생성
+                PageObject pageObject = PageObject.getInstance(request);
+                
+                // 2. 세션에서 로그인 정보 꺼내기
+                // (세션에 "login"이라는 이름으로 LoginVO 객체가 저장되어 있어야 합니다)
+                LoginVO login = (LoginVO) request.getSession().getAttribute("login");
+
+                // 3. 권한에 따른 데이터 필터링 (핵심!)
+                // 관리자(9등급)가 아니라면 무조건 본인 아이디로 검색되게 강제 설정
+                if (login != null && login.getGradeNo() != 9) {
+                    pageObject.setKey("u");             // 검색 키를 '아이디(u)'로 고정
+                    pageObject.setWord(login.getId());  // 검색어를 '내 아이디'로 고정
+                }
+
+                // 4. 서비스 실행
+                request.setAttribute("list", Execute.execute(Init.getService(uri), pageObject));
+                request.setAttribute("pageObject", pageObject);
+                
+                return "payment/list";
 
                 case "/payment/view.do":
+                    // 1. 번호 가져오기
                     no = Long.parseLong(request.getParameter("no"));
-                    // 중복 호출 제거: 한 번만 가져와서 변수에 담기
+                    
+                    // 2. DB에서 데이터 가져오기 (한 번만 실행)
                     vo = (PaymentVO) Execute.execute(Init.getService(uri), no);
                     
+                    // 3. 시간 차이 계산 로직 (여기에 추가!)
                     if (vo != null && vo.getPickupDate() != null) {
-                        long now = new java.util.Date().getTime();
-                        long pickup = vo.getPickupDate().getTime();
+                        long now = new java.util.Date().getTime(); // 현재 시간
+                        long pickup = vo.getPickupDate().getTime(); // DB에 저장된 픽업 시간
+                        
+                        // 밀리초를 시간 단위로 변환 (1000ms * 60s * 60m)
                         long diffHours = (pickup - now) / (1000 * 60 * 60);
+                        
+                        // JSP에서 ${diffHours}로 쓸 수 있게 보냄
                         request.setAttribute("diffHours", diffHours);
                     }
+                    
+                    // 4. VO 객체 전달 및 이동
                     request.setAttribute("vo", vo);
                     return "payment/view";
 
@@ -54,41 +78,42 @@ public class PaymentController implements Controller {
                 case "/payment/write.do":
                     try {
                         vo = new PaymentVO();
-                        vo.setOrder_id(Long.parseLong(request.getParameter("order_id")));
+                        // 1. 금액, 유저, 결제수단 세팅 (ID는 세팅하지 마세요!)
                         vo.setAmount(Long.parseLong(request.getParameter("amount")));
                         vo.setUser_id(request.getParameter("user_id"));
                         vo.setMethod(request.getParameter("method"));
                         
-                        // store_id 세팅
                         String storeIdStr = request.getParameter("store_id");
-                        if(storeIdStr != null && !storeIdStr.isEmpty()) {
-                            vo.setStoreid(Long.parseLong(storeIdStr));
-                        } else {
-                            vo.setStoreid(73L); 
-                        }
+                        vo.setStoreid((storeIdStr != null && !storeIdStr.isEmpty()) ? Long.parseLong(storeIdStr) : 73L);
                         
-                        // ★ 수정: DAO와 맞게 초기 상태를 "결제대기"로 설정 ★
-                        vo.setStatus("status"); 
+                        vo.setStatus("SUCCESS"); 
                         
-                        String pDate = request.getParameter("pickupDate");
-                        if(pDate != null && !pDate.isEmpty()) {
-                            vo.setPickupDate(java.sql.Date.valueOf(pDate));
+                        // 2. ★ 픽업 예정일 처리 ★
+                        String pDate = request.getParameter("pickupDate"); 
+                        if(pDate != null && !pDate.trim().isEmpty()) {
+                            try {
+                                // "/" -> " " 변환 및 초(:00) 추가
+                                String formattedDate = pDate.replace("/", " ");
+                                if(formattedDate.length() == 16) formattedDate += ":00";
+                                
+                                vo.setPickupDate(java.sql.Timestamp.valueOf(formattedDate));
+                            } catch (Exception e) {
+                                vo.setPickupDate(new java.sql.Timestamp(System.currentTimeMillis()));
+                            }
                         } else {
-                            vo.setPickupDate(new java.sql.Date(System.currentTimeMillis()));
+                            vo.setPickupDate(new java.sql.Timestamp(System.currentTimeMillis()));
                         }
 
                         Execute.execute(Init.getService(uri), vo);
-                        
-                        // 메시지도 "완료"보다는 "접수" 느낌으로 수정하면 더 자연스럽습니다.
-                        request.getSession().setAttribute("msg", "결제 요청이 접수되었습니다! 매장 승인을 기다려주세요.");
+                        request.getSession().setAttribute("msg", "결제 요청이 접수되었습니다!");
                         return "redirect:list.do";
+                        
                     } catch (Exception e) {
                         e.printStackTrace();
                         throw new Exception("결제 처리 중 오류: " + e.getMessage());
                     }
-                   
                 case "/payment/updateForm.do":
-                    LoginVO login = (LoginVO) request.getSession().getAttribute("login");
+                    login = (LoginVO) request.getSession().getAttribute("login");
                     if (login == null || login.getGradeNo() != 9) {
                         request.getSession().setAttribute("msg", "관리자만 접근 가능합니다.");
                         return "redirect:list.do";
