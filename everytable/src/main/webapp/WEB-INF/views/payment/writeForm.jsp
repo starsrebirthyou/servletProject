@@ -11,14 +11,16 @@
 </head>
 <body>
 <div class="container mt-5">
-    <form action="write.do" method="post" id="finalOrderForm">
-        <input type="hidden" name="order_id" value="${param.resNo}">
-        <input type="hidden" name="amount" value="${param.totalPrice}">
-        <input type="hidden" name="user_id" value="${login.id}">
-        <input type="hidden" name="pickupDate" id="pickupDate" value="${param.pickupDate}">
-        <input type="hidden" name="store_id" value="${param.storeId}">
-        
-        <div class="card shadow-sm mx-auto" style="max-width: 500px; border-radius: 20px; border: none;">
+ <form action="write.do" method="post" id="finalOrderForm">
+ <%
+        String pDate = request.getParameter("pickupDate");
+    %>
+    <input type="hidden" name="pickupDate" value="<%= request.getParameter("pickupDate") %>">
+    <input type="hidden" name="resNo" value="${param.resNo}">
+    <input type="hidden" name="amount" value="${param.totalPrice}">
+    <input type="hidden" name="user_id" value="${login.id}">
+    <input type="hidden" name="store_id" value="${param.storeId}">
+       <div class="card shadow-sm mx-auto" style="max-width: 500px; border-radius: 20px; border: none;">
             <div class="card-body p-4">
                 <div class="text-center mb-4">
                     <div class="display-4 mb-2">💳</div>

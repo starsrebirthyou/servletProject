@@ -366,17 +366,25 @@ public class ReservationController implements Controller {
 				String fOrderAdd = request.getParameter("orderAdd");
 				String fStoreId = request.getParameter("storeId");
 				String fTotalPrice = request.getParameter("totalPrice");
+
+				
+				ReservationVO dbVO = (ReservationVO) Execute.execute(Init.getService("/reservation/view.do"), fResNo);
+				
+				
+				String fPickupDate = dbVO.getResDate() + " / " + dbVO.getResTime();
+
 				// switch문 상단의 vo 변수 재사용
 				vo11 = new ReservationVO();
 				vo11.setResNo(fResNo);
 				vo11.setOrderAdd(fOrderAdd);
-
 				// 서비스 실행 (금액 합산 및 orderAdd 업데이트)
 				Execute.execute(Init.getService(uri), vo11);
 
 				// 결제 페이지로 이동 (resNo와 storeId를 들고 갑니다)
-				return "redirect:/payment/writeForm.do?resNo=" + fResNo + "&storeId=" + fStoreId + "&totalPrice="
-						+ fTotalPrice;
+				return "redirect:/payment/writeForm.do?resNo=" + fResNo 
+						+ "&storeId=" + fStoreId 
+						+ "&totalPrice=" + fTotalPrice 
+						+ "&pickupDate=" + fPickupDate; // 이제 절대 null 안 뜹니다.
 			default:
 				// 정의되지 않은 URI인 경우 404 페이지로 유도하여 NPE 방지
 				return "error/404";

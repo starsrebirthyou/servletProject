@@ -134,54 +134,70 @@ public class PaymentDAO extends DAO {
         int result = 0;
         con = DB.getConnection();
         
-        // 1. 시퀀스 번호 딱 한 번만 뽑기 (이 번호가 주문번호이자 결제번호가 됩니다)
+        // 1. 공통으로 사용할 번호 뽑기 (주문번호이자 결제번호의 기준)
         String seqSql = "SELECT PAYMENT_SEQ.NEXTVAL FROM DUAL";
         pstmt = con.prepareStatement(seqSql);
         rs = pstmt.executeQuery();
         long newId = 0;
-        if(rs.next()) newId = rs.getLong(1); 
+        if(rs.next()) newId = rs.getLong(1);
+        
+        // 사용한 리소스 정리
         if(rs != null) rs.close();
         if(pstmt != null) pstmt.close();
-        
-        // 2. 부모(ORDERS) 테이블 입력
-        // ★ RES_NO 자리에 NULL 대신 newId(또는 vo에 담긴 예약번호)를 넣어주면 관리하기 좋습니다.
-        String orderSql = "INSERT INTO ORDERS (ORDER_ID, STORE_ID, USER_ID, TOTAL_PRICE, CREATED_AT, RES_NO) "
-                        + "VALUES (?, ?, ?, ?, SYSDATE, ?)"; 
-        pstmt = con.prepareStatement(orderSql);
-        pstmt.setLong(1, newId);           
-        pstmt.setLong(2, vo.getStoreid()); 
-        pstmt.setString(3, vo.getUser_id());
-        pstmt.setLong(4, vo.getAmount());
-        pstmt.setLong(5, newId);           // RES_NO에 일단 ID를 매칭 (나중에 조인용)
-        pstmt.executeUpdate();
-        pstmt.close();
 
-        // 3. 자식(PAYMENT) 테이블 입력
-        String paySql = "INSERT INTO PAYMENT (PAYMENT_ID, ORDER_ID, USER_ID, AMOUNT, METHOD, STATUS, PAY_DATE, PICKUP_DATE) "
-                      + "VALUES (?, ?, ?, ?, ?, ?, SYSDATE, ?)";
-        
-        pstmt = con.prepareStatement(paySql);
-        pstmt.setLong(1, newId);           // PAYMENT_ID
-        pstmt.setLong(2, newId);           // ORDER_ID (FK)
-        pstmt.setString(3, vo.getUser_id());
-        pstmt.setLong(4, vo.getAmount());   
-        pstmt.setString(5, vo.getMethod()); 
-        pstmt.setString(6, vo.getStatus()); 
-        
-        // 7번: PICKUP_DATE (시분초 포함)
-        if (vo.getPickupDate() != null) {
-            // 컨트롤러에서 가공해서 넘겨준 시분초 포함 날짜를 그대로 세팅
-            pstmt.setTimestamp(7, (Timestamp) vo.getPickupDate());
-        } else {
-            pstmt.setTimestamp(7, new java.sql.Timestamp(System.currentTimeMillis()));
+        try {
+            // [트랜잭션 시작] 둘 다 성공해야 저장되도록 설정
+            con.setAutoCommit(false);
+
+            // 2. 부모(ORDERS) 테이블 입력
+            // 자식(PAYMENT)이 참조할 '기본키'를 먼저 생성합니다.
+            String orderSql = "INSERT INTO ORDERS (ORDER_ID, STORE_ID, USER_ID, TOTAL_PRICE, CREATED_AT) "
+                            + "VALUES (?, ?, ?, ?, SYSDATE)"; 
+            pstmt = con.prepareStatement(orderSql);
+            pstmt.setLong(1, newId);           // 이게 부모 키!
+            pstmt.setLong(2, vo.getStoreid()); 
+            pstmt.setString(3, vo.getUser_id());
+            pstmt.setLong(4, vo.getAmount());
+            pstmt.executeUpdate();
+            pstmt.close();
+
+            // 3. 자식(PAYMENT) 테이블 입력
+            // 부모 키(newId)를 그대로 가져다 씁니다.
+            String paySql = "INSERT INTO PAYMENT (PAYMENT_ID, ORDER_ID, USER_ID, AMOUNT, METHOD, STATUS, PAY_DATE, PICKUP_DATE) "
+                          + "VALUES (PAYMENT_SEQ.NEXTVAL, ?, ?, ?, ?, ?, SYSDATE, ?)";
+            
+            pstmt = con.prepareStatement(paySql);
+            pstmt.setLong(1, newId);           // 부모(ORDERS)의 ID와 연결 (FK)
+            pstmt.setString(2, vo.getUser_id());
+            pstmt.setLong(3, vo.getAmount());
+            pstmt.setString(4, vo.getMethod());
+            pstmt.setString(5, vo.getStatus());
+            
+            // ★ 짬뽕의 핵심: 컨트롤러에서 조립해온 그 픽업 날짜!
+            if (vo.getPickupDate() != null) {
+                pstmt.setTimestamp(6, new java.sql.Timestamp(vo.getPickupDate().getTime()));
+            } else {
+                pstmt.setTimestamp(6, new java.sql.Timestamp(System.currentTimeMillis()));
+            }
+            
+            result = pstmt.executeUpdate();
+
+            // 4. 모든 작업 성공 시 실제 반영
+            con.commit();
+            System.out.println("★ 짬뽕 완료! 주문번호 " + newId + "번 결제 성공!");
+
+        } catch (Exception e) {
+            // 하나라도 터지면 없던 일로!
+            con.rollback();
+            e.printStackTrace();
+            throw e;
+        } finally {
+            con.setAutoCommit(true);
+            DB.close(con, pstmt);
         }
-        
-        result = pstmt.executeUpdate();
-        DB.close(con, pstmt, rs);
         
         return result;
     }
-    
     public int cancel(Long payment_id) throws Exception {
     	int result=0;
     	con= DB.getConnection();

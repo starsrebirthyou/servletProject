@@ -85,7 +85,10 @@ body {
 				type="hidden" name="storeId" value="${storeId}">
 				<input type="hidden" name="totalPrice" value="${total}">
 			<textarea name="orderAdd" id="hiddenOrderAdd" style="display: none;"></textarea>
-
+			
+			<input type="hidden" name="pickupDate" value="${vo.resDate} / ${vo.resTime}">
+			
+			
 			<button type="button" onclick="confirmFinalOrder()"
 				class="btn btn-success btn-lg w-100 py-3 fw-bold shadow-sm">
 				✅ 취합 완료 및 결제하기</button>

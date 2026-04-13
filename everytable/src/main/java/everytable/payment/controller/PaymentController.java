@@ -74,43 +74,48 @@ public class PaymentController implements Controller {
 
                     request.setAttribute("vo", vo); // 이제 JSP에서 ${vo.amount}로 나옵니다!
                     return "payment/writeForm";
-
                 case "/payment/write.do":
                     try {
                         vo = new PaymentVO();
-                        // 1. 금액, 유저, 결제수단 세팅 (ID는 세팅하지 마세요!)
+                        
+                        // 1. JSP에서 보낸 이름(pickupDate) 그대로 가져오기
+                        String rawDate = request.getParameter("pickupDate");
+                        System.out.println("★ 긴급 체포 로그: [" + rawDate + "]");
+                        
                         vo.setAmount(Long.parseLong(request.getParameter("amount")));
                         vo.setUser_id(request.getParameter("user_id"));
+                        vo.setOrder_id(Long.parseLong(request.getParameter("resNo")));
                         vo.setMethod(request.getParameter("method"));
-                        
-                        String storeIdStr = request.getParameter("store_id");
-                        vo.setStoreid((storeIdStr != null && !storeIdStr.isEmpty()) ? Long.parseLong(storeIdStr) : 73L);
-                        
-                        vo.setStatus("SUCCESS"); 
-                        
-                        // 2. ★ 픽업 예정일 처리 ★
-                        String pDate = request.getParameter("pickupDate"); 
-                        if(pDate != null && !pDate.trim().isEmpty()) {
+                        vo.setStatus("SUCCESS");
+                        vo.setStoreid(Long.parseLong(request.getParameter("store_id")));
+
+                        // 2. 받은 날짜 데이터 가공하기
+                        if (rawDate != null && rawDate.contains("/")) {
                             try {
-                                // "/" -> " " 변환 및 초(:00) 추가
-                                String formattedDate = pDate.replace("/", " ");
-                                if(formattedDate.length() == 16) formattedDate += ":00";
+                                // "/" 앞뒤로 쪼개기 (이게 substring보다 훨씬 안전합니다)
+                                String[] parts = rawDate.split("/");
+                                String datePart = parts[0].trim(); // "2026-04-13"
+                                String timePart = parts[1].trim(); // "18:00"
                                 
-                                vo.setPickupDate(java.sql.Timestamp.valueOf(formattedDate));
+                                String finalStr = datePart + " " + timePart + ":00";
+                                vo.setPickupDate(java.sql.Timestamp.valueOf(finalStr));
+                                System.out.println("★ 조립 성공: " + finalStr);
                             } catch (Exception e) {
                                 vo.setPickupDate(new java.sql.Timestamp(System.currentTimeMillis()));
                             }
+             
                         } else {
+                            System.out.println("★ 데이터가 없어서 현재시간으로 세팅됨");
                             vo.setPickupDate(new java.sql.Timestamp(System.currentTimeMillis()));
                         }
 
                         Execute.execute(Init.getService(uri), vo);
-                        request.getSession().setAttribute("msg", "결제 요청이 접수되었습니다!");
+                        request.getSession().setAttribute("msg", "결제가 완료되었습니다!");
                         return "redirect:list.do";
-                        
+
                     } catch (Exception e) {
                         e.printStackTrace();
-                        throw new Exception("결제 처리 중 오류: " + e.getMessage());
+                        throw new Exception("결제 처리 오류: " + e.getMessage());
                     }
                 case "/payment/updateForm.do":
                     login = (LoginVO) request.getSession().getAttribute("login");
