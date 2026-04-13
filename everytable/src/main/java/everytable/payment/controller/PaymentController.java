@@ -128,6 +128,8 @@ public class PaymentController implements Controller {
 
                 case "/payment/update.do":
                     LoginVO loginForUpdate = (LoginVO) request.getSession().getAttribute("login");
+                    
+                    // 1. 권한 체크
                     if (loginForUpdate == null || loginForUpdate.getGradeNo() != 9) {
                         request.getSession().setAttribute("msg", "권한이 없습니다.");
                         return "redirect:list.do";
@@ -139,10 +141,19 @@ public class PaymentController implements Controller {
                     
                     if(payIdstr != null && !payIdstr.trim().equals("")) {
                         vo.setPayment_id(Long.parseLong(payIdstr));
-                     
+                        
+                        // ★ [여기에 추가!!] 파라미터로 넘어온 새 금액(amount)이 있다면 세팅합니다.
+                        String amountStr = request.getParameter("amount");
+                        if(amountStr != null && !amountStr.trim().equals("")) {
+                            vo.setAmount(Long.parseLong(amountStr));
+                        }
+                        
+                        // ★ [중요] 실제로 DB를 업데이트하는 서비스 실행 코드가 누락되어 있네요! 
+                        // 아래 한 줄을 꼭 넣어줘야 DB에 반영됩니다.
+                        Execute.execute(Init.getService(uri), vo); 
                     }
                     
-                    request.getSession().setAttribute("msg", "상태가 변경되었습니다.");
+                    request.getSession().setAttribute("msg", "정보가 변경되었습니다.");
                     return "redirect:view.do?no=" + payIdstr + "&" + PageObject.getInstance(request).getPageQuery();
 
                 case "/payment/cancel.do":

@@ -207,7 +207,7 @@ public class ReservationController implements Controller {
 			            }
 			        }
 			    }
-
+			   
 			    session.setAttribute("msg", "예약 수정이 완료되었습니다.");
 			    return "redirect:view.do?no=" + resNo;
 
