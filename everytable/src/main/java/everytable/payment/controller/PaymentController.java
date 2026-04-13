@@ -80,7 +80,6 @@ public class PaymentController implements Controller {
                         
                         // 1. JSP에서 보낸 이름(pickupDate) 그대로 가져오기
                         String rawDate = request.getParameter("pickupDate");
-                        System.out.println("★ 긴급 체포 로그: [" + rawDate + "]");
                         
                         vo.setAmount(Long.parseLong(request.getParameter("amount")));
                         vo.setUser_id(request.getParameter("user_id"));
