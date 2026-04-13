@@ -344,7 +344,7 @@ body { background-color: #f8f9fa; }
 				<div class="info-grid">
 					<div class="info-cell">
 						<div class="lbl">방문 예정일</div>
-						<div class="val green">${vo.resDate}${vo.resTime}</div>
+						<div class="val green">${vo.resDate} / ${vo.resTime}</div>
 					</div>
 					<div class="info-cell">
 						<div class="lbl">예약 인원</div>
