@@ -66,7 +66,7 @@ public class MemberController implements Controller {
                     session.setAttribute("dormantRedirectUrl", redirectUrl);
                     return "redirect:/member/dormantAuthForm.do";
                 }
-
+                
                 session.setAttribute("login", loginVO);
                 Execute.execute(Init.getService("/member/updateLastLogin.do"), loginVO.getId());
                 session.setAttribute("msg", loginVO.getName() + "님, 환영합니다.");
