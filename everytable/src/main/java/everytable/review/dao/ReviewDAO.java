@@ -17,7 +17,7 @@ public class ReviewDAO extends DAO {
 	            String sql = "SELECT r.review_id as no, r.content, r.user_id, m.name as user_name, "
 	                       + " r.store_id, s.store_name, r.rating, r.is_deleted, " 
 	                       + " TO_CHAR(r.created_at, 'yyyy-mm-dd') created_at "
-	                       + " FROM review r, member m. store s "
+	                       + " FROM review r, member m, store s "
 	                       + " WHERE r.user_id = m.id "
 	                       + " AND r.store_id = ? "
 	                       + " AND r.is_deleted = 0 "
