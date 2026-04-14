@@ -103,7 +103,7 @@ public class ReviewDAO extends DAO {
 	            con = DB.getConnection();
 	            // store_name 컬럼이 누락되지 않았는지, VALUES의 ? 개수가 맞는지 확인
 	            String sql = "INSERT INTO review (review_id, content, user_id, store_id, rating, is_deleted, created_at) " 
-	                       + " VALUES (review_seq.nextval, ?, ?, ?, ?, ?, 0, SYSDATE)";
+	                       + " VALUES (review_seq.nextval, ?, ?, ?, ?, 0, SYSDATE)";
 	            
 	            pstmt = con.prepareStatement(sql);
 	            pstmt.setString(1, vo.getContent());  
