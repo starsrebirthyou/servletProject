@@ -389,7 +389,7 @@ public class MemberDAO extends DAO {
                 vo.setNo(rs.getLong("no"));
                 vo.setId(rs.getString("id"));
                 vo.setName(rs.getString("name"));
-                vo.setTel(rs.getString("email"));
+                vo.setEmail(rs.getString("email"));
                 vo.setStatus(rs.getString("status"));
                 vo.setGradeNo(rs.getInt("grade_no"));
                 vo.setGradeName(rs.getString("grade_name"));
