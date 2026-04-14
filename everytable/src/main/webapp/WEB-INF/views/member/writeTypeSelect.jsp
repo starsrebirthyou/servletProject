@@ -82,13 +82,13 @@ body { background-color: #f4f6f3; }
 
     <div class="type-cards">
         <div class="type-card member" onclick="location.href='writeForm.do?gradeNo=1'">
-            <div class="icon-box"><i class="fa fa-user"></i></div>
+            <div class="icon-box"><i class="fas fa-user"></i></div>
             <h5>일반회원</h5>
             <p>서비스 이용</p>
             <button class="btn-select">일반회원 가입</button>
         </div>
         <div class="type-card owner" onclick="location.href='writeForm.do?gradeNo=2'">
-            <div class="icon-box"><i class="fa fa-store"></i></div>
+            <div class="icon-box"><i class="fas fa-store"></i></div>
             <h5>매장점주</h5>
             <p>매장 운영</p>
             <button class="btn-select">매장점주 가입</button>
