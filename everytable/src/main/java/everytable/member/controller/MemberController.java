@@ -410,7 +410,7 @@ public class MemberController implements Controller {
                 }
                 vo = new MemberVO();
                 vo.setId(loginVO.getId());
-                vo.setPw(request.getParameter("curPw"));    // 현재 비밀번호
+                vo.setPw(request.getParameter("pw"));    // 현재 비밀번호
                 vo.setNewPw(request.getParameter("newPw")); // 새 비밀번호
              
                 // changePw(vo, 1) → 현재 비밀번호 검증 포함

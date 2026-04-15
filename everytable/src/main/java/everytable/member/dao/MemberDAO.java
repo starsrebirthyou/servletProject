@@ -248,13 +248,10 @@ public class MemberDAO extends DAO {
         // 새 비밀번호 해시화 후 저장
         String hashedPw = BCrypt.hashpw(vo.getNewPw(), BCrypt.gensalt());
         String sql = "UPDATE member SET pw = ? WHERE id = ?";
-        if (user == 1) sql += " AND pw = ?";
         
         pstmt = con.prepareStatement(sql);
         pstmt.setString(1, hashedPw);
         pstmt.setString(2, vo.getId());
-        
-        if (user == 1) pstmt.setString(3, vo.getPw());
         result = pstmt.executeUpdate();
         
         DB.close(con, pstmt);

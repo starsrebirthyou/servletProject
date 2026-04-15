@@ -93,7 +93,7 @@ $(function(){
         $.ajax({
             url: "/member/changePw.do",
             method: "POST",
-            data: { curPw: curPw, newPw: newPw },
+            data: { pw: curPw, newPw: newPw },
             success: function(data){
                 let result = $(data).find("#ajax-data-result").text().trim();
                 if(result === "ok"){
@@ -288,7 +288,7 @@ $(function(){
                    placeholder="현재 비밀번호">
         </div>
         <div class="mb-2">
-            <input type="password" class="form-control form-control-sm" id="newPw"
+            <input type="password" class="form-control form-control-sm" id="newPw" name="pw" 
                    placeholder="새 비밀번호 (4~20자)">
         </div>
         <div class="mb-3">
