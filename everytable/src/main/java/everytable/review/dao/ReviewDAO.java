@@ -17,7 +17,7 @@ public class ReviewDAO extends DAO {
 	            String sql = "SELECT r.review_id as no, r.content, r.user_id, m.name as user_name, "
 	                       + " r.store_id, s.store_name, r.rating, r.is_deleted, " 
 	                       + " TO_CHAR(r.created_at, 'yyyy-mm-dd') created_at "
-	                       + " FROM review r, member m. store s "
+	                       + " FROM review r, member m, store s "
 	                       + " WHERE r.user_id = m.id "
 	                       + " AND r.store_id = ? "
 	                       + " AND r.is_deleted = 0 "
@@ -103,7 +103,7 @@ public class ReviewDAO extends DAO {
 	            con = DB.getConnection();
 	            // store_name 컬럼이 누락되지 않았는지, VALUES의 ? 개수가 맞는지 확인
 	            String sql = "INSERT INTO review (review_id, content, user_id, store_id, rating, is_deleted, created_at) " 
-	                       + " VALUES (review_seq.nextval, ?, ?, ?, ?, ?, 0, SYSDATE)";
+	                       + " VALUES (review_seq.nextval, ?, ?, ?, ?, 0, SYSDATE)";
 	            
 	            pstmt = con.prepareStatement(sql);
 	            pstmt.setString(1, vo.getContent());  
