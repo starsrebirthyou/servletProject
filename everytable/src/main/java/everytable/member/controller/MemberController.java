@@ -603,20 +603,13 @@ public class MemberController implements Controller {
                 vo = new MemberVO();
                 vo.setId(request.getParameter("id"));
                 
-                // 파기 회원 등급 변경 차단
-                MemberVO targetMember = (MemberVO) Execute.execute(Init.getService("/member/view.do"), vo.getId());
-                if (targetMember != null && "파기".equals(targetMember.getStatus())) {
-                    session.setAttribute("msg", "개인정보가 파기된 회원의 등급은 변경할 수 없습니다.");
-                    return "redirect:list.do";
-                }
-                
                 if (vo.getId().equals(loginId)) {
                     session.setAttribute("msg", "로그인한 관리자의 등급은 변경할 수 없습니다.");
                     queryString = "page=" + request.getParameter("page")
                     + "&perPageNum=" + request.getParameter("perPageNum")
                     + "&keyword=" + URLEncoder.encode(request.getParameter("keyword") != null ? request.getParameter("keyword") : "", "UTF-8")
                     + "&status=" + URLEncoder.encode(request.getParameter("status") != null ? request.getParameter("status") : "", "UTF-8")
-                    + "&gradeNo=" + (request.getParameter("gradeNo") != null ? request.getParameter("gradeNo") : "")
+                    + "&gradeNo=" + (request.getParameter("filterGradeNo") != null ? request.getParameter("filterGradeNo") : "")
                     + "&dateFrom=" + (request.getParameter("dateFrom") != null ? request.getParameter("dateFrom") : "")
                     + "&dateTo=" + (request.getParameter("dateTo") != null ? request.getParameter("dateTo") : "");
                     return "redirect:list.do?" + queryString;

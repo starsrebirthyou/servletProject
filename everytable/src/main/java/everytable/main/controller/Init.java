@@ -188,6 +188,7 @@ public class Init extends HttpServlet {
 		serviceMap.get("/member/resetPw.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/changeTel.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/changeEmail.do").setDAO(daoMap.get("memberDAO"));
+		serviceMap.get("/member/changePw.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/withdraw.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/memberInfo.do").setDAO(daoMap.get("memberDAO"));
 		serviceMap.get("/member/adminResetPw.do").setDAO(daoMap.get("memberDAO"));
